@@ -17,13 +17,13 @@ There are already some papers doing text to face generation:
 - [TediGAN: Text-Guided Diverse Face Image Generation and Manipulation](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=9163356)
 - [Zero-Shot Text-to-Image Generation (DALL-E)](https://arxiv.org/abs/2102.12092)
 
-We for our part want to train and fine tune an existing model architecture from one of the papers above. The generated images should look authentic and match the level of "photofits" (or phantom images, in German "Phantombilder") of real police workers or lawyers. The text should include descriptive criteria, e.g. pointy nose, bald, blue eyes, wide mouth, long eyebrows or brown eyes.
+We want to train and fine tune an existing model architecture from one of the papers above. The generated images should look authentic and match the level of "photofits" (or phantom images, in German "Phantombilder") of real police workers or lawyers. The input text should include descriptive criteria, e.g. pointy nose, bald, blue eyes, wide mouth, long eyebrows or curly hair.
 
-So the first part will be to classifiy / detect important attributes from the text – which is given as an accurate description (i.e. one or more sentences) – and embed them into the latent feature space.
+The first part will be to classifiy / detect important attributes from the text – which is given as an accurate description (i.e. one or more sentences) – and embed them into the latent feature space.
 
 The second part will be the generative part using a VAE or GAN to synthesize images from the textual embeddings.
 
-This is interesting due to building upon existing algorithms and support the work of police workers. Also, pretrained networks are not available.
+This task is interesting due the real use case, that if it works it could support the work of police workers. Also, pretrained networks are not available and training/ building upon existing algorithms and trying to achieve the same or a higher baseline is a challenge we look forward to.
 
 ## Dataset
 
@@ -33,17 +33,17 @@ We want to use :
 - [celebA HQ](http://mmlab.ie.cuhk.edu.hk/projects/CelebA/CelebAMask_HQ.html#:~:text=CelebAMask%2DHQ%20is%20a%20large,facial%20attributes%20corresponding%20to%20CelebA.)
 - [LSW](http://vis-www.cs.umass.edu/lfw/)
 
-During the training we probably want to combine the datasets or compare each one with our chosen network. Also we want to do some research to find some datasets which maybe fit better to our task due to more descriptive labels.
+During the training we want to combine the datasets or compare each one with our chosen network. Also we want to do some research to find some datasets which maybe fit better to our task due to more descriptive labels.
 
 ## Approach
 
-First, we want to use the model from the [Semantic Text-to-Face GAN-ST2FG](https://arxiv.org/pdf/2107.10756.pdf) paper and re-implement it with Pytorch since it out performs all the other networks in their related works comparison and we could not find a better one yet. 
+First, we want to use the model from the [Semantic Text-to-Face GAN-ST2FG](https://arxiv.org/pdf/2107.10756.pdf) paper and re-implement it with Pytorch since it out performs all the other networks in their related works comparison. 
 
-Second, we want to train the unmodified model with the baseline configuration on the different datasets and also on a compostion of them. The goal would be to reproduce the baseline results.
+Second, we want to train the unmodified model with the baseline configuration on the different datasets and also on a compostion of them. The goal is to reproduce the baseline results.
 
 Third, we want to "optimize" or fine tune the hyperparameters to see if we can achieve a better score than the existing model.
 
-Fourth, we want to overthink the model based on our observations and try to optimize it in respect to our task – generating authentic photofits.
+Fourth, we want to rethink the model based on our observations and try to optimize it in respect to our task – generating authentic photofits.
 
 Moreover, we want to adapt and optimize the textual embeddings to make them appropriate for face descriptions. If we find a better dataset with more accurate labels we want to adapt the text embeddings to those labels and also optimize the GAN as described above.
 
@@ -53,4 +53,4 @@ We will evaluate the baseline and our adapted networks with exiting metrics like
 
 ## Hardware
 
-We have access to a private machine. We are not sure if its enough. We consider the option to use Azure for Students or the cip pool.
+We have access to a private machine. We are not sure if its sufficient. We consider the option to use Azure for Students or the cip pool.
