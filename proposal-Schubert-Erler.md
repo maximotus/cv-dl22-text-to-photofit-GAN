@@ -1,6 +1,6 @@
 # Project Proposal: Schubert and Erler
 
-# Highly descriptive text-to-face generation to sythezise authentic faces (photofits for criminology purposes) via a GAN
+# Highly Descriptive text-to-face Generation to Synthezise Authentic Faces (photofits for criminology purposes) via a GAN
 
 ## Team
 
@@ -23,7 +23,7 @@ The first part will be to classifiy / detect important attributes from the text 
 
 The second part will be the generative part using a VAE or GAN to synthesize images from the textual embeddings.
 
-This task is interesting due the real use case, that if it works it could support the work of police workers. Also, pretrained networks are not available and training/ building upon existing algorithms and trying to achieve the same or a higher baseline is a challenge we look forward to.
+This task is interesting due to the real use case, that if it works it could support the work of police workers. Also, pretrained networks are not available and training/ building upon existing algorithms and trying to achieve the same or a higher baseline is a challenge we look forward to.
 
 ## Dataset
 
@@ -53,4 +53,4 @@ We will evaluate the baseline and our adapted networks with exiting metrics like
 
 ## Hardware
 
-We have access to a private machine. We are not sure if its sufficient. We consider the option to use Azure for Students or the cip pool.
+We have access to a private machine. We are not sure if it's sufficient. We consider the option to use Azure for Students or the cip pool.
