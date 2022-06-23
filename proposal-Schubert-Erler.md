@@ -47,7 +47,7 @@ Fourth, we want to overthink the model based on our observations and try to opti
 
 Moreover, we want to adapt and optimize the textual embeddings to make them appropriate for face descriptions. If we find a better dataset with more accurate labels we want to adapt the text embeddings to those labels and also optimize the GAN as described above.
 
-## Evaluation and Expected Resutls
+## Evaluation and Expected Results
 
 We will evaluate the baseline and our adapted networks with exiting metrics like FID, LPIPS, BRISQUE and Manipulative precision metric. Moreover we will try to compose a new metric that can evaluate the usability for criminology purposes.
 
