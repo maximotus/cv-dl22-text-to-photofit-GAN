@@ -61,3 +61,6 @@ wincertstore=0.2=py39haa95532_2
 xz=5.2.5=h8cc25b3_1
 zlib=1.2.12=h8cc25b3_2
 zstd=1.5.2=h19a0ad4_0
+
+yaml~=0.2.5
+pyyaml~=6.0
