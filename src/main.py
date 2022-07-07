@@ -34,4 +34,14 @@ if __name__ == '__main__':
 
     print(config.get('learning_rate'))
 
+    # TODO build experiment name
+    # config_file_name + timestamp
+
+    # TODO copy config to experiment folder
+
+    # TODO create sub dirs
+    # experiment_path / stats
+    # experiment_path / ckpt
+    # experiment_path / logs
+
 

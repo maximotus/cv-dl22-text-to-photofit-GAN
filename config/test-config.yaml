@@ -1,1 +1,21 @@
 learning_rate: 0.001
+batch_size: 128
+epochs: 500
+optimizer: Adam
+noise_size: 128
+image_size: 64
+dataset: celebA
+model:
+  name: DCGAN
+  parameters:
+    dropout: 0.2
+    alpha: 0.1
+    beta1: 0.1
+    ngf: 64
+    ndf: 64
+    use_spectral_norm: False
+device: auto # (cuda / cpu / auto)
+experiment_path: ./experiemnts
+frequencies:
+  save_freq: 1 # (i.e. how often should the model checkpoint be saved, in epochs)
+  gen_freq: 1 # (i.e. how often should test images be generated, in epochs)
