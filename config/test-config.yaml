@@ -15,7 +15,7 @@ model:
     ndf: 64
     use_spectral_norm: False
 device: auto # (cuda / cpu / auto)
-experiment_path: ./experiemnts
+experiment_path: ..\experiments
 frequencies:
   save_freq: 1 # (i.e. how often should the model checkpoint be saved, in epochs)
   gen_freq: 1 # (i.e. how often should test images be generated, in epochs)
