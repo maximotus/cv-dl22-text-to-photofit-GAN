@@ -4,7 +4,6 @@ import sys
 import yaml
 
 from datetime import datetime
-
 from src.log import setup_logger
 from src.training.training import train
 
