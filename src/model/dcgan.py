@@ -1,6 +1,6 @@
 import torch
 
-from src.error import ConfigurationError
+from error import ConfigurationError
 from torch.optim import Adam, Adagrad, SGD
 
 VALID_OPTIMIZER_NAMES = {'Adam': Adam, 'Adagrad': Adagrad, 'SGD': SGD}

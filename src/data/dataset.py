@@ -3,7 +3,6 @@ import torchvision
 import torchvision.transforms as transforms
 
 from urllib.error import URLError
-
 from torch.utils.data import DataLoader
 
 

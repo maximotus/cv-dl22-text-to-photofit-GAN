@@ -1,9 +1,9 @@
 import logging
 
-from src.data.dataset import CelebA, CelebAHQ, LSW
-from src.error import ConfigurationError
-from src.model.dcgan import DCGAN
-from src.model.tedi_gan import TediGAN
+from data.dataset import CelebA, CelebAHQ, LSW
+from error import ConfigurationError
+from model.dcgan import DCGAN
+from model.tedi_gan import TediGAN
 from torch.nn import BCELoss, CrossEntropyLoss
 from tqdm.auto import tqdm
 

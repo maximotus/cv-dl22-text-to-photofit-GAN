@@ -5,9 +5,9 @@ import yaml
 
 from datetime import datetime
 
-from src.error import ConfigurationError
-from src.log import setup_logger
-from src.training.training import Trainer
+from error import ConfigurationError
+from log import setup_logger
+from training.training import Trainer
 
 MODEL_KEY = 'model'
 MODEL_NAME_KEY = 'name'
