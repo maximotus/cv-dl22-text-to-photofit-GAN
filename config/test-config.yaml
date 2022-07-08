@@ -2,6 +2,7 @@ learning_rate: 0.001
 batch_size: 128
 epochs: 500
 optimizer: Adam
+criterion: BCELoss
 noise_size: 128
 image_size: 64
 dataset: celebA
