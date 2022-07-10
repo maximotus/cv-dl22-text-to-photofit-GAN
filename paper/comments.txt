@@ -1,0 +1,8 @@
+1705: 
+    CycleGAN
+    description of network architecture
+    use mnist to validate their model works on a simpler task
+1919: 
+    DCNN
+    architecture based on another paper
+    use 3 datasets: MS-Celeb-1M, UMD Faces, IJB-C
