@@ -31,7 +31,8 @@ We want to use :
 
 - [celebA](https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html)
 - [celebA HQ](http://mmlab.ie.cuhk.edu.hk/projects/CelebA/CelebAMask_HQ.html#:~:text=CelebAMask%2DHQ%20is%20a%20large,facial%20attributes%20corresponding%20to%20CelebA.)
-- [LSW](http://vis-www.cs.umass.edu/lfw/)
+- [LFW](http://vis-www.cs.umass.edu/lfw/)
+- [MAAD-Face](https://github.com/pterhoer/MAAD-Face) (highly annotated composition of celebA, LFW and more)
 
 During the training we want to combine the datasets or compare each one with our chosen network. Also we want to do some research to find some datasets which maybe fit better to our task due to more descriptive labels.
 
