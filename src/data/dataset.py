@@ -17,12 +17,12 @@ class CelebA:
         ])
 
         try:
-            data = torchvision.datasets.CelebA(root='../data', split='all',
+            data = torchvision.datasets.CelebA(root='../../data', split='all',
                                                target_type=['attr', 'identity', 'bbox', 'landmarks'],
                                                transform=transform, download=True)
         except URLError:
             ssl._create_default_https_context = ssl._create_unverified_context
-            data = torchvision.datasets.CelebA(root='../data', split='all',
+            data = torchvision.datasets.CelebA(root='../../data', split='all',
                                                target_type=['attr', 'identity', 'bbox', 'landmarks'],
                                                transform=transform, download=True)
 
