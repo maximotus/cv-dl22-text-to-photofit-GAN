@@ -25,6 +25,9 @@ class Trainer:
         if dataset_name not in VALID_DATASET_NAMES:
             raise ConfigurationError('Specified dataset is not valid. Valid datasets: ' + str(VALID_DATASET_NAMES))
 
+        if criterion_name not in VALID_CRITERION_NAMES:
+            raise ConfigurationError('Specified criterion is not valid. Valid loss functions: ' + str(VALID_CRITERION_NAMES))
+
         self.model = VALID_MODEL_NAMES[model_name](model_params, optimizer_name, image_size, learning_rate, device_name)
         self.dataset = VALID_DATASET_NAMES[dataset_name](image_size, batch_size)
         self.criterion = VALID_CRITERION_NAMES[criterion_name]()
