@@ -49,6 +49,20 @@ class Trainer:
 
         for epoch in tqdm(range(self.epochs), desc='Epoch'):
             for step, batch in enumerate(tqdm(self.dataset.data_loader, desc='Batch')):
+                # TODO this only works with the implemented celebA configuration
+                images = batch[0]
+                attributes = batch[1][0]
+                identities = batch[1][1]
+                bboxes = batch[1][2]
+                landmarks = batch[1][3]
+
+                # TODO remove the following prints (they are for development purposes only)
+                print(images.shape)
+                print(attributes.shape)
+                print(identities.shape)
+                print(bboxes.shape)
+                print(landmarks.shape)
+
                 # TODO self.model.fit()
                 # in fit(), the forward pass, loss calculation and backpropagation should be done
                 raise NotImplementedError
