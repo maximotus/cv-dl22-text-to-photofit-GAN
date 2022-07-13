@@ -25,6 +25,9 @@ class Trainer:
         if dataset_name not in VALID_DATASET_NAMES:
             raise ConfigurationError('Specified dataset is not valid. Valid datasets: ' + str(VALID_DATASET_NAMES))
 
+        if criterion_name not in VALID_CRITERION_NAMES:
+            raise ConfigurationError('Specified criterion is not valid. Valid loss functions: ' + str(VALID_CRITERION_NAMES))
+
         self.model = VALID_MODEL_NAMES[model_name](model_params, optimizer_name, image_size, learning_rate, device_name)
         self.dataset = VALID_DATASET_NAMES[dataset_name](image_size, batch_size)
         self.criterion = VALID_CRITERION_NAMES[criterion_name]()
@@ -46,6 +49,20 @@ class Trainer:
 
         for epoch in tqdm(range(self.epochs), desc='Epoch'):
             for step, batch in enumerate(tqdm(self.dataset.data_loader, desc='Batch')):
+                # TODO this only works with the implemented celebA configuration
+                images = batch[0]
+                attributes = batch[1][0]
+                identities = batch[1][1]
+                bboxes = batch[1][2]
+                landmarks = batch[1][3]
+
+                # TODO remove the following prints (they are for development purposes only)
+                print(images.shape)
+                print(attributes.shape)
+                print(identities.shape)
+                print(bboxes.shape)
+                print(landmarks.shape)
+
                 # TODO self.model.fit()
                 # in fit(), the forward pass, loss calculation and backpropagation should be done
                 raise NotImplementedError

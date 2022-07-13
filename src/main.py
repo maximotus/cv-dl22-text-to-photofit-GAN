@@ -79,11 +79,12 @@ if __name__ == '__main__':
                           configuration.get(FREQUENCIES_KEY).get(GEN_FREQUENCY_KEY),
                           configuration.get(IMAGE_SIZE_KEY),
                           experiment_path)
-    except AttributeError as e:
-        exc_type, exc_obj, exc_tb = sys.exc_info()
-        file_name = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        logger.error('Could not interpret configuration file properly: ' + str(exc_type) + ' ' + str(file_name) +
-                     ' ' + str(exc_tb.tb_lineno) + ' ' + str(e))
+        trainer.train()
+    # except AttributeError as e:
+    #     exc_type, exc_obj, exc_tb = sys.exc_info()
+    #     file_name = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+    #     logger.error('Could not interpret configuration file properly or some other error occurred: ' + str(exc_type) + ' ' + str(file_name) +
+    #                  ' ' + str(exc_tb.tb_lineno) + ' ' + str(e))
     except ConfigurationError as e:
         logger.error(e)
 
