@@ -17,7 +17,7 @@ model:
     emb_dim: 32
     z_channels: 128
     use_spectral_norm: False
-device: auto # (cuda / cpu / auto)
+device: cpu # (cuda / cpu / auto)
 experiment_path: ..\experiments
 frequencies:
   save_freq: 1 # (i.e. how often should the model checkpoint be saved, in epochs)

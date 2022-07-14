@@ -7,7 +7,7 @@ from model.tedi_gan import TediGAN
 from tqdm.auto import tqdm
 
 logger = logging.getLogger('root')
-VALID_MODEL_NAMES = {'DCGAN': CDCGAN, 'tediGAN': TediGAN}
+VALID_MODEL_NAMES = {'CDCGAN': CDCGAN, 'tediGAN': TediGAN}
 VALID_DATASET_NAMES = {'celebA': CelebA, 'celebA_HQ': CelebAHQ, 'LSW': LSW}
 
 
@@ -25,7 +25,7 @@ class Trainer:
 
         self.dataset = VALID_DATASET_NAMES[dataset_name](image_size, batch_size)
         self.model = VALID_MODEL_NAMES[model_name](model_params, optimizer_name, learning_rate, criterion_name,
-                                                   device_name, self.dataset.class_mapping)
+                                                   device_name, len(self.dataset.attribute_to_idx))
 
         self.model_name = model_name
         self.model_params = model_params
@@ -57,6 +57,12 @@ class Trainer:
                 print(identities.shape)
                 print(bboxes.shape)
                 print(landmarks.shape)
+
+                # print(images)
+                print(attributes)
+                # print(identities)
+                # print(bboxes)
+                # print(landmarks)
 
                 # TODO self.model.fit()
                 # in fit(), the forward pass, loss calculation and backpropagation should be done

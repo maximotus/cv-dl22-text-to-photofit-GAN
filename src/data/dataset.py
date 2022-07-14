@@ -1,9 +1,11 @@
+import linecache
 import ssl
 import torchvision
 import torchvision.transforms as transforms
 
-from urllib.error import URLError
+from itertools import islice
 from torch.utils.data import DataLoader
+from urllib.error import URLError
 
 
 class CelebA:
@@ -28,7 +30,9 @@ class CelebA:
 
         self.data_loader = DataLoader(data, batch_size=batch_size, shuffle=True)
         self.length = len(data)
-        self.class_mapping = data.class_to_idx
+
+        attributes = linecache.getline(r'../../data/celeba/list_attr_celeba.txt', 2).strip().split(' ')
+        self.attribute_to_idx = dict(zip(attributes, range(len(attributes))))
 
 
 class CelebAHQ:
