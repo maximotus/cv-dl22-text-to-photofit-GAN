@@ -210,13 +210,24 @@ class CDCGAN:
                                            nf=self.ndf, num_classes=self.num_classes, dropout=self.dropout)
         self.discriminator.apply(weight_init)
         self.discriminator.to(self.device)
-        self.discriminator_optimizer = Adam(self.discriminator.parameters(), lr=self.lr, betas=(self.beta1, 0.999))
+        self.discriminator_optimizer = VALID_OPTIMIZER_NAMES[optimizer_name](self.discriminator.parameters(),
+                                                                             lr=self.lr, betas=(self.beta1, 0.999))
 
         # initialize generator network
         self.generator = Generator(z_channels=self.z_channels, nf=self.ngf, num_classes=self.num_classes)
         self.generator.apply(weight_init)
         self.generator.to(self.device)
-        self.generator_optimizer = Adam(self.generator.parameters(), lr=self.lr, betas=(self.beta1, 0.999))
+        self.generator_optimizer = VALID_OPTIMIZER_NAMES[optimizer_name](self.generator.parameters(),
+                                                                         lr=self.lr, betas=(self.beta1, 0.999))
+
+        # initialize state attributes
+        self.average_losses = {'gan': [], 'd_real': [], 'd_fake': []}
+        self.average_accuracies = {'acc_fake': [], 'acc_real': []}
+        self.fix_images = []
+
+        # fixed noise vector
+        self.z_fix = torch.randn((1, 128)).to(self.device)
+        self.c_fix = (torch.rand(self.num_classes, device=self.device) * 2.0).type(torch.long)
 
         logger.info('Successfully initialized CDCGAN')
 
