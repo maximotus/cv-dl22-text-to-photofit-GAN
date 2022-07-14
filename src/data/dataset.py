@@ -3,7 +3,6 @@ import ssl
 import torchvision
 import torchvision.transforms as transforms
 
-from itertools import islice
 from torch.utils.data import DataLoader
 from urllib.error import URLError
 
