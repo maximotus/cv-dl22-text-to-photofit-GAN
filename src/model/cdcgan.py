@@ -47,7 +47,7 @@ class SpectralNormedLinear(torch.nn.Module):
 
 
 class Discriminator(torch.nn.Module):
-    def __init__(self, conv, linear, nf=64, embed_dim=32, num_classes=10, dropout=0.0):
+    def __init__(self, conv, linear, nf=64, num_classes=10, dropout=0.0):
         super().__init__()
 
         logger.info('Initializing Discriminator...')
@@ -69,8 +69,8 @@ class Discriminator(torch.nn.Module):
                                            conv(nf * 4, nf * 8, kernel_size=(4, 4), stride=(2, 2), padding=1),
                                            torch.nn.LeakyReLU(0.1, True))
 
-        self.fc_x = linear(4*4*nf*8*4, 128)
-        self.fc_c = linear(4*4*nf*8*4, 128)
+        self.fc_x = linear(4 * 4 * nf * 8 * 4, 128)
+        self.fc_c = linear(4 * 4 * nf * 8 * 4, 128)
 
         self.final = torch.nn.Sequential(torch.nn.Dropout(dropout),
                                          linear(4 * nf, 1),
@@ -205,8 +205,7 @@ class CDCGAN:
         # initialize discriminator network
         self.discriminator = Discriminator(conv=(SpectralNormedConv2d if self.use_spectral_norm else torch.nn.Conv2d),
                                            linear=(SpectralNormedLinear if self.use_spectral_norm else torch.nn.Linear),
-                                           nf=self.ndf, embed_dim=self.emb_dim, num_classes=self.num_classes,
-                                           dropout=self.dropout)
+                                           nf=self.ndf, num_classes=self.num_classes, dropout=self.dropout)
         self.discriminator.apply(weight_init)
         self.discriminator.to(self.device)
         self.discriminator_optimizer = Adam(self.discriminator.parameters(), lr=self.lr, betas=(self.beta1, 0.999))
