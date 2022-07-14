@@ -52,35 +52,57 @@ class Discriminator(torch.nn.Module):
 
         logger.info('Initializing Discriminator...')
 
-        self.block1 = torch.nn.Sequential(conv(3, nf, kernel_size=(3, 3), stride=(1, 1), padding=1),
-                                          torch.nn.LeakyReLU(0.1, True),
-                                          conv(nf, nf * 2, kernel_size=(4, 4), stride=(2, 2), padding=1),
-                                          torch.nn.LeakyReLU(0.1, True),
-                                          conv(nf * 2, nf * 4, kernel_size=(4, 4), stride=(2, 2), padding=1),
-                                          torch.nn.LeakyReLU(0.1, True),
-                                          conv(nf * 4, nf * 8, kernel_size=(4, 4), stride=(2, 2), padding=1),
-                                          torch.nn.LeakyReLU(0.1, True))
+        self.block_x = torch.nn.Sequential(conv(3, nf, kernel_size=(3, 3), stride=(1, 1), padding=1),
+                                           torch.nn.LeakyReLU(0.1, True),
+                                           conv(nf, nf * 2, kernel_size=(4, 4), stride=(2, 2), padding=1),
+                                           torch.nn.LeakyReLU(0.1, True),
+                                           conv(nf * 2, nf * 4, kernel_size=(4, 4), stride=(2, 2), padding=1),
+                                           torch.nn.LeakyReLU(0.1, True),
+                                           conv(nf * 4, nf * 8, kernel_size=(4, 4), stride=(2, 2), padding=1),
+                                           torch.nn.LeakyReLU(0.1, True))
+        self.block_c = torch.nn.Sequential(conv(num_classes, nf, kernel_size=(3, 3), stride=(1, 1), padding=1),
+                                           torch.nn.LeakyReLU(0.1, True),
+                                           conv(nf, nf * 2, kernel_size=(4, 4), stride=(2, 2), padding=1),
+                                           torch.nn.LeakyReLU(0.1, True),
+                                           conv(nf * 2, nf * 4, kernel_size=(4, 4), stride=(2, 2), padding=1),
+                                           torch.nn.LeakyReLU(0.1, True),
+                                           conv(nf * 4, nf * 8, kernel_size=(4, 4), stride=(2, 2), padding=1),
+                                           torch.nn.LeakyReLU(0.1, True))
 
-        self.embedding = torch.nn.Embedding(num_classes, embed_dim)
+        self.fc_x = linear(4*4*nf*8*4, 128)
+        self.fc_c = linear(4*4*nf*8*4, 128)
 
-        self.block2 = torch.nn.Sequential(torch.nn.Dropout(dropout),
-                                          linear(4 * 4 * nf * 8, 128),
-                                          torch.nn.LeakyReLU(0.2, True))
-
-        self.final = torch.nn.Linear(128 + embed_dim, 1)
+        self.final = torch.nn.Sequential(torch.nn.Dropout(dropout),
+                                         linear(4 * nf, 1),
+                                         torch.nn.LeakyReLU(0.2, True),
+                                         torch.nn.Sigmoid())
 
         logger.info('Successfully initialized Discriminator...')
 
+    @staticmethod
+    def preprocess_c(c):
+        c = c.type(torch.LongTensor)
+        target = [c.size(0), c.size(1), 64, 64]
+        c = c[:, :, None, None].expand(target)
+        c = c.type(torch.float)
+        # torch.set_printoptions(profile="full")
+        # print(c)
+        return c
+
     def forward(self, x, c):
-        print(x.shape)
-        print(c.shape)
-        x = self.block1(x)
-        print(x.shape)
+        x = self.block_x(x)
         x = rearrange(x, "b c h w -> b (c h w)")
-        x = self.block2(x)
-        c = self.embedding(c)
-        x = torch.cat([x, c], dim=1)
-        return self.final(x)
+        x = self.fc_x(x)
+
+        c = self.preprocess_c(c)
+        c = self.block_c(c)
+        c = rearrange(c, "b c h w -> b (c h w)")
+        c = self.fc_c(c)
+
+        xc = torch.cat([x, c], dim=1)
+        xc = self.final(xc)
+
+        return xc
 
     def set_grad(self, status):
         for p in self.parameters():
@@ -212,6 +234,8 @@ class CDCGAN:
 
         pred_real = self.discriminator(images, targets)
         pred_fake = self.discriminator(fakes.detach(), targets)
+        print(pred_real)
+        print(pred_fake)
 
         d_real = self.criterion(pred_real, torch.ones_like(pred_real))
         d_fake = self.criterion(pred_fake, torch.zeros_like(pred_fake))
