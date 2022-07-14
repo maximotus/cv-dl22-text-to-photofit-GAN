@@ -2,15 +2,13 @@ import logging
 
 from data.dataset import CelebA, CelebAHQ, LSW
 from error import ConfigurationError
-from model.dcgan import DCGAN
+from model.cdcgan import CDCGAN
 from model.tedi_gan import TediGAN
-from torch.nn import BCELoss, CrossEntropyLoss
 from tqdm.auto import tqdm
 
 logger = logging.getLogger('root')
-VALID_MODEL_NAMES = {'DCGAN': DCGAN, 'tediGAN': TediGAN}
+VALID_MODEL_NAMES = {'DCGAN': CDCGAN, 'tediGAN': TediGAN}
 VALID_DATASET_NAMES = {'celebA': CelebA, 'celebA_HQ': CelebAHQ, 'LSW': LSW}
-VALID_CRITERION_NAMES = {'BCELoss': BCELoss, 'CrossEntropyLoss': CrossEntropyLoss}
 
 
 class Trainer:
@@ -25,12 +23,9 @@ class Trainer:
         if dataset_name not in VALID_DATASET_NAMES:
             raise ConfigurationError('Specified dataset is not valid. Valid datasets: ' + str(VALID_DATASET_NAMES))
 
-        if criterion_name not in VALID_CRITERION_NAMES:
-            raise ConfigurationError('Specified criterion is not valid. Valid loss functions: ' + str(VALID_CRITERION_NAMES))
-
-        self.model = VALID_MODEL_NAMES[model_name](model_params, optimizer_name, image_size, learning_rate, device_name)
         self.dataset = VALID_DATASET_NAMES[dataset_name](image_size, batch_size)
-        self.criterion = VALID_CRITERION_NAMES[criterion_name]()
+        self.model = VALID_MODEL_NAMES[model_name](model_params, optimizer_name, learning_rate, criterion_name,
+                                                   device_name, self.dataset.class_mapping)
 
         self.model_name = model_name
         self.model_params = model_params

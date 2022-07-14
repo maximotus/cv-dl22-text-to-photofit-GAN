@@ -1,5 +1,5 @@
 learning_rate: 0.001
-batch_size: 128
+batch_size: 8
 epochs: 500
 optimizer: Adam
 criterion: BCELoss
@@ -7,13 +7,15 @@ noise_size: 128
 image_size: 64
 dataset: celebA
 model:
-  name: DCGAN
+  name: CDCGAN
   parameters:
     dropout: 0.2
     alpha: 0.1
     beta1: 0.1
     ngf: 64
     ndf: 64
+    emb_dim: 32
+    z_channels: 128
     use_spectral_norm: False
 device: auto # (cuda / cpu / auto)
 experiment_path: ..\experiments

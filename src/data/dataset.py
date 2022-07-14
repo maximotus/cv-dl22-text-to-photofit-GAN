@@ -28,6 +28,7 @@ class CelebA:
 
         self.data_loader = DataLoader(data, batch_size=batch_size, shuffle=True)
         self.length = len(data)
+        self.class_mapping = data.class_to_idx
 
 
 class CelebAHQ:
