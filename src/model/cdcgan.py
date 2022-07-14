@@ -71,8 +71,11 @@ class Discriminator(torch.nn.Module):
 
         logger.info('Successfully initialized Discriminator...')
 
-    def forward(self, x, c=None):
+    def forward(self, x, c):
+        print(x.shape)
+        print(c.shape)
         x = self.block1(x)
+        print(x.shape)
         x = rearrange(x, "b c h w -> b (c h w)")
         x = self.block2(x)
         c = self.embedding(c)
@@ -100,17 +103,21 @@ class Generator(torch.nn.Module):
 
         self.initial_z = torch.nn.Sequential(
             torch.nn.Upsample(scale_factor=4.0),
-            torch.nn.Conv2d(z_channels, nf * 4, kernel_size=(3, 3), stride=(1, 1), padding=1),
-            torch.nn.BatchNorm2d(nf * 4)
+            torch.nn.Conv2d(z_channels, nf * 8, kernel_size=(3, 3), stride=(1, 1), padding=1),
+            torch.nn.BatchNorm2d(nf * 8)
         )
 
         self.initial_c = torch.nn.Sequential(
             torch.nn.Upsample(scale_factor=4.0),
-            torch.nn.Conv2d(num_classes, nf * 4, kernel_size=(3, 3), stride=(1, 1), padding=1),
-            torch.nn.BatchNorm2d(nf * 4)
+            torch.nn.Conv2d(num_classes, nf * 8, kernel_size=(3, 3), stride=(1, 1), padding=1),
+            torch.nn.BatchNorm2d(nf * 8)
         )
 
         self.block = torch.nn.Sequential(torch.nn.Upsample(scale_factor=2.0),
+                                         torch.nn.Conv2d(nf * 16, nf * 8, kernel_size=(3, 3), stride=(1, 1), padding=1),
+                                         torch.nn.BatchNorm2d(nf * 8),
+                                         torch.nn.ReLU(True),
+                                         torch.nn.Upsample(scale_factor=2.0),
                                          torch.nn.Conv2d(nf * 8, nf * 4, kernel_size=(3, 3), stride=(1, 1), padding=1),
                                          torch.nn.BatchNorm2d(nf * 4),
                                          torch.nn.ReLU(True),
@@ -135,14 +142,14 @@ class Generator(torch.nn.Module):
         z = self.initial_z(z)
         c = c[:, :, None, None].float()
         c = self.initial_c(c)
-        # z: [batch_size, nf * 4, 4, 4]
-        # c: [batch_size, nf * 4, 4, 4]
+        # z: [batch_size, nf * 8, 4, 4]
+        # c: [batch_size, nf * 8, 4, 4]
 
         x = torch.cat([z, c], dim=1)
-        # x: [batch_size, nf * 4 + nf * 4, 4, 4]
+        # x: [batch_size, nf * 8 + nf * 8, 4, 4]
 
         x = self.block(x)
-        # x: [batch_size, 3, 32, 32]
+        # x: [batch_size, 3, 64, 64]
         return x
 
 
