@@ -64,3 +64,6 @@ zstd=1.5.2=h19a0ad4_0
 
 yaml~=0.2.5
 pyyaml~=6.0
+torchvision~=0.11.3
+einops~=0.4.1
+tqdm~=4.64.0
