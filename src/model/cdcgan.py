@@ -80,9 +80,9 @@ class Discriminator(torch.nn.Module):
         logger.info('Successfully initialized Discriminator...')
 
     @staticmethod
-    def preprocess_c(c):
+    def preprocess_c(c, img_size):
         c = c.type(torch.LongTensor)
-        target = [c.size(0), c.size(1), 64, 64]
+        target = [c.size(0), c.size(1), img_size, img_size]
         c = c[:, :, None, None].expand(target)
         c = c.type(torch.float)
         # torch.set_printoptions(profile="full")
@@ -90,11 +90,13 @@ class Discriminator(torch.nn.Module):
         return c
 
     def forward(self, x, c):
+        img_size = x.size(2)
+
         x = self.block_x(x)
         x = rearrange(x, "b c h w -> b (c h w)")
         x = self.fc_x(x)
 
-        c = self.preprocess_c(c)
+        c = self.preprocess_c(c, img_size)
         c = self.block_c(c)
         c = rearrange(c, "b c h w -> b (c h w)")
         c = self.fc_c(c)
@@ -110,7 +112,7 @@ class Discriminator(torch.nn.Module):
 
 
 class Generator(torch.nn.Module):
-    def __init__(self, z_channels=128, nf=64, embed_dim=32, num_classes=10):
+    def __init__(self, z_channels=128, nf=64, num_classes=10):
         super().__init__()
 
         logger.info('Initializing Generator...')
@@ -211,8 +213,7 @@ class CDCGAN:
         self.discriminator_optimizer = Adam(self.discriminator.parameters(), lr=self.lr, betas=(self.beta1, 0.999))
 
         # initialize generator network
-        self.generator = Generator(z_channels=self.z_channels, nf=self.ngf, embed_dim=self.emb_dim,
-                                   num_classes=self.num_classes)
+        self.generator = Generator(z_channels=self.z_channels, nf=self.ngf, num_classes=self.num_classes)
         self.generator.apply(weight_init)
         self.generator.to(self.device)
         self.generator_optimizer = Adam(self.generator.parameters(), lr=self.lr, betas=(self.beta1, 0.999))
