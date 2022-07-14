@@ -90,6 +90,26 @@ class Generator(torch.nn.Module):
 
         logger.info('Initializing Generator...')
 
+        # self.initial_z = torch.nn.Sequential(
+        #     torch.nn.ConvTranspose2d(z_channels, nf * 8, (4, 4), (1, 1), (0, 0), bias=False),
+        #     torch.nn.BatchNorm2d(nf * 8))
+        # self.initial_c = torch.nn.Sequential(
+        #     torch.nn.ConvTranspose2d(num_classes, nf * 8, (4, 4), (1, 1), (0, 0), bias=False),
+        #     torch.nn.BatchNorm2d(nf * 8)
+        # )
+
+        self.initial_z = torch.nn.Sequential(
+            torch.nn.Upsample(scale_factor=4.0),
+            torch.nn.Conv2d(z_channels, nf * 4, kernel_size=(3, 3), stride=(1, 1), padding=1),
+            torch.nn.BatchNorm2d(nf * 4)
+        )
+
+        self.initial_c = torch.nn.Sequential(
+            torch.nn.Upsample(scale_factor=4.0),
+            torch.nn.Conv2d(num_classes, nf * 4, kernel_size=(3, 3), stride=(1, 1), padding=1),
+            torch.nn.BatchNorm2d(nf * 4)
+        )
+
         self.embedding = torch.nn.Embedding(num_classes, embed_dim)
 
         self.initial = torch.nn.Sequential(torch.nn.Linear(z_channels + embed_dim, 4 * 4 * nf * 8),
@@ -113,11 +133,22 @@ class Generator(torch.nn.Module):
         logger.info('Successfully initialized Generator')
 
     def forward(self, z, c):
-        c = self.embedding(c)
-        z = torch.cat([z, c], dim=1)
-        x = self.initial(z)
-        x = rearrange(x, "b (c h w) -> b c h w", h=4, w=4)
-        return self.block(x)
+        # z: [batch_size, num_z]
+        # c: [batch_size, num_classes]
+
+        z = z[:, :, None, None]
+        z = self.initial_z(z)
+        c = c[:, :, None, None].float()
+        c = self.initial_c(c)
+        # z: [batch_size, nf * 4, 4, 4]
+        # c: [batch_size, nf * 4, 4, 4]
+
+        x = torch.cat([z, c], dim=1)
+        # x: [batch_size, nf * 4 + nf * 4, 4, 4]
+
+        x = self.block(x)
+        # x: [batch_size, 3, 32, 32]
+        return x
 
 
 class CDCGAN:
@@ -143,7 +174,8 @@ class CDCGAN:
 
         # initialize loss function
         if criterion_name not in VALID_CRITERION_NAMES:
-            raise ConfigurationError('Specified criterion is not valid. Valid loss functions: ' + str(VALID_CRITERION_NAMES))
+            raise ConfigurationError(
+                'Specified criterion is not valid. Valid loss functions: ' + str(VALID_CRITERION_NAMES))
         self.criterion = VALID_CRITERION_NAMES[criterion_name]()
 
         # initialize discriminator network

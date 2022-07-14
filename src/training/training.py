@@ -52,19 +52,20 @@ class Trainer:
                 landmarks = batch[1][3]
 
                 # TODO remove the following prints (they are for development purposes only)
-                print(images.shape)
-                print(attributes.shape)
-                print(identities.shape)
-                print(bboxes.shape)
-                print(landmarks.shape)
+                # print(images.shape)
+                # print(attributes.shape)
+                # print(identities.shape)
+                # print(bboxes.shape)
+                # print(landmarks.shape)
 
                 # print(images)
-                print(attributes)
+                # print(attributes)
                 # print(identities)
                 # print(bboxes)
                 # print(landmarks)
 
                 # TODO self.model.fit()
+                self.model.fit(images, attributes)
                 # in fit(), the forward pass, loss calculation and backpropagation should be done
                 raise NotImplementedError
 
