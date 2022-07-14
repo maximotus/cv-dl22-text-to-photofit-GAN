@@ -110,11 +110,6 @@ class Generator(torch.nn.Module):
             torch.nn.BatchNorm2d(nf * 4)
         )
 
-        self.embedding = torch.nn.Embedding(num_classes, embed_dim)
-
-        self.initial = torch.nn.Sequential(torch.nn.Linear(z_channels + embed_dim, 4 * 4 * nf * 8),
-                                           torch.nn.ReLU(True))
-
         self.block = torch.nn.Sequential(torch.nn.Upsample(scale_factor=2.0),
                                          torch.nn.Conv2d(nf * 8, nf * 4, kernel_size=(3, 3), stride=(1, 1), padding=1),
                                          torch.nn.BatchNorm2d(nf * 4),
