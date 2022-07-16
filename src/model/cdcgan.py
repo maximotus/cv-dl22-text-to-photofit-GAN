@@ -23,29 +23,6 @@ def weight_init(m):
             torch.nn.init.constant_(m.bias.data, 0.0)
 
 
-class SpectralNormedConv2d(torch.nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=True):
-        super().__init__()
-
-        conv = torch.nn.Conv2d(in_channels, out_channels, kernel_size=(kernel_size, kernel_size),
-                               stride=(stride, stride), padding=padding, bias=bias)
-        self.conv = torch.nn.utils.spectral_norm(conv)
-
-    def forward(self, x):
-        return self.conv(x)
-
-
-class SpectralNormedLinear(torch.nn.Module):
-    def __init__(self, in_channels, out_channels, bias=True):
-        super().__init__()
-
-        linear = torch.nn.Linear(in_channels, out_channels, bias=bias)
-        self.linear = torch.nn.utils.spectral_norm(linear)
-
-    def forward(self, x):
-        return self.linear(x)
-
-
 class Discriminator(torch.nn.Module):
     def __init__(self, conv, linear, nf=64, num_classes=10, dropout=0.0):
         super().__init__()
