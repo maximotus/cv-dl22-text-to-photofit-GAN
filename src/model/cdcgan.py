@@ -265,9 +265,9 @@ class CDCGAN:
         print(torch.round(pred_real).squeeze().shape)
         print(targets.shape)
         self.epoch_accuracies['total_right_real'] += torch.sum(
-            torch.eq(torch.round(pred_real).squeeze(), torch.ones_like(targets))).cpu().numpy()
+            torch.eq(torch.round(pred_real), torch.ones_like(targets))).cpu().numpy()
         self.epoch_accuracies['total_right_fake'] += torch.sum(
-            torch.eq(torch.round(pred_fake).squeeze(), torch.zeros_like(targets))).cpu().numpy()
+            torch.eq(torch.round(pred_fake), torch.zeros_like(targets))).cpu().numpy()
 
         return gan.item(), d_real.item(), d_fake.item()
 
