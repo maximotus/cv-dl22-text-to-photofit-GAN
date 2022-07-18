@@ -1,4 +1,5 @@
 import logging
+import torch
 
 from data.dataset import CelebA, CelebAHQ, LSW
 from error import ConfigurationError
@@ -23,9 +24,15 @@ class Trainer:
         if dataset_name not in VALID_DATASET_NAMES:
             raise ConfigurationError('Specified dataset is not valid. Valid datasets: ' + str(VALID_DATASET_NAMES))
 
+        if device_name == 'auto':
+            self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        else:
+            self.device = torch.device(device_name)
+        logger.info('Using device ' + str(self.device))
+
         self.dataset = VALID_DATASET_NAMES[dataset_name](image_size, batch_size)
         self.model = VALID_MODEL_NAMES[model_name](model_params, optimizer_name, learning_rate, criterion_name,
-                                                   device_name, len(self.dataset.attribute_to_idx))
+                                                   len(self.dataset.attribute_to_idx), self.device)
 
         self.model_name = model_name
         self.model_params = model_params
@@ -36,7 +43,6 @@ class Trainer:
         self.learning_rate = learning_rate
         self.save_freq = save_freq
         self.gen_freq = gen_freq
-        self.device_name = device_name
         self.experiment_path = experiment_path
 
     def train(self):
@@ -44,35 +50,17 @@ class Trainer:
 
         for epoch in tqdm(range(self.epochs), desc='Epoch'):
             for step, batch in enumerate(tqdm(self.dataset.data_loader, desc='Batch')):
-                # TODO this only works with the implemented celebA configuration
                 images = batch[0]
                 attributes = batch[1][0]
-                identities = batch[1][1]
-                bboxes = batch[1][2]
-                landmarks = batch[1][3]
+                # identities = batch[1][1]
+                # bboxes = batch[1][2]
+                # landmarks = batch[1][3]
 
-                # TODO remove the following prints (they are for development purposes only)
-                # print(images.shape)
-                # print(attributes.shape)
-                # print(identities.shape)
-                # print(bboxes.shape)
-                # print(landmarks.shape)
-
-                # print(images)
-                # print(attributes)
-                # print(identities)
-                # print(bboxes)
-                # print(landmarks)
-
-                # TODO self.model.fit()
+                # in fit(), the forward pass, loss calculation and backpropagation is done
                 self.model.fit(images, attributes)
-                # in fit(), the forward pass, loss calculation and backpropagation should be done
-                raise NotImplementedError
 
             if epoch % self.save_freq == 0:
-                # TODO save model
-                raise NotImplementedError
+                self.model.save_ckpt(self.experiment_path, epoch)
 
             if epoch % self.gen_freq == 0:
-                # TODO generate samples (save them in folder results)
-                raise NotImplementedError
+                self.model.save_img(self.experiment_path, epoch)
