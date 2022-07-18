@@ -1,10 +1,14 @@
 import logging
+import os
+
 import torch
 
 from einops import rearrange
 from error import ConfigurationError
+from model.helper import SpectralNormedConv2d, SpectralNormedLinear
 from torch.nn import BCELoss, CrossEntropyLoss
 from torch.optim import Adam, Adagrad, SGD
+from torchvision.utils import save_image
 
 logger = logging.getLogger('root')
 VALID_OPTIMIZER_NAMES = {'Adam': Adam, 'Adagrad': Adagrad, 'SGD': SGD}
@@ -155,7 +159,7 @@ class Generator(torch.nn.Module):
 
 
 class CDCGAN:
-    def __init__(self, model_params, optimizer_name, learning_rate, criterion_name, device_name, num_classes):
+    def __init__(self, model_params, optimizer_name, learning_rate, criterion_name, num_classes, device):
         if optimizer_name not in VALID_OPTIMIZER_NAMES:
             raise ConfigurationError(
                 'Specified optimizer is not valid. Valid optimizers: ' + str(VALID_OPTIMIZER_NAMES))
@@ -168,12 +172,11 @@ class CDCGAN:
         self.beta1 = model_params.get('beta1')
         self.ngf = model_params.get('ngf')
         self.ndf = model_params.get('ndf')
-        self.emb_dim = model_params.get('emb_dim')
         self.use_spectral_norm = model_params.get('use_spectral_norm')
         self.z_channels = model_params.get('z_channels')
-        self.device = torch.device(device_name)
         self.num_classes = num_classes
         self.lr = learning_rate
+        self.device = device
 
         # initialize loss function
         if criterion_name not in VALID_CRITERION_NAMES:
@@ -204,7 +207,9 @@ class CDCGAN:
 
         # fixed noise vector
         self.z_fix = torch.randn((1, 128)).to(self.device)
-        self.c_fix = (torch.rand(self.num_classes, device=self.device) * 2.0).type(torch.long)
+        self.c_fix = (torch.rand((1, self.num_classes), device=self.device) * 2.0).type(torch.long)
+        # TODO properly defined attributes
+        # self.c_fix = torch.tensor([0, 0, 0, 0, 1, ...])
 
         logger.info('Successfully initialized CDCGAN')
 
@@ -253,3 +258,18 @@ class CDCGAN:
         # num_right_fake += torch.sum(torch.eq(c_fake, torch.zeros_like(targets))).cpu().numpy()
 
         return gan.item(), d_real.item(), d_fake.item()
+
+    def save_ckpt(self, experiment_path, epoch):
+        paths = [experiment_path + '/model/generator', experiment_path + '/model/discriminator']
+        for i, path in enumerate(paths):
+            if not os.path.exists(path):
+                os.mkdir(path)
+                logger.info('Created directory ' + path)
+            full_path = path + '/' + str(epoch) + '.pt'
+            torch.save(self.generator.state_dict(), full_path)
+            logger.info('Saved CDCGAN model as ' + path)
+
+    def save_img(self, experiment_path, epoch):
+        img = self.generator.forward(self.z_fix, self.c_fix)
+        save_path = experiment_path + '/results/' + str(epoch) + '.png'
+        save_image(img, save_path)
