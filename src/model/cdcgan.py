@@ -1,4 +1,5 @@
 import logging
+import numpy as np
 import os
 
 import torch
@@ -201,8 +202,13 @@ class CDCGAN:
                                                                          lr=self.lr, betas=(self.beta1, 0.999))
 
         # initialize state attributes
-        self.average_losses = {'gan': [], 'd_real': [], 'd_fake': []}
-        self.average_accuracies = {'acc_fake': [], 'acc_real': []}
+        self.average_losses = {'gan_loss': [], 'd_real_loss': [], 'd_fake_loss': []}
+        self.epoch_losses = {'gan_loss': [], 'd_real_loss': [], 'd_fake_loss': []}
+        self.average_accuracies = {'acc_real': [], 'acc_fake_1': [], 'acc_fake_2': [], 'acc_real_total': [],
+                                   'acc_fake_total': []}
+        self.epoch_accuracies = {'acc_real': [], 'acc_fake_1': [], 'acc_fake_2': [], 'total_right_real': 0,
+                                 'total_right_fake': 0}
+        self.num_total = 0
         self.fix_images = []
 
         # fixed noise vector
@@ -227,8 +233,6 @@ class CDCGAN:
 
         pred_real = self.discriminator(images, targets)
         pred_fake = self.discriminator(fakes.detach(), targets)
-        print(pred_real)
-        print(pred_fake)
 
         d_real = self.criterion(pred_real, torch.ones_like(pred_real))
         d_fake = self.criterion(pred_fake, torch.zeros_like(pred_fake))
@@ -244,20 +248,37 @@ class CDCGAN:
         gan.backward()
         self.generator_optimizer.step()
 
-        # TODO save losses and probabilities in class attributes
+        self.epoch_losses['gan_loss'].append(gan.item())
+        self.epoch_losses['d_real_loss'].append(d_real.item())
+        self.epoch_losses['d_fake_loss'].append(d_fake.item())
 
-        # cur_losses["GAN"].append(GAN.item())
-        # cur_losses["Dreal"].append(Dreal.item())
-        # cur_losses["Dfake"].append(Dfake.item())
+        self.epoch_accuracies['acc_real'].append(pred_real.squeeze().mean().item())
+        self.epoch_accuracies['acc_fake_1'].append(pred_fake.squeeze().mean().item())
+        self.epoch_accuracies['acc_fake_2'].append(pred_fake2.squeeze().mean().item())
 
-        # c_real = torch.round(torch.sigmoid(pred_real)).squeeze()
-        # c_fake = torch.round(torch.sigmoid(pred_fake)).squeeze()
-
-        # num_total += images.size(0)
-        # num_right_real += torch.sum(torch.eq(c_real, torch.ones_like(targets))).cpu().numpy()
-        # num_right_fake += torch.sum(torch.eq(c_fake, torch.zeros_like(targets))).cpu().numpy()
+        self.num_total += images.size(0)
+        self.epoch_accuracies['total_right_real'] += torch.sum(
+            torch.eq(torch.round(pred_real).squeeze(), torch.ones_like(targets))).cpu().numpy()
+        self.epoch_accuracies['total_right_fake'] += torch.sum(
+            torch.eq(torch.round(pred_fake).squeeze(), torch.zeros_like(targets))).cpu().numpy()
 
         return gan.item(), d_real.item(), d_fake.item()
+
+    def after_epoch(self):
+        # remember accumulated values of the epoch and reset accumulators
+        for k, v in self.epoch_losses.items():
+            self.average_losses[k].append(np.mean(v))
+            self.epoch_losses[k] = []
+        self.average_accuracies['acc_real'].append(np.mean(self.epoch_accuracies['acc_real']))
+        self.average_accuracies['acc_fake_1'].append(np.mean(self.epoch_accuracies['acc_fake_1']))
+        self.average_accuracies['acc_fake_2'].append(np.mean(self.epoch_accuracies['acc_fake_2']))
+        self.average_accuracies['acc_real_total'].append(self.epoch_accuracies['total_right_real'] / self.num_total)
+        self.average_accuracies['acc_fake_total'].append(self.epoch_accuracies['total_right_fake'] / self.num_total)
+        self.epoch_accuracies['acc_real'] = []
+        self.epoch_accuracies['acc_fake_1'] = []
+        self.epoch_accuracies['acc_fake_2'] = []
+        self.epoch_accuracies['total_right_real'] = 0
+        self.epoch_accuracies['total_right_fake'] = 0
 
     def save_ckpt(self, experiment_path, epoch):
         paths = [experiment_path + '/model/generator', experiment_path + '/model/discriminator']
@@ -265,11 +286,24 @@ class CDCGAN:
             if not os.path.exists(path):
                 os.mkdir(path)
                 logger.info('Created directory ' + path)
-            full_path = path + '/' + str(epoch) + '.pt'
+            full_path = path + '/epoch-' + str(epoch) + '.pt'
             torch.save(self.generator.state_dict(), full_path)
             logger.info('Saved CDCGAN model as ' + path)
 
+    def save_stats(self, experiment_path, epoch):
+        base_save_path = experiment_path + '/stats/epoch-' + str(epoch)
+        if not os.path.exists(base_save_path):
+            os.makedirs(base_save_path)
+            logger.info('Created directory ' + base_save_path)
+
+        to_save = self.average_losses | self.average_accuracies
+        for name, value in to_save.items():
+            save_path = base_save_path + '/' + name
+            np.save(save_path, value)
+        logger.info('Saved stats in ' + base_save_path)
+
     def save_img(self, experiment_path, epoch):
         img = self.generator.forward(self.z_fix, self.c_fix)
-        save_path = experiment_path + '/results/' + str(epoch) + '.png'
+        save_path = experiment_path + '/results/epoch-' + str(epoch) + '.png'
         save_image(img, save_path)
+        logger.info('Saved generated image as ' + save_path)

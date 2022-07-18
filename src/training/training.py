@@ -59,8 +59,11 @@ class Trainer:
                 # in fit(), the forward pass, loss calculation and backpropagation is done
                 self.model.fit(images, attributes)
 
+            self.model.after_epoch()
+
             if epoch % self.save_freq == 0:
                 self.model.save_ckpt(self.experiment_path, epoch)
+                self.model.save_stats(self.experiment_path, epoch)
 
             if epoch % self.gen_freq == 0:
                 self.model.save_img(self.experiment_path, epoch)
