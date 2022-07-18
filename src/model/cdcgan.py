@@ -29,10 +29,12 @@ def weight_init(m):
 
 
 class Discriminator(torch.nn.Module):
-    def __init__(self, conv, linear, nf=64, num_classes=10, dropout=0.0):
+    def __init__(self, conv, linear, device, nf=64, num_classes=10, dropout=0.0):
         super().__init__()
 
         logger.info('Initializing Discriminator...')
+
+        self.device = device
 
         self.block_x = torch.nn.Sequential(conv(3, nf, kernel_size=(3, 3), stride=(1, 1), padding=1),
                                            torch.nn.LeakyReLU(0.1, True),
@@ -61,15 +63,14 @@ class Discriminator(torch.nn.Module):
 
         logger.info('Successfully initialized Discriminator...')
 
-    @staticmethod
-    def preprocess_c(c, img_size):
+    def preprocess_c(self, c, img_size):
         c = c.type(torch.LongTensor)
         target = [c.size(0), c.size(1), img_size, img_size]
         c = c[:, :, None, None].expand(target)
         c = c.type(torch.float)
         # torch.set_printoptions(profile="full")
         # print(c)
-        return c
+        return c.to(self.device)
 
     def forward(self, x, c):
         img_size = x.size(2)
@@ -94,10 +95,12 @@ class Discriminator(torch.nn.Module):
 
 
 class Generator(torch.nn.Module):
-    def __init__(self, z_channels=128, nf=64, num_classes=10):
+    def __init__(self, device, z_channels=128, nf=64, num_classes=10):
         super().__init__()
 
         logger.info('Initializing Generator...')
+
+        self.device = device
 
         # self.initial_z = torch.nn.Sequential(
         #     torch.nn.ConvTranspose2d(z_channels, nf * 8, (4, 4), (1, 1), (0, 0), bias=False),
@@ -144,9 +147,9 @@ class Generator(torch.nn.Module):
         # z: [batch_size, num_z]
         # c: [batch_size, num_classes]
 
-        z = z[:, :, None, None]
+        z = z[:, :, None, None].to(self.device)
         z = self.initial_z(z)
-        c = c[:, :, None, None].float()
+        c = c[:, :, None, None].float().to(self.device)
         c = self.initial_c(c)
         # z: [batch_size, nf * 8, 4, 4]
         # c: [batch_size, nf * 8, 4, 4]
@@ -188,14 +191,15 @@ class CDCGAN:
         # initialize discriminator network
         self.discriminator = Discriminator(conv=(SpectralNormedConv2d if self.use_spectral_norm else torch.nn.Conv2d),
                                            linear=(SpectralNormedLinear if self.use_spectral_norm else torch.nn.Linear),
-                                           nf=self.ndf, num_classes=self.num_classes, dropout=self.dropout)
+                                           device=self.device, nf=self.ndf, num_classes=self.num_classes,
+                                           dropout=self.dropout)
         self.discriminator.apply(weight_init)
         self.discriminator.to(self.device)
         self.discriminator_optimizer = VALID_OPTIMIZER_NAMES[optimizer_name](self.discriminator.parameters(),
                                                                              lr=self.lr, betas=(self.beta1, 0.999))
 
         # initialize generator network
-        self.generator = Generator(z_channels=self.z_channels, nf=self.ngf, num_classes=self.num_classes)
+        self.generator = Generator(self.device, z_channels=self.z_channels, nf=self.ngf, num_classes=self.num_classes)
         self.generator.apply(weight_init)
         self.generator.to(self.device)
         self.generator_optimizer = VALID_OPTIMIZER_NAMES[optimizer_name](self.generator.parameters(),
@@ -257,6 +261,9 @@ class CDCGAN:
         self.epoch_accuracies['acc_fake_2'].append(pred_fake2.squeeze().mean().item())
 
         self.num_total += images.size(0)
+        print(pred_real)
+        print(torch.round(pred_real).squeeze().shape)
+        print(targets.shape)
         self.epoch_accuracies['total_right_real'] += torch.sum(
             torch.eq(torch.round(pred_real).squeeze(), torch.ones_like(targets))).cpu().numpy()
         self.epoch_accuracies['total_right_fake'] += torch.sum(
@@ -303,7 +310,9 @@ class CDCGAN:
         logger.info('Saved stats in ' + base_save_path)
 
     def save_img(self, experiment_path, epoch):
+        self.generator.eval()
         img = self.generator.forward(self.z_fix, self.c_fix)
+        self.generator.train()
         save_path = experiment_path + '/results/epoch-' + str(epoch) + '.png'
         save_image(img, save_path)
         logger.info('Saved generated image as ' + save_path)
