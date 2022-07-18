@@ -15,7 +15,7 @@ model:
     ngf: 64
     ndf: 64
     z_channels: 128
-device: cpu # (cuda / cpu / auto)
+device: auto # (cuda / cpu / auto)
 experiment_path: ..\experiments
 frequencies:
   save_freq: 1 # (i.e. how often should the model checkpoint be saved, in epochs)

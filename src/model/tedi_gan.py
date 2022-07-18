@@ -3,7 +3,7 @@ from torch.optim import Adam, Adagrad, SGD
 from torch.nn import BCELoss, CrossEntropyLoss
 import torch
 from torch import nn
-from helper import Tedi_Generator, GradualStyleBlock, BackboneEncoderUsingLastLayerIntoW, BackboneEncoderUsingLastLayerIntoWPlus
+# from helper import Tedi_Generator, GradualStyleBlock, BackboneEncoderUsingLastLayerIntoW, BackboneEncoderUsingLastLayerIntoWPlus
 
 VALID_OPTIMIZER_NAMES = {'Adam': Adam, 'Adagrad': Adagrad, 'SGD': SGD}
 VALID_CRITERION_NAMES = {'BCELoss': BCELoss, 'CrossEntropyLoss': CrossEntropyLoss}
