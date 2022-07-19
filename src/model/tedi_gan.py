@@ -3,8 +3,10 @@ from torch.optim import Adam, Adagrad, SGD
 from torch.nn import BCELoss, CrossEntropyLoss
 import torch
 from torch import nn
-from helper import Tedi_Generator, GradualStyleBlock, BackboneEncoderUsingLastLayerIntoW, BackboneEncoderUsingLastLayerIntoWPlus
+from model.helper import Tedi_Generator, GradualStyleBlock, BackboneEncoderUsingLastLayerIntoW, BackboneEncoderUsingLastLayerIntoWPlus
+import logging
 
+logger = logging.getLogger('root')
 VALID_OPTIMIZER_NAMES = {'Adam': Adam, 'Adagrad': Adagrad, 'SGD': SGD}
 VALID_CRITERION_NAMES = {'BCELoss': BCELoss, 'CrossEntropyLoss': CrossEntropyLoss}
 
@@ -26,34 +28,39 @@ def get_keys(d, name):
 	d_filt = {k[len(name) + 1:]: v for k, v in d.items() if k[:len(name)] == name}
 	return d_filt
 
-model_paths = {
-	'stylegan_ffhq': './stylegan2-ffhq-config-f.pt',
-}
 
 class TediGAN(nn.Module):
 
-	def __init__(self, opts, model_params, optimizer_name, learning_rate, criterion_name, device_name, num_classes):
+	def __init__(self, model_params, optimizer_name, learning_rate, criterion_name, num_classes, device):
 		super(TediGAN, self).__init__()
 		if optimizer_name not in VALID_OPTIMIZER_NAMES:
 			raise ConfigurationError(
                 'Specified optimizer is not valid. Valid optimizers: ' + str(VALID_OPTIMIZER_NAMES))
+		
+		logger.info('Initializing TediGAN...')
+
 		# initialize parameters
 		self.dropout = model_params.get('dropout')
 		self.alpha = model_params.get('alpha')
 		self.beta1 = model_params.get('beta1')
 		self.ngf = model_params.get('ngf')
 		self.ndf = model_params.get('ndf')
-		self.emb_dim = model_params.get('emb_dim')
 		self.use_spectral_norm = model_params.get('use_spectral_norm')
 		self.z_channels = model_params.get('z_channels')
-		self.device = torch.device(device_name)
 		self.num_classes = num_classes
 		self.lr = learning_rate
+		self.device = device
 
-		self.set_opts(opts)
+		# initialize loss function
+		if criterion_name not in VALID_CRITERION_NAMES:
+			raise ConfigurationError(
+				'Specified criterion is not valid. Valid loss functions: ' + str(VALID_CRITERION_NAMES))
+		self.criterion = VALID_CRITERION_NAMES[criterion_name]()
+
 		# Define architecture
 		self.encoder = GradualStyleBlock(50, 'ir_se')#self.set_encoder()
-		self.decoder = Tedi_Generator(self.ngf, self.ndf, self.emb_dim, lr_mlp=self.lr)#1024, 512, 8
+		# self.decoder = Tedi_Generator(self.ngf, self.ndf, self.emb_dim, lr_mlp=self.lr)#1024, 512, 8
+		self.decoder = Tedi_Generator(1024, 512, 8)
 		self.face_pool = torch.nn.AdaptiveAvgPool2d((256, 256))
 		# Load weights if needed
 		self.load_weights()
@@ -79,7 +86,7 @@ class TediGAN(nn.Module):
 			self.__load_latent_avg(ckpt)
 		else:
 			print('Loading encoders weights from irse50!')
-			encoder_ckpt = torch.load(model_paths['ir_se50'])
+			encoder_ckpt = torch.load('./stylegan2-ffhq-config-f.pt')
 			# if input to encoder is not an RGB image, do not load the input layer weights
 			if self.opts.label_nc != 0:
 				encoder_ckpt = {k: v for k, v in encoder_ckpt.items() if "input_layer" not in k}
@@ -129,9 +136,6 @@ class TediGAN(nn.Module):
 			return images, result_latent
 		else:
 			return images
-
-	def set_opts(self, opts):
-		self.opts = opts
 
 	def __load_latent_avg(self, ckpt, repeat=None):
 		if 'latent_avg' in ckpt:
