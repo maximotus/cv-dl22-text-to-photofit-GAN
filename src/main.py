@@ -97,7 +97,5 @@ if __name__ == '__main__':
     #     file_name = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
     #     logger.error('Could not interpret configuration file properly or some other error occurred: ' + str(exc_type) + ' ' + str(file_name) +
     #                  ' ' + str(exc_tb.tb_lineno) + ' ' + str(e))
-    except ConfigurationError as e:
-        logger.exception(e)
-    except NotImplementedError as e:
+    except (ConfigurationError, NotImplementedError) as e:
         logger.exception(e)
