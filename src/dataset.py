@@ -27,7 +27,7 @@ class CelebA:
                                                target_type=['attr', 'identity', 'bbox', 'landmarks'],
                                                transform=transform, download=True)
 
-        self.data_loader = DataLoader(data, batch_size=batch_size, shuffle=True)
+        self.data_loader = DataLoader(data, batch_size=batch_size, shuffle=True, num_workers=10)
         self.length = len(data)
 
         attributes = linecache.getline(r'../../data/celeba/list_attr_celeba.txt', 2).strip().split(' ')
