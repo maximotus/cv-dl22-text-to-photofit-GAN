@@ -5,10 +5,12 @@ import yaml
 
 from datetime import datetime
 
-from error import ConfigurationError
-from log import setup_logger
-from training.training import Trainer
+from misc.error import ConfigurationError
+from misc.log import setup_logger
+from training import Trainer, Evaluator, PhotofitGenerator
 
+MODE_KEY = 'mode'
+MODES = ['train', 'eval', 'gen']
 MODEL_KEY = 'model'
 MODEL_NAME_KEY = 'name'
 MODEL_PARAMETERS_KEY = 'parameters'
@@ -39,14 +41,16 @@ def parse_config(argv):
     return config_path, config
 
 
-def create_experiment_dir(conf_file, exp_path):
+def create_experiment_dir(conf_file, exp_path, run_mode):
     config_name = conf_file[10:-5]
     now = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-    base_path = os.path.join(exp_path, config_name, now)
+    base_path = os.path.join(exp_path, run_mode, config_name, now)
 
-    paths = [os.path.join(base_path, 'stats'),
-             os.path.join(base_path, 'model'),
-             os.path.join(base_path, 'results')]
+    paths = [os.path.join(base_path, 'results')]
+    if run_mode in MODES[0:2]:
+        paths.append(os.path.join(base_path, 'stats'))
+    if run_mode == MODES[0]:
+        paths.append(os.path.join(base_path, 'model'))
 
     for path in paths:
         os.makedirs(path)
@@ -60,30 +64,37 @@ def create_experiment_dir(conf_file, exp_path):
 
 if __name__ == '__main__':
     configuration_file, configuration = parse_config(sys.argv)
-    experiment_path = create_experiment_dir(configuration_file, configuration.get(EXPERIMENT_PATH_KEY))
+    mode = configuration.get(MODE_KEY)
+    experiment_path = create_experiment_dir(configuration_file, configuration.get(EXPERIMENT_PATH_KEY), mode)
+
     logger = setup_logger(experiment_path)
     logger.info('Successfully read the given configuration file, created experiment directories and set up logger.')
+    logger.info('Starting experiment in mode ' + mode + ' using configuration ' + configuration_file)
 
     try:
-        trainer = Trainer(configuration.get(MODEL_KEY).get(MODEL_NAME_KEY),
-                          configuration.get(MODEL_KEY).get(MODEL_PARAMETERS_KEY),
-                          configuration.get(DATASET_KEY),
-                          configuration.get(EPOCHS_KEY),
-                          configuration.get(BATCH_SIZE_KEY),
-                          configuration.get(OPTIMIZER_KEY),
-                          configuration.get(LEARNING_RATE_KEY),
-                          configuration.get(CRITERION_KEY),
-                          configuration.get(DEVICE_KEY),
-                          configuration.get(FREQUENCIES_KEY).get(SAVE_FREQUENCY_KEY),
-                          configuration.get(FREQUENCIES_KEY).get(GEN_FREQUENCY_KEY),
-                          configuration.get(IMAGE_SIZE_KEY),
-                          experiment_path)
-        trainer.train()
-    # except AttributeError as e:
-    #     exc_type, exc_obj, exc_tb = sys.exc_info()
-    #     file_name = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-    #     logger.error('Could not interpret configuration file properly or some other error occurred: ' + str(exc_type) + ' ' + str(file_name) +
-    #                  ' ' + str(exc_tb.tb_lineno) + ' ' + str(e))
-    except ConfigurationError as e:
-        logger.error(e)
-
+        if mode not in MODES:
+            msg = 'mode has to be one of' + str(MODES)
+            raise ConfigurationError(msg)
+        if mode == MODES[0]:
+            trainer = Trainer(configuration.get(MODEL_KEY).get(MODEL_NAME_KEY),
+                              configuration.get(MODEL_KEY).get(MODEL_PARAMETERS_KEY),
+                              configuration.get(DATASET_KEY),
+                              configuration.get(EPOCHS_KEY),
+                              configuration.get(BATCH_SIZE_KEY),
+                              configuration.get(OPTIMIZER_KEY),
+                              configuration.get(LEARNING_RATE_KEY),
+                              configuration.get(CRITERION_KEY),
+                              configuration.get(DEVICE_KEY),
+                              configuration.get(FREQUENCIES_KEY).get(SAVE_FREQUENCY_KEY),
+                              configuration.get(FREQUENCIES_KEY).get(GEN_FREQUENCY_KEY),
+                              configuration.get(IMAGE_SIZE_KEY),
+                              experiment_path)
+            trainer.train()
+        if mode == MODES[1]:
+            evaluator = Evaluator()
+            evaluator.evaluate()
+        if mode == MODES[2]:
+            generator = PhotofitGenerator()
+            generator.generate()
+    except (ConfigurationError, NotImplementedError) as e:
+        logger.exception(e)

@@ -1,4 +1,4 @@
-from error import ConfigurationError
+from misc.error import ConfigurationError
 from torch.optim import Adam, Adagrad, SGD
 from torch.nn import BCELoss, CrossEntropyLoss
 import torch
