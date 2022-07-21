@@ -47,6 +47,7 @@ class Trainer:
 
     def train(self):
         logger.info('Starting training...')
+        # TODO use subset of celeba
 
         for epoch in tqdm(range(self.epochs), desc='Epoch'):
             for step, batch in enumerate(tqdm(self.dataset.data_loader, desc='Batch')):

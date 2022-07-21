@@ -1,12 +1,10 @@
 import logging
 import numpy as np
 import os
-
 import torch
 
-from einops import rearrange
 from misc.error import ConfigurationError
-from model.helper import SpectralNormedConv2d, SpectralNormedLinear
+from model.helper import SpectralNormedConv2d
 from torch.nn import BCELoss, CrossEntropyLoss
 from torch.optim import Adam, Adagrad, SGD
 from torchvision.utils import save_image
@@ -29,37 +27,70 @@ def weight_init(m):
 
 
 class Discriminator(torch.nn.Module):
-    def __init__(self, conv, linear, device, nf=64, num_classes=10, dropout=0.0):
+    def __init__(self, conv, device, nf=64, num_classes=10, dropout=0.0):
         super().__init__()
 
         logger.info('Initializing Discriminator...')
 
         self.device = device
+        self.nf = nf
+        self.num_classes = num_classes
 
-        self.block_x = torch.nn.Sequential(conv(3, nf, kernel_size=(3, 3), stride=(1, 1), padding=1),
-                                           torch.nn.LeakyReLU(0.1, True),
-                                           conv(nf, nf * 2, kernel_size=(4, 4), stride=(2, 2), padding=1),
-                                           torch.nn.LeakyReLU(0.1, True),
-                                           conv(nf * 2, nf * 4, kernel_size=(4, 4), stride=(2, 2), padding=1),
-                                           torch.nn.LeakyReLU(0.1, True),
-                                           conv(nf * 4, nf * 8, kernel_size=(4, 4), stride=(2, 2), padding=1),
-                                           torch.nn.LeakyReLU(0.1, True))
-        self.block_c = torch.nn.Sequential(conv(num_classes, nf, kernel_size=(3, 3), stride=(1, 1), padding=1),
-                                           torch.nn.LeakyReLU(0.1, True),
-                                           conv(nf, nf * 2, kernel_size=(4, 4), stride=(2, 2), padding=1),
-                                           torch.nn.LeakyReLU(0.1, True),
-                                           conv(nf * 2, nf * 4, kernel_size=(4, 4), stride=(2, 2), padding=1),
-                                           torch.nn.LeakyReLU(0.1, True),
-                                           conv(nf * 4, nf * 8, kernel_size=(4, 4), stride=(2, 2), padding=1),
-                                           torch.nn.LeakyReLU(0.1, True))
+        # self.block_x = torch.nn.Sequential(conv(3, nf, kernel_size=(3, 3), stride=(1, 1), padding=1),
+        #                                    torch.nn.LeakyReLU(0.1, True),
+        #                                    conv(nf, nf * 2, kernel_size=(4, 4), stride=(2, 2), padding=1),
+        #                                    torch.nn.LeakyReLU(0.1, True),
+        #                                    conv(nf * 2, nf * 4, kernel_size=(4, 4), stride=(2, 2), padding=1),
+        #                                    torch.nn.LeakyReLU(0.1, True),
+        #                                    conv(nf * 4, nf * 8, kernel_size=(4, 4), stride=(2, 2), padding=1),
+        #                                    torch.nn.LeakyReLU(0.1, True))
+        # self.block_c = torch.nn.Sequential(conv(num_classes, nf, kernel_size=(3, 3), stride=(1, 1), padding=1),
+        #                                    torch.nn.LeakyReLU(0.1, True),
+        #                                    conv(nf, nf * 2, kernel_size=(4, 4), stride=(2, 2), padding=1),
+        #                                    torch.nn.LeakyReLU(0.1, True),
+        #                                    conv(nf * 2, nf * 4, kernel_size=(4, 4), stride=(2, 2), padding=1),
+        #                                    torch.nn.LeakyReLU(0.1, True),
+        #                                    conv(nf * 4, nf * 8, kernel_size=(4, 4), stride=(2, 2), padding=1),
+        #                                    torch.nn.LeakyReLU(0.1, True))
+        # self.block_x = torch.nn.Sequential(torch.nn.Conv2d(3, nf, kernel_size=(3, 3), stride=(1, 1), padding=1),
+        #                                    torch.nn.LeakyReLU(0.2, True),
+        #                                    torch.nn.Conv2d(nf, nf * 2, kernel_size=(3, 3), stride=(1, 1), padding=1),
+        #                                    torch.nn.LeakyReLU(0.2, True),
+        #                                    torch.nn.Conv2d(nf * 2, nf * 4, kernel_size=(3, 3), stride=(1, 1), padding=1),
+        #                                    torch.nn.LeakyReLU(0.2, True),
+        #                                    torch.nn.Conv2d(nf * 4, nf * 8, kernel_size=(3, 3), stride=(1, 1), padding=1),
+        #                                    torch.nn.LeakyReLU(0.2, True),
+        #                                    torch.nn.Conv2d(nf * 8, nf * 16, kernel_size=(3, 3), stride=(1, 1), padding=1),
+        #                                    torch.nn.LeakyReLU(0.2, True))
 
-        self.fc_x = linear(4 * 4 * nf * 8 * 4, 128)
-        self.fc_c = linear(4 * 4 * nf * 8 * 4, 128)
+        # initialize helper functions
+        self.sig = torch.nn.Sigmoid()
+        self.relu = torch.nn.LeakyReLU(0.2, inplace=True)
 
-        self.final = torch.nn.Sequential(torch.nn.Dropout(dropout),
-                                         linear(4 * nf, 1),
-                                         torch.nn.LeakyReLU(0.2, True),
-                                         torch.nn.Sigmoid())
+        # initialize layers
+        self.conv_x = conv(3, self.nf, (4, 4), (2, 2), 1, bias=False)
+        self.dropout_x = torch.nn.Dropout(p=dropout)
+
+        self.conv_y = conv(self.num_classes, self.nf, (4, 4), (2, 2), 1, bias=False)
+        self.dropout_y = torch.nn.Dropout()
+
+        self.conv1 = conv(nf * 2, self.nf * 4, (4, 4), (2, 2), 1, bias=False)
+        self.bn1 = torch.nn.BatchNorm2d(self.nf * 4)
+        self.dropout1 = torch.nn.Dropout(p=dropout)
+
+        self.conv2 = conv(self.nf * 4, self.nf * 8, (4, 4), (2, 2), 1, bias=False)
+        self.bn2 = torch.nn.BatchNorm2d(self.nf * 8)
+        self.dropout2 = torch.nn.Dropout(p=dropout)
+
+        self.conv3 = conv(self.nf * 8, self.nf * 16, (4, 4), (2, 2), 1, bias=False)
+        self.bn3 = torch.nn.BatchNorm2d(self.nf * 16)
+        self.dropout3 = torch.nn.Dropout(p=dropout)
+
+        self.conv4 = conv(self.nf * 16, self.nf * 32, (4, 4), (2, 2), 1, bias=False)
+        self.bn4 = torch.nn.BatchNorm2d(self.nf * 32)
+        self.dropout4 = torch.nn.Dropout(p=dropout)
+
+        self.conv5 = conv(self.nf * 32, 1, (2, 2), (1, 1), 0, bias=False)
 
         logger.info('Successfully initialized Discriminator...')
 
@@ -75,19 +106,54 @@ class Discriminator(torch.nn.Module):
     def forward(self, x, c):
         img_size = x.size(2)
 
-        x = self.block_x(x)
-        x = rearrange(x, "b c h w -> b (c h w)")
-        x = self.fc_x(x)
+        # print('DISCRIMINATOR')
+        # print(1, x.shape)
+        # print(2, c.shape)
+        x = self.conv_x(x)
+        x = self.relu(x)
+        x = self.dropout_x(x)
+        # print(3, x.shape)
 
-        c = self.preprocess_c(c, img_size)
-        c = self.block_c(c)
-        c = rearrange(c, "b c h w -> b (c h w)")
-        c = self.fc_c(c)
+        y = self.preprocess_c(c, img_size)
+        # print(4, y.shape)
 
-        xc = torch.cat([x, c], dim=1)
-        xc = self.final(xc)
+        y = self.conv_y(y)
+        y = self.relu(y)
+        y = self.dropout_y(y)
+        # print(5, y.shape)
 
-        return xc
+        xy = torch.cat([x, y], dim=1)
+        # print(xy.shape)
+        xy = self.conv1(xy)
+        xy = self.bn1(xy)
+        xy = self.relu(xy)
+        xy = self.dropout1(xy)
+        # print(xy.shape)
+
+        xy = self.conv2(xy)
+        xy = self.bn2(xy)
+        xy = self.relu(xy)
+        xy = self.dropout2(xy)
+        # print(xy.shape)
+
+        xy = self.conv3(xy)
+        xy = self.bn3(xy)
+        xy = self.relu(xy)
+        xy = self.dropout3(xy)
+        # print(xy.shape)
+
+        xy = self.conv4(xy)
+        xy = self.bn4(xy)
+        xy = self.relu(xy)
+        xy = self.dropout4(xy)
+        # print(xy.shape)
+
+        xy = self.conv5(xy)
+        # print(xy.shape)
+        xy = self.sig(xy)
+        # print(xy.shape)
+
+        return xy
 
     def set_grad(self, status):
         for p in self.parameters():
@@ -146,18 +212,27 @@ class Generator(torch.nn.Module):
     def forward(self, z, c):
         # z: [batch_size, num_z]
         # c: [batch_size, num_classes]
+        # print('GENERATOR')
+        # print('z', z.shape)
+        # print('c', c.shape)
 
         z = z[:, :, None, None].to(self.device)
+        # print('z', z.shape)
         z = self.initial_z(z)
+        # print('z', z.shape)
         c = c[:, :, None, None].float().to(self.device)
+        # print('c', c.shape)
         c = self.initial_c(c)
+        # print('c', c.shape)
         # z: [batch_size, nf * 8, 4, 4]
         # c: [batch_size, nf * 8, 4, 4]
 
         x = torch.cat([z, c], dim=1)
+        # print('x', x.shape)
         # x: [batch_size, nf * 8 + nf * 8, 4, 4]
 
         x = self.block(x)
+        # print('x', x.shape)
         # x: [batch_size, 3, 64, 64]
         return x
 
@@ -190,7 +265,6 @@ class CDCGAN:
 
         # initialize discriminator network
         self.discriminator = Discriminator(conv=(SpectralNormedConv2d if self.use_spectral_norm else torch.nn.Conv2d),
-                                           linear=(SpectralNormedLinear if self.use_spectral_norm else torch.nn.Linear),
                                            device=self.device, nf=self.ndf, num_classes=self.num_classes,
                                            dropout=self.dropout)
         self.discriminator.apply(weight_init)
@@ -228,7 +302,7 @@ class CDCGAN:
         targets = targets.to(self.device)
 
         # 1. generate fake image
-        z = torch.randn((images.size(0), 128)).to(self.device)
+        z = torch.randn((images.size(0), self.z_channels)).to(self.device)
         fakes = self.generator(z, targets)
 
         # 2. train discriminator with all-real batch and then all-fake batch
