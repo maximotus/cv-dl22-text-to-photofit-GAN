@@ -1,6 +1,7 @@
 # config from original paper
+mode: train
 learning_rate: 0.0002
-batch_size: 128
+batch_size: 16
 epochs: 100
 optimizer: Adam
 criterion: BCELoss

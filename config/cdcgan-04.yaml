@@ -1,4 +1,5 @@
 # config from original paper with dropout
+mode: train
 learning_rate: 0.0002
 batch_size: 128
 epochs: 100
