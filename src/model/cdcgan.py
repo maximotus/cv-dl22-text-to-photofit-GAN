@@ -5,7 +5,7 @@ import os
 import torch
 
 from einops import rearrange
-from error import ConfigurationError
+from misc.error import ConfigurationError
 from model.helper import SpectralNormedConv2d, SpectralNormedLinear
 from torch.nn import BCELoss, CrossEntropyLoss
 from torch.optim import Adam, Adagrad, SGD

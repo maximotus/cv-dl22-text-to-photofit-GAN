@@ -1,8 +1,8 @@
 import logging
 import torch
 
-from data.dataset import CelebA, CelebAHQ, LSW
-from error import ConfigurationError
+from dataset import CelebA, CelebAHQ, LSW
+from misc.error import ConfigurationError
 from model.cdcgan import CDCGAN
 from model.tedi_gan import TediGAN
 from tqdm.auto import tqdm
@@ -67,3 +67,19 @@ class Trainer:
 
             if epoch % self.gen_freq == 0:
                 self.model.save_img(self.experiment_path, epoch)
+
+
+class Evaluator:
+    def __init__(self):
+        raise NotImplementedError
+
+    def evaluate(self):
+        raise NotImplementedError
+
+
+class PhotofitGenerator:
+    def __init__(self):
+        raise NotImplementedError
+
+    def generate(self):
+        raise NotImplementedError
