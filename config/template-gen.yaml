@@ -1,4 +1,4 @@
-mode: eva # (train / eval / gen)
+mode: gen # (train / eval / gen)
 learning_rate: 0.001
 batch_size: 1
 epochs: 500
@@ -9,6 +9,7 @@ image_size: 64
 dataset: celebA
 model:
   name: CDCGAN
+  pt_path: ../experiments/2022-07-21-11-00-47/model/epoch-10.pt
   parameters:
     dropout: 0.2
     alpha: 0.1
