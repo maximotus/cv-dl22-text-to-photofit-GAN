@@ -74,7 +74,7 @@ if __name__ == '__main__':
 
     try:
         if mode not in MODES:
-            msg = 'mode has to be one of' + str(MODES)
+            msg = 'Mode has to be one of' + str(MODES)
             raise ConfigurationError(msg)
         if mode == MODES[0]:
             trainer = Trainer(configuration.get(MODEL_KEY).get(MODEL_NAME_KEY),
