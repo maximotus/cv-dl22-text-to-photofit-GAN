@@ -27,6 +27,7 @@ EXPERIMENT_PATH_KEY = 'experiment_path'
 FREQUENCIES_KEY = 'frequencies'
 SAVE_FREQUENCY_KEY = 'save_freq'
 GEN_FREQUENCY_KEY = 'gen_freq'
+NUM_IMGS_KEY = 'num_imgs'
 
 
 def parse_config(argv):
@@ -74,7 +75,7 @@ if __name__ == '__main__':
 
     try:
         if mode not in MODES:
-            msg = 'mode has to be one of' + str(MODES)
+            msg = 'Mode has to be one of' + str(MODES)
             raise ConfigurationError(msg)
         if mode == MODES[0]:
             trainer = Trainer(configuration.get(MODEL_KEY).get(MODEL_NAME_KEY),
@@ -90,6 +91,7 @@ if __name__ == '__main__':
                               configuration.get(FREQUENCIES_KEY).get(SAVE_FREQUENCY_KEY),
                               configuration.get(FREQUENCIES_KEY).get(GEN_FREQUENCY_KEY),
                               configuration.get(IMAGE_SIZE_KEY),
+                              configuration.get(NUM_IMGS_KEY),
                               experiment_path)
             trainer.train()
         if mode == MODES[1]:

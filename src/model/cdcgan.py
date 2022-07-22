@@ -326,6 +326,7 @@ class CDCGAN:
         gan.backward()
         self.generator_optimizer.step()
 
+        # 4. remember values of interest
         self.epoch_losses['gan_loss'].append(gan.item())
         self.epoch_losses['d_real_loss'].append(d_real.item())
         self.epoch_losses['d_fake_loss'].append(d_fake.item())
@@ -339,8 +340,6 @@ class CDCGAN:
             torch.eq(torch.round(pred_real), torch.ones_like(targets))).cpu().numpy()
         self.epoch_accuracies['total_right_fake'] += torch.sum(
             torch.eq(torch.round(pred_fake), torch.zeros_like(targets))).cpu().numpy()
-
-        return gan.item(), d_real.item(), d_fake.item()
 
     def after_epoch(self):
         # remember accumulated values of the epoch and reset accumulators
@@ -380,10 +379,35 @@ class CDCGAN:
             np.save(save_path, value)
         logger.info('Saved stats in ' + base_save_path)
 
-    def save_img(self, experiment_path, epoch):
-        self.generator.eval()
-        img = self.generator.forward(self.z_fix, self.c_fix)
-        self.generator.train()
-        save_path = experiment_path + '/results/epoch-' + str(epoch) + '.png'
+    def save_fixed_img(self, experiment_path, epoch):
+        path = self.create_and_get_img_save_path(experiment_path, epoch)
+        img = self.generate_image(self.c_fix, self.z_fix)
+        save_path = path + '/fixed_img.png'
         save_image(img, save_path)
-        logger.info('Saved generated image as ' + save_path)
+        logger.info('Saved fixed generated image as ' + save_path)
+
+    def save_random_img(self, n, experiment_path, epoch):
+        path = self.create_and_get_img_save_path(experiment_path, epoch)
+        for i in range(n):
+            img = self.generate_image()
+            save_path = path + '/rand_img_' + str(i) + '.png'
+            save_image(img, save_path)
+        logger.info('Saved randomly generated image in ' + path)
+
+    def generate_image(self, c=None, z=None):
+        if c is None:
+            c = (torch.rand((1, self.num_classes), device=self.device) * 2.0).type(torch.long)
+        if z is None:
+            z = torch.randn((1, 128)).to(self.device)
+        self.generator.eval()
+        img = self.generator.forward(z, c)
+        self.generator.train()
+        return img
+
+    @staticmethod
+    def create_and_get_img_save_path(experiment_path, epoch):
+        path = experiment_path + '/results/epoch-' + str(epoch)
+        if not os.path.exists(path):
+            os.mkdir(path)
+            logger.info('Created directory ' + path)
+        return path

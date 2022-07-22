@@ -14,7 +14,7 @@ VALID_DATASET_NAMES = {'celebA': CelebA, 'celebA_HQ': CelebAHQ, 'LSW': LSW}
 
 class Trainer:
     def __init__(self, model_name, model_params, dataset_name, dataset_size_factor, epochs, batch_size, optimizer_name, learning_rate,
-                 criterion_name, device_name, save_freq, gen_freq, image_size, experiment_path):
+                 criterion_name, device_name, save_freq, gen_freq, image_size, num_imgs, experiment_path):
 
         logger.info('Initializing trainer...')
 
@@ -44,6 +44,7 @@ class Trainer:
         self.learning_rate = learning_rate
         self.save_freq = save_freq
         self.gen_freq = gen_freq
+        self.num_imgs = num_imgs
         self.experiment_path = experiment_path
 
     def train(self):
@@ -68,7 +69,8 @@ class Trainer:
                 self.model.save_stats(self.experiment_path, epoch)
 
             if epoch % self.gen_freq == 0:
-                self.model.save_img(self.experiment_path, epoch)
+                self.model.save_fixed_img(self.experiment_path, epoch)
+                self.model.save_random_img(self.num_imgs, self.experiment_path, epoch)
 
 
 class Evaluator:
