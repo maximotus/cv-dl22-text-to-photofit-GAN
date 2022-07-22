@@ -402,7 +402,7 @@ class Tedi_Generator(nn.Module):
 
         self.size = size
 
-        self.style_dim = style_dim
+        self.style_dim = style_dim#RuntimeError: size mismatch, got 512, 512x512,128
 
         layers = [PixelNorm()]
 
