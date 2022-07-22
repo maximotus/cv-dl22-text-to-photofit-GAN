@@ -1,25 +1,22 @@
 from misc.error import ConfigurationError
 from torch.optim import Adam, Adagrad, SGD
 from torch.nn import BCELoss, CrossEntropyLoss
+from torchvision.utils import save_image
 import torch
 from torch import nn
-from model.helper import Tedi_Generator, GradualStyleBlock, BackboneEncoderUsingLastLayerIntoW, BackboneEncoderUsingLastLayerIntoWPlus
+from model.helper import Tedi_Generator, GradualStyleEncoder, BackboneEncoderUsingLastLayerIntoW, BackboneEncoderUsingLastLayerIntoWPlus
 import logging
+import os
+
 
 logger = logging.getLogger('root')
 VALID_OPTIMIZER_NAMES = {'Adam': Adam, 'Adagrad': Adagrad, 'SGD': SGD}
 VALID_CRITERION_NAMES = {'BCELoss': BCELoss, 'CrossEntropyLoss': CrossEntropyLoss}
 
-# class TediGAN:
-#     def __init__(self, model_params, optimizer_name, image_size, learning_rate, device_name):
-
-        
-
-#         # TODO initialize optimizer
-#         # self.optimizer = VALID_OPTIMIZER_NAMES[optimizer_name](self.parameters(), lr=learning_rate)
-
-#         # TODO
-#         raise NotImplementedError
+#prerequisits:
+#https://stackoverflow.com/questions/40504552/how-to-install-visual-c-build-tools c++ answer by Aaron Belchamber
+# Cuda Toolkit 11.6
+# pytorch for cuda 11.6
 
 
 def get_keys(d, name):
@@ -58,9 +55,12 @@ class TediGAN(nn.Module):
 		self.criterion = VALID_CRITERION_NAMES[criterion_name]()
 
 		# Define architecture
-		self.encoder = GradualStyleBlock(50, 'ir_se')#self.set_encoder()
-		# self.decoder = Tedi_Generator(self.ngf, self.ndf, self.emb_dim, lr_mlp=self.lr)#1024, 512, 8
-		self.decoder = Tedi_Generator(1024, 512, 8)
+		self.discriminator = GradualStyleEncoder(50, 'ir_se')#self.set_encoder()
+		self.discriminator.to(self.device)
+		self.discriminator_optimizer = VALID_OPTIMIZER_NAMES[optimizer_name](self.discriminator.parameters(),
+																				lr=self.lr, betas=(self.beta1, 0.999))
+		# self.generator = Tedi_Generator(self.ngf, self.ndf, self.emb_dim, lr_mlp=self.lr)#1024, 512, 8
+		self.generator = Tedi_Generator(1024, 512, 8)
 		self.face_pool = torch.nn.AdaptiveAvgPool2d((256, 256))
 		# Load weights if needed
 		self.load_weights()
@@ -78,33 +78,28 @@ class TediGAN(nn.Module):
 	# 	return encoder
 
 	def load_weights(self):
-		if self.opts.checkpoint_path is not None:
-			print('Loading pSp from checkpoint: {}'.format(self.opts.checkpoint_path))
-			ckpt = torch.load(self.opts.checkpoint_path, map_location='cpu')
-			self.encoder.load_state_dict(get_keys(ckpt, 'encoder'), strict=True)
-			self.decoder.load_state_dict(get_keys(ckpt, 'decoder'), strict=True)
-			self.__load_latent_avg(ckpt)
-		else:
-			print('Loading encoders weights from irse50!')
-			encoder_ckpt = torch.load('./stylegan2-ffhq-config-f.pt')
-			# if input to encoder is not an RGB image, do not load the input layer weights
-			if self.opts.label_nc != 0:
-				encoder_ckpt = {k: v for k, v in encoder_ckpt.items() if "input_layer" not in k}
-			self.encoder.load_state_dict(encoder_ckpt, strict=False)
-			print('Loading decoder weights from pretrained!')
-			ckpt = torch.load(self.opts.stylegan_weights)
-			self.decoder.load_state_dict(ckpt['g_ema'], strict=False)
-			if self.opts.learn_in_w:
-				self.__load_latent_avg(ckpt, repeat=1)
-			else:
-				self.__load_latent_avg(ckpt, repeat=18)
+		print('Loading encoders weights from irse50!')
+		encoder_ckpt = torch.load('model/stylegan2-ffhq-config-f.pt')
+		# if input to encoder is not an RGB image, do not load the input layer weights
+		# if self.opts.label_nc != 0:
+		encoder_ckpt = {k: v for k, v in encoder_ckpt.items() if "input_layer" not in k}
+		self.discriminator.load_state_dict(encoder_ckpt, strict=False)
+		print('Loading decoder weights from pretrained!')
+		# ckpt = torch.load(self.opts.stylegan_weights)
+		ckpt = encoder_ckpt
+		self.generator.load_state_dict(ckpt['g_ema'], strict=False)
+		# if self.opts.learn_in_w:
+		# 	self.__load_latent_avg(ckpt, repeat=1)
+		# else:
+		# 	self.__load_latent_avg(ckpt, repeat=18)
 
 	def forward(self, x, resize=True, latent_mask=None, input_code=False, randomize_noise=True,
 	            inject_latent=None, return_latents=False, alpha=None):
+		# TODO: make sure forward and fit methods conform to cdcgan architecture
 		if input_code:
 			codes = x
 		else:
-			codes = self.encoder(x)
+			codes = self.discriminator(x)
 			# normalize with respect to the center of an average face
 			if self.opts.start_from_latent_avg:
 				if self.opts.learn_in_w:
@@ -124,7 +119,7 @@ class TediGAN(nn.Module):
 					codes[:, i] = 0
 
 		input_is_latent = not input_code
-		images, result_latent = self.decoder([codes],
+		images, result_latent = self.generator([codes],
 		                                     input_is_latent=input_is_latent,
 		                                     randomize_noise=randomize_noise,
 		                                     return_latents=return_latents)
@@ -137,10 +132,125 @@ class TediGAN(nn.Module):
 		else:
 			return images
 
-	def __load_latent_avg(self, ckpt, repeat=None):
-		if 'latent_avg' in ckpt:
-			self.latent_avg = ckpt['latent_avg'].to(self.opts.device)
-			if repeat is not None:
-				self.latent_avg = self.latent_avg.repeat(repeat, 1)
-		else:
-			self.latent_avg = None
+	# def __load_latent_avg(self, ckpt, repeat=None):
+	# 	if 'latent_avg' in ckpt:
+	# 		self.latent_avg = ckpt['latent_avg'].to(self.opts.device)
+	# 		if repeat is not None:
+	# 			self.latent_avg = self.latent_avg.repeat(repeat, 1)
+	# 	else:
+	# 		self.latent_avg = None
+
+	def fit(self, images, targets):
+		images = images.to(self.device)
+		targets = targets.to(self.device)
+
+		# 1. generate fake image
+		z = torch.randn((images.size(0), self.z_channels)).to(self.device)
+		fakes = self.generator(z, targets)
+
+		# 2. train discriminator with all-real batch and then all-fake batch
+		self.discriminator.set_grad(True)
+		self.discriminator_optimizer.zero_grad()
+
+		pred_real = self.discriminator(images, targets)
+		pred_fake = self.discriminator(fakes.detach(), targets)
+
+		d_real = self.criterion(pred_real, torch.ones_like(pred_real))
+		d_fake = self.criterion(pred_fake, torch.zeros_like(pred_fake))
+		loss_d = (d_real + d_fake) * 0.5
+		loss_d.backward()
+		self.discriminator_optimizer.step()
+		self.discriminator.set_grad(False)
+
+		# 3. train generator
+		self.generator_optimizer.zero_grad()
+		pred_fake2 = self.discriminator(fakes, targets)
+		gan = self.criterion(pred_fake2, torch.ones_like(pred_fake2))
+		gan.backward()
+		self.generator_optimizer.step()
+
+		# 4. remember values of interest
+		self.epoch_losses['gan_loss'].append(gan.item())
+		self.epoch_losses['d_real_loss'].append(d_real.item())
+		self.epoch_losses['d_fake_loss'].append(d_fake.item())
+
+		self.epoch_accuracies['acc_real'].append(pred_real.squeeze().mean().item())
+		self.epoch_accuracies['acc_fake_1'].append(pred_fake.squeeze().mean().item())
+		self.epoch_accuracies['acc_fake_2'].append(pred_fake2.squeeze().mean().item())
+
+		self.num_total += images.size(0)
+		self.epoch_accuracies['total_right_real'] += torch.sum(
+			torch.eq(torch.round(pred_real), torch.ones_like(targets))).cpu().numpy()
+		self.epoch_accuracies['total_right_fake'] += torch.sum(
+			torch.eq(torch.round(pred_fake), torch.zeros_like(targets))).cpu().numpy()
+
+	def after_epoch(self):
+		# remember accumulated values of the epoch and reset accumulators
+		for k, v in self.epoch_losses.items():
+			self.average_losses[k].append(np.mean(v))
+			self.epoch_losses[k] = []
+		self.average_accuracies['acc_real'].append(np.mean(self.epoch_accuracies['acc_real']))
+		self.average_accuracies['acc_fake_1'].append(np.mean(self.epoch_accuracies['acc_fake_1']))
+		self.average_accuracies['acc_fake_2'].append(np.mean(self.epoch_accuracies['acc_fake_2']))
+		self.average_accuracies['acc_real_total'].append(self.epoch_accuracies['total_right_real'] / self.num_total)
+		self.average_accuracies['acc_fake_total'].append(self.epoch_accuracies['total_right_fake'] / self.num_total)
+		self.epoch_accuracies['acc_real'] = []
+		self.epoch_accuracies['acc_fake_1'] = []
+		self.epoch_accuracies['acc_fake_2'] = []
+		self.epoch_accuracies['total_right_real'] = 0
+		self.epoch_accuracies['total_right_fake'] = 0
+
+	def save_ckpt(self, experiment_path, epoch):
+		paths = [experiment_path + '/model/generator', experiment_path + '/model/discriminator']
+		for i, path in enumerate(paths):
+			if not os.path.exists(path):
+				os.mkdir(path)
+				logger.info('Created directory ' + path)
+			full_path = path + '/epoch-' + str(epoch) + '.pt'
+			torch.save(self.generator.state_dict(), full_path)
+			logger.info('Saved CDCGAN model as ' + path)
+
+	def save_stats(self, experiment_path, epoch):
+		base_save_path = experiment_path + '/stats/epoch-' + str(epoch)
+		if not os.path.exists(base_save_path):
+			os.makedirs(base_save_path)
+			logger.info('Created directory ' + base_save_path)
+
+		to_save = self.average_losses | self.average_accuracies
+		for name, value in to_save.items():
+			save_path = base_save_path + '/' + name
+			np.save(save_path, value)
+		logger.info('Saved stats in ' + base_save_path)
+
+	def save_fixed_img(self, experiment_path, epoch):
+		path = self.create_and_get_img_save_path(experiment_path, epoch)
+		img = self.generate_image(self.c_fix, self.z_fix)
+		save_path = path + '/fixed_img.png'
+		save_image(img, save_path)
+		logger.info('Saved fixed generated image as ' + save_path)
+
+	def save_random_img(self, n, experiment_path, epoch):
+		path = self.create_and_get_img_save_path(experiment_path, epoch)
+		for i in range(n):
+			img = self.generate_image()
+			save_path = path + '/rand_img_' + str(i) + '.png'
+			save_image(img, save_path)
+		logger.info('Saved randomly generated image in ' + path)
+
+	def generate_image(self, c=None, z=None):
+		if c is None:
+			c = (torch.rand((1, self.num_classes), device=self.device) * 2.0).type(torch.long)
+		if z is None:
+			z = torch.randn((1, 128)).to(self.device)
+		self.generator.eval()
+		img = self.generator.forward(z, c)
+		self.generator.train()
+		return img
+
+	@staticmethod
+	def create_and_get_img_save_path(experiment_path, epoch):
+		path = experiment_path + '/results/epoch-' + str(epoch)
+		if not os.path.exists(path):
+			os.mkdir(path)
+			logger.info('Created directory ' + path)
+		return path

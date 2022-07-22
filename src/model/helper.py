@@ -176,7 +176,7 @@ class EqualLinear(nn.Module):
         if self.activation:
 
             out = F.linear(input, self.weight * self.scale)
-            # out = fused_leaky_relu(out, self.bias * self.lr_mul)
+            out = fused_leaky_relu(out, self.bias * self.lr_mul)
 
         else:
             out = F.linear(
@@ -353,14 +353,14 @@ class StyledConv(nn.Module):
         )
 
         self.noise = NoiseInjection()
-        # self.bias = nn.Parameter(torch.zeros(1, out_channel, 1, 1))
+        self.bias = nn.Parameter(torch.zeros(1, out_channel, 1, 1))
         self.activate = ScaledLeakyReLU(0.2)
-        # self.activate = FusedLeakyReLU(out_channel)
+        self.activate = FusedLeakyReLU(out_channel)
 
     def forward(self, input, style, noise=None):
         out = self.conv(input, style)
         out = self.noise(out, noise=noise)
-        # out = out + self.bias
+        out = out + self.bias
         out = self.activate(out)
 
         return out
@@ -703,264 +703,264 @@ class Discriminator(nn.Module):
 
 #### end - https://github.com/IIGROUP/TediGAN/blob/main/ext/models/stylegan2/model.py
 #### start - https://github.com/IIGROUP/TediGAN/blob/main/ext/models/stylegan2/op/fused_act.py
-# module_path = os.path.dirname(__file__)
-# fused = load(
-#     'fused',
-#     sources=[
-#         os.path.join(module_path, 'fused_bias_act.cpp'),
-#         os.path.join(module_path, 'fused_bias_act_kernel.cu'),
-#     ],
-# )
+module_path = os.path.dirname(__file__)
+fused = load(
+    'fused',
+    sources=[
+        os.path.join(module_path, 'fused_bias_act.cpp'),
+        os.path.join(module_path, 'fused_bias_act_kernel.cu'),
+    ],
+)
 
 
-# class FusedLeakyReLUFunctionBackward(Function):
-#     @staticmethod
-#     def forward(ctx, grad_output, out, negative_slope, scale):
-#         ctx.save_for_backward(out)
-#         ctx.negative_slope = negative_slope
-#         ctx.scale = scale
+class FusedLeakyReLUFunctionBackward(Function):
+    @staticmethod
+    def forward(ctx, grad_output, out, negative_slope, scale):
+        ctx.save_for_backward(out)
+        ctx.negative_slope = negative_slope
+        ctx.scale = scale
 
-#         empty = grad_output.new_empty(0)
+        empty = grad_output.new_empty(0)
 
-#         grad_input = fused.fused_bias_act(
-#             grad_output, empty, out, 3, 1, negative_slope, scale
-#         )
+        grad_input = fused.fused_bias_act(
+            grad_output, empty, out, 3, 1, negative_slope, scale
+        )
 
-#         dim = [0]
+        dim = [0]
 
-#         if grad_input.ndim > 2:
-#             dim += list(range(2, grad_input.ndim))
+        if grad_input.ndim > 2:
+            dim += list(range(2, grad_input.ndim))
 
-#         grad_bias = grad_input.sum(dim).detach()
+        grad_bias = grad_input.sum(dim).detach()
 
-#         return grad_input, grad_bias
+        return grad_input, grad_bias
 
-#     @staticmethod
-#     def backward(ctx, gradgrad_input, gradgrad_bias):
-#         out, = ctx.saved_tensors
-#         gradgrad_out = fused.fused_bias_act(
-#             gradgrad_input, gradgrad_bias, out, 3, 1, ctx.negative_slope, ctx.scale
-#         )
+    @staticmethod
+    def backward(ctx, gradgrad_input, gradgrad_bias):
+        out, = ctx.saved_tensors
+        gradgrad_out = fused.fused_bias_act(
+            gradgrad_input, gradgrad_bias, out, 3, 1, ctx.negative_slope, ctx.scale
+        )
 
-#         return gradgrad_out, None, None, None
-
-
-# class FusedLeakyReLUFunction(Function):
-#     @staticmethod
-#     def forward(ctx, input, bias, negative_slope, scale):
-#         empty = input.new_empty(0)
-#         out = fused.fused_bias_act(input, bias, empty, 3, 0, negative_slope, scale)
-#         ctx.save_for_backward(out)
-#         ctx.negative_slope = negative_slope
-#         ctx.scale = scale
-
-#         return out
-
-#     @staticmethod
-#     def backward(ctx, grad_output):
-#         out, = ctx.saved_tensors
-
-#         grad_input, grad_bias = FusedLeakyReLUFunctionBackward.apply(
-#             grad_output, out, ctx.negative_slope, ctx.scale
-#         )
-
-#         return grad_input, grad_bias, None, None
+        return gradgrad_out, None, None, None
 
 
-# class FusedLeakyReLU(nn.Module):
-#     def __init__(self, channel, negative_slope=0.2, scale=2 ** 0.5):
-#         super().__init__()
+class FusedLeakyReLUFunction(Function):
+    @staticmethod
+    def forward(ctx, input, bias, negative_slope, scale):
+        empty = input.new_empty(0)
+        out = fused.fused_bias_act(input, bias, empty, 3, 0, negative_slope, scale)
+        ctx.save_for_backward(out)
+        ctx.negative_slope = negative_slope
+        ctx.scale = scale
 
-#         self.bias = nn.Parameter(torch.zeros(channel))
-#         self.negative_slope = negative_slope
-#         self.scale = scale
+        return out
 
-#     def forward(self, input):
-#         return fused_leaky_relu(input, self.bias, self.negative_slope, self.scale)
+    @staticmethod
+    def backward(ctx, grad_output):
+        out, = ctx.saved_tensors
+
+        grad_input, grad_bias = FusedLeakyReLUFunctionBackward.apply(
+            grad_output, out, ctx.negative_slope, ctx.scale
+        )
+
+        return grad_input, grad_bias, None, None
 
 
-# def fused_leaky_relu(input, bias, negative_slope=0.2, scale=2 ** 0.5):
-#     return FusedLeakyReLUFunction.apply(input, bias, negative_slope, scale)
+class FusedLeakyReLU(nn.Module):
+    def __init__(self, channel, negative_slope=0.2, scale=2 ** 0.5):
+        super().__init__()
+
+        self.bias = nn.Parameter(torch.zeros(channel))
+        self.negative_slope = negative_slope
+        self.scale = scale
+
+    def forward(self, input):
+        return fused_leaky_relu(input, self.bias, self.negative_slope, self.scale)
+
+
+def fused_leaky_relu(input, bias, negative_slope=0.2, scale=2 ** 0.5):
+    return FusedLeakyReLUFunction.apply(input, bias, negative_slope, scale)
 #### end - https://github.com/IIGROUP/TediGAN/blob/main/ext/models/stylegan2/op/fused_act.py
 #### start - https://github.com/IIGROUP/TediGAN/blob/main/ext/models/stylegan2/op/upfirdn2d.py
-# module_path = os.path.dirname(__file__)
-# upfirdn2d_op = load(
-#     'upfirdn2d',
-#     sources=[
-#         os.path.join(module_path, 'upfirdn2d.cpp'),
-#         os.path.join(module_path, 'upfirdn2d_kernel.cu'),
-#     ],
-# )
+module_path = os.path.dirname(__file__)
+upfirdn2d_op = load(
+    'upfirdn2d',
+    sources=[
+        os.path.join(module_path, 'upfirdn2d.cpp'),
+        os.path.join(module_path, 'upfirdn2d_kernel.cu'),
+    ],
+)
 
 
-# class UpFirDn2dBackward(Function):
-#     @staticmethod
-#     def forward(
-#             ctx, grad_output, kernel, grad_kernel, up, down, pad, g_pad, in_size, out_size
-#     ):
-#         up_x, up_y = up
-#         down_x, down_y = down
-#         g_pad_x0, g_pad_x1, g_pad_y0, g_pad_y1 = g_pad
+class UpFirDn2dBackward(Function):
+    @staticmethod
+    def forward(
+            ctx, grad_output, kernel, grad_kernel, up, down, pad, g_pad, in_size, out_size
+    ):
+        up_x, up_y = up
+        down_x, down_y = down
+        g_pad_x0, g_pad_x1, g_pad_y0, g_pad_y1 = g_pad
 
-#         grad_output = grad_output.reshape(-1, out_size[0], out_size[1], 1)
+        grad_output = grad_output.reshape(-1, out_size[0], out_size[1], 1)
 
-#         grad_input = upfirdn2d_op.upfirdn2d(
-#             grad_output,
-#             grad_kernel,
-#             down_x,
-#             down_y,
-#             up_x,
-#             up_y,
-#             g_pad_x0,
-#             g_pad_x1,
-#             g_pad_y0,
-#             g_pad_y1,
-#         )
-#         grad_input = grad_input.view(in_size[0], in_size[1], in_size[2], in_size[3])
+        grad_input = upfirdn2d_op.upfirdn2d(
+            grad_output,
+            grad_kernel,
+            down_x,
+            down_y,
+            up_x,
+            up_y,
+            g_pad_x0,
+            g_pad_x1,
+            g_pad_y0,
+            g_pad_y1,
+        )
+        grad_input = grad_input.view(in_size[0], in_size[1], in_size[2], in_size[3])
 
-#         ctx.save_for_backward(kernel)
+        ctx.save_for_backward(kernel)
 
-#         pad_x0, pad_x1, pad_y0, pad_y1 = pad
+        pad_x0, pad_x1, pad_y0, pad_y1 = pad
 
-#         ctx.up_x = up_x
-#         ctx.up_y = up_y
-#         ctx.down_x = down_x
-#         ctx.down_y = down_y
-#         ctx.pad_x0 = pad_x0
-#         ctx.pad_x1 = pad_x1
-#         ctx.pad_y0 = pad_y0
-#         ctx.pad_y1 = pad_y1
-#         ctx.in_size = in_size
-#         ctx.out_size = out_size
+        ctx.up_x = up_x
+        ctx.up_y = up_y
+        ctx.down_x = down_x
+        ctx.down_y = down_y
+        ctx.pad_x0 = pad_x0
+        ctx.pad_x1 = pad_x1
+        ctx.pad_y0 = pad_y0
+        ctx.pad_y1 = pad_y1
+        ctx.in_size = in_size
+        ctx.out_size = out_size
 
-#         return grad_input
+        return grad_input
 
-#     @staticmethod
-#     def backward(ctx, gradgrad_input):
-#         kernel, = ctx.saved_tensors
+    @staticmethod
+    def backward(ctx, gradgrad_input):
+        kernel, = ctx.saved_tensors
 
-#         gradgrad_input = gradgrad_input.reshape(-1, ctx.in_size[2], ctx.in_size[3], 1)
+        gradgrad_input = gradgrad_input.reshape(-1, ctx.in_size[2], ctx.in_size[3], 1)
 
-#         gradgrad_out = upfirdn2d_op.upfirdn2d(
-#             gradgrad_input,
-#             kernel,
-#             ctx.up_x,
-#             ctx.up_y,
-#             ctx.down_x,
-#             ctx.down_y,
-#             ctx.pad_x0,
-#             ctx.pad_x1,
-#             ctx.pad_y0,
-#             ctx.pad_y1,
-#         )
-#         # gradgrad_out = gradgrad_out.view(ctx.in_size[0], ctx.out_size[0], ctx.out_size[1], ctx.in_size[3])
-#         gradgrad_out = gradgrad_out.view(
-#             ctx.in_size[0], ctx.in_size[1], ctx.out_size[0], ctx.out_size[1]
-#         )
+        gradgrad_out = upfirdn2d_op.upfirdn2d(
+            gradgrad_input,
+            kernel,
+            ctx.up_x,
+            ctx.up_y,
+            ctx.down_x,
+            ctx.down_y,
+            ctx.pad_x0,
+            ctx.pad_x1,
+            ctx.pad_y0,
+            ctx.pad_y1,
+        )
+        gradgrad_out = gradgrad_out.view(ctx.in_size[0], ctx.out_size[0], ctx.out_size[1], ctx.in_size[3])
+        gradgrad_out = gradgrad_out.view(
+            ctx.in_size[0], ctx.in_size[1], ctx.out_size[0], ctx.out_size[1]
+        )
 
-#         return gradgrad_out, None, None, None, None, None, None, None, None
-
-
-# class UpFirDn2d(Function):
-#     @staticmethod
-#     def forward(ctx, input, kernel, up, down, pad):
-#         up_x, up_y = up
-#         down_x, down_y = down
-#         pad_x0, pad_x1, pad_y0, pad_y1 = pad
-
-#         kernel_h, kernel_w = kernel.shape
-#         batch, channel, in_h, in_w = input.shape
-#         ctx.in_size = input.shape
-
-#         input = input.reshape(-1, in_h, in_w, 1)
-
-#         ctx.save_for_backward(kernel, torch.flip(kernel, [0, 1]))
-
-#         out_h = (in_h * up_y + pad_y0 + pad_y1 - kernel_h) // down_y + 1
-#         out_w = (in_w * up_x + pad_x0 + pad_x1 - kernel_w) // down_x + 1
-#         ctx.out_size = (out_h, out_w)
-
-#         ctx.up = (up_x, up_y)
-#         ctx.down = (down_x, down_y)
-#         ctx.pad = (pad_x0, pad_x1, pad_y0, pad_y1)
-
-#         g_pad_x0 = kernel_w - pad_x0 - 1
-#         g_pad_y0 = kernel_h - pad_y0 - 1
-#         g_pad_x1 = in_w * up_x - out_w * down_x + pad_x0 - up_x + 1
-#         g_pad_y1 = in_h * up_y - out_h * down_y + pad_y0 - up_y + 1
-
-#         ctx.g_pad = (g_pad_x0, g_pad_x1, g_pad_y0, g_pad_y1)
-
-#         out = upfirdn2d_op.upfirdn2d(
-#             input, kernel, up_x, up_y, down_x, down_y, pad_x0, pad_x1, pad_y0, pad_y1
-#         )
-#         # out = out.view(major, out_h, out_w, minor)
-#         out = out.view(-1, channel, out_h, out_w)
-
-#         return out
-
-#     @staticmethod
-#     def backward(ctx, grad_output):
-#         kernel, grad_kernel = ctx.saved_tensors
-
-#         grad_input = UpFirDn2dBackward.apply(
-#             grad_output,
-#             kernel,
-#             grad_kernel,
-#             ctx.up,
-#             ctx.down,
-#             ctx.pad,
-#             ctx.g_pad,
-#             ctx.in_size,
-#             ctx.out_size,
-#         )
-
-#         return grad_input, None, None, None, None
+        return gradgrad_out, None, None, None, None, None, None, None, None
 
 
-# def upfirdn2d(input, kernel, up=1, down=1, pad=(0, 0)):
-#     out = UpFirDn2d.apply(
-#         input, kernel, (up, up), (down, down), (pad[0], pad[1], pad[0], pad[1])
-#     )
+class UpFirDn2d(Function):
+    @staticmethod
+    def forward(ctx, input, kernel, up, down, pad):
+        up_x, up_y = up
+        down_x, down_y = down
+        pad_x0, pad_x1, pad_y0, pad_y1 = pad
 
-#     return out
+        kernel_h, kernel_w = kernel.shape
+        batch, channel, in_h, in_w = input.shape
+        ctx.in_size = input.shape
+
+        input = input.reshape(-1, in_h, in_w, 1)
+
+        ctx.save_for_backward(kernel, torch.flip(kernel, [0, 1]))
+
+        out_h = (in_h * up_y + pad_y0 + pad_y1 - kernel_h) // down_y + 1
+        out_w = (in_w * up_x + pad_x0 + pad_x1 - kernel_w) // down_x + 1
+        ctx.out_size = (out_h, out_w)
+
+        ctx.up = (up_x, up_y)
+        ctx.down = (down_x, down_y)
+        ctx.pad = (pad_x0, pad_x1, pad_y0, pad_y1)
+
+        g_pad_x0 = kernel_w - pad_x0 - 1
+        g_pad_y0 = kernel_h - pad_y0 - 1
+        g_pad_x1 = in_w * up_x - out_w * down_x + pad_x0 - up_x + 1
+        g_pad_y1 = in_h * up_y - out_h * down_y + pad_y0 - up_y + 1
+
+        ctx.g_pad = (g_pad_x0, g_pad_x1, g_pad_y0, g_pad_y1)
+
+        out = upfirdn2d_op.upfirdn2d(
+            input, kernel, up_x, up_y, down_x, down_y, pad_x0, pad_x1, pad_y0, pad_y1
+        )
+        out = out.view(major, out_h, out_w, minor)
+        out = out.view(-1, channel, out_h, out_w)
+
+        return out
+
+    @staticmethod
+    def backward(ctx, grad_output):
+        kernel, grad_kernel = ctx.saved_tensors
+
+        grad_input = UpFirDn2dBackward.apply(
+            grad_output,
+            kernel,
+            grad_kernel,
+            ctx.up,
+            ctx.down,
+            ctx.pad,
+            ctx.g_pad,
+            ctx.in_size,
+            ctx.out_size,
+        )
+
+        return grad_input, None, None, None, None
 
 
-# def upfirdn2d_native(
-#         input, kernel, up_x, up_y, down_x, down_y, pad_x0, pad_x1, pad_y0, pad_y1
-# ):
-#     _, in_h, in_w, minor = input.shape
-#     kernel_h, kernel_w = kernel.shape
+def upfirdn2d(input, kernel, up=1, down=1, pad=(0, 0)):
+    out = UpFirDn2d.apply(
+        input, kernel, (up, up), (down, down), (pad[0], pad[1], pad[0], pad[1])
+    )
 
-#     out = input.view(-1, in_h, 1, in_w, 1, minor)
-#     out = F.pad(out, [0, 0, 0, up_x - 1, 0, 0, 0, up_y - 1])
-#     out = out.view(-1, in_h * up_y, in_w * up_x, minor)
+    return out
 
-#     out = F.pad(
-#         out, [0, 0, max(pad_x0, 0), max(pad_x1, 0), max(pad_y0, 0), max(pad_y1, 0)]
-#     )
-#     out = out[
-#           :,
-#           max(-pad_y0, 0): out.shape[1] - max(-pad_y1, 0),
-#           max(-pad_x0, 0): out.shape[2] - max(-pad_x1, 0),
-#           :,
-#           ]
 
-#     out = out.permute(0, 3, 1, 2)
-#     out = out.reshape(
-#         [-1, 1, in_h * up_y + pad_y0 + pad_y1, in_w * up_x + pad_x0 + pad_x1]
-#     )
-#     w = torch.flip(kernel, [0, 1]).view(1, 1, kernel_h, kernel_w)
-#     out = F.conv2d(out, w)
-#     out = out.reshape(
-#         -1,
-#         minor,
-#         in_h * up_y + pad_y0 + pad_y1 - kernel_h + 1,
-#         in_w * up_x + pad_x0 + pad_x1 - kernel_w + 1,
-#     )
-#     out = out.permute(0, 2, 3, 1)
+def upfirdn2d_native(
+        input, kernel, up_x, up_y, down_x, down_y, pad_x0, pad_x1, pad_y0, pad_y1
+):
+    _, in_h, in_w, minor = input.shape
+    kernel_h, kernel_w = kernel.shape
 
-#     return out[:, ::down_y, ::down_x, :]
+    out = input.view(-1, in_h, 1, in_w, 1, minor)
+    out = F.pad(out, [0, 0, 0, up_x - 1, 0, 0, 0, up_y - 1])
+    out = out.view(-1, in_h * up_y, in_w * up_x, minor)
+
+    out = F.pad(
+        out, [0, 0, max(pad_x0, 0), max(pad_x1, 0), max(pad_y0, 0), max(pad_y1, 0)]
+    )
+    out = out[
+          :,
+          max(-pad_y0, 0): out.shape[1] - max(-pad_y1, 0),
+          max(-pad_x0, 0): out.shape[2] - max(-pad_x1, 0),
+          :,
+          ]
+
+    out = out.permute(0, 3, 1, 2)
+    out = out.reshape(
+        [-1, 1, in_h * up_y + pad_y0 + pad_y1, in_w * up_x + pad_x0 + pad_x1]
+    )
+    w = torch.flip(kernel, [0, 1]).view(1, 1, kernel_h, kernel_w)
+    out = F.conv2d(out, w)
+    out = out.reshape(
+        -1,
+        minor,
+        in_h * up_y + pad_y0 + pad_y1 - kernel_h + 1,
+        in_w * up_x + pad_x0 + pad_x1 - kernel_w + 1,
+    )
+    out = out.permute(0, 2, 3, 1)
+
+    return out[:, ::down_y, ::down_x, :]
 #### end - https://github.com/IIGROUP/TediGAN/blob/main/ext/models/stylegan2/op/upfirdn2d.py
 #### start - https://github.com/IIGROUP/TediGAN/blob/main/ext/models/encoders/helpers.py
 """
@@ -1169,8 +1169,8 @@ class GradualStyleBlock(Module):
         self.out_c = out_c
         self.spatial = spatial
         num_pools = int(np.log2(spatial))
-        modules = []
-        modules += [Conv2d(in_c, out_c, kernel_size=3, stride=2, padding=1),#?,groups=1
+        modules = []#?,groups=1
+        modules += [Conv2d(in_c, out_c, kernel_size=3, stride=2, padding=1),
                     nn.LeakyReLU()]
         for i in range(num_pools - 1):
             modules += [
@@ -1188,7 +1188,7 @@ class GradualStyleBlock(Module):
 
 
 class GradualStyleEncoder(Module):
-    def __init__(self, num_layers, mode='ir', opts=None):
+    def __init__(self, num_layers, mode='ir'):
         super(GradualStyleEncoder, self).__init__()
         assert num_layers in [50, 100, 152], 'num_layers should be 50,100, or 152'
         assert mode in ['ir', 'ir_se'], 'mode should be ir or ir_se'
@@ -1197,7 +1197,7 @@ class GradualStyleEncoder(Module):
             unit_module = bottleneck_IR
         elif mode == 'ir_se':
             unit_module = bottleneck_IR_SE
-        self.input_layer = Sequential(Conv2d(opts.input_nc, 64, (3, 3), 1, 1, bias=False),
+        self.input_layer = Sequential(Conv2d(3, 64, (3, 3), 1, 1, bias=False),
                                       BatchNorm2d(64),
                                       PReLU(64))
         modules = []
@@ -1272,7 +1272,7 @@ class GradualStyleEncoder(Module):
 
 
 class BackboneEncoderUsingLastLayerIntoW(Module):
-    def __init__(self, num_layers, mode='ir', opts=None):
+    def __init__(self, num_layers, mode='ir'):
         super(BackboneEncoderUsingLastLayerIntoW, self).__init__()
         print('Using BackboneEncoderUsingLastLayerIntoW')
         assert num_layers in [50, 100, 152], 'num_layers should be 50,100, or 152'
@@ -1282,7 +1282,7 @@ class BackboneEncoderUsingLastLayerIntoW(Module):
             unit_module = bottleneck_IR
         elif mode == 'ir_se':
             unit_module = bottleneck_IR_SE
-        self.input_layer = Sequential(Conv2d(opts.input_nc, 64, (3, 3), 1, 1, bias=False),
+        self.input_layer = Sequential(Conv2d(3, 64, (3, 3), 1, 1, bias=False),
                                       BatchNorm2d(64),
                                       PReLU(64))
         self.output_pool = torch.nn.AdaptiveAvgPool2d((1, 1))
@@ -1305,7 +1305,7 @@ class BackboneEncoderUsingLastLayerIntoW(Module):
 
 
 class BackboneEncoderUsingLastLayerIntoWPlus(Module):
-    def __init__(self, num_layers, mode='ir', opts=None):
+    def __init__(self, num_layers, mode='ir'):
         super(BackboneEncoderUsingLastLayerIntoWPlus, self).__init__()
         print('Using BackboneEncoderUsingLastLayerIntoWPlus')
         assert num_layers in [50, 100, 152], 'num_layers should be 50,100, or 152'
@@ -1315,7 +1315,7 @@ class BackboneEncoderUsingLastLayerIntoWPlus(Module):
             unit_module = bottleneck_IR
         elif mode == 'ir_se':
             unit_module = bottleneck_IR_SE
-        self.input_layer = Sequential(Conv2d(opts.input_nc, 64, (3, 3), 1, 1, bias=False),
+        self.input_layer = Sequential(Conv2d(3, 64, (3, 3), 1, 1, bias=False),
                                       BatchNorm2d(64),
                                       PReLU(64))
         self.output_layer_2 = Sequential(BatchNorm2d(512),

@@ -1,11 +1,13 @@
 # config from paper (https://github.com/genforce/genforce/blob/master/configs/stylegan_ffhq256.py)
+mode: train
 learning_rate: 0.0001
-batch_size: 4
-epochs: 10
+batch_size: 128
+epochs: 100
 optimizer: Adam
 criterion: BCELoss
 image_size: 256
 dataset: celebA
+dataset_size_factor: 4
 model:
   name: TEDIGAN
   parameters:

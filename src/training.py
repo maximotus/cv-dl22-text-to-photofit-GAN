@@ -8,7 +8,7 @@ from model.tedi_gan import TediGAN
 from tqdm.auto import tqdm
 
 logger = logging.getLogger('root')
-VALID_MODEL_NAMES = {'CDCGAN': CDCGAN, 'tediGAN': TediGAN}
+VALID_MODEL_NAMES = {'CDCGAN': CDCGAN, 'TEDIGAN': TediGAN}
 VALID_DATASET_NAMES = {'celebA': CelebA, 'celebA_HQ': CelebAHQ, 'LSW': LSW}
 
 
