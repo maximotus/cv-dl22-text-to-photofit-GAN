@@ -6,9 +6,10 @@ import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 from urllib.error import URLError
 
+import torch
 
 class CelebA:
-    def __init__(self, image_size, batch_size):
+    def __init__(self, image_size, batch_size, dataset_size_factor=1):
 
         transform = transforms.Compose([
             transforms.Resize(image_size),
@@ -27,7 +28,8 @@ class CelebA:
                                                target_type=['attr', 'identity', 'bbox', 'landmarks'],
                                                transform=transform, download=True)
 
-        self.data_loader = DataLoader(data, batch_size=batch_size, shuffle=True, num_workers=10)
+        data = torch.utils.data.Subset(data, list(range(0, len(data), dataset_size_factor)))
+        self.data_loader = DataLoader(data, batch_size=batch_size, shuffle=True, num_workers=8)
         self.length = len(data)
 
         attributes = linecache.getline(r'../../data/celeba/list_attr_celeba.txt', 2).strip().split(' ')

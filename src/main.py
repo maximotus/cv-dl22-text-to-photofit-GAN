@@ -15,6 +15,7 @@ MODEL_KEY = 'model'
 MODEL_NAME_KEY = 'name'
 MODEL_PARAMETERS_KEY = 'parameters'
 DATASET_KEY = 'dataset'
+DATASET_SIZE_FACTOR_KEY = 'dataset_size_factor'
 EPOCHS_KEY = 'epochs'
 BATCH_SIZE_KEY = 'batch_size'
 OPTIMIZER_KEY = 'optimizer'
@@ -79,6 +80,7 @@ if __name__ == '__main__':
             trainer = Trainer(configuration.get(MODEL_KEY).get(MODEL_NAME_KEY),
                               configuration.get(MODEL_KEY).get(MODEL_PARAMETERS_KEY),
                               configuration.get(DATASET_KEY),
+                              configuration.get(DATASET_SIZE_FACTOR_KEY),
                               configuration.get(EPOCHS_KEY),
                               configuration.get(BATCH_SIZE_KEY),
                               configuration.get(OPTIMIZER_KEY),

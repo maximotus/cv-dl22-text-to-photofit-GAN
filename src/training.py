@@ -13,7 +13,7 @@ VALID_DATASET_NAMES = {'celebA': CelebA, 'celebA_HQ': CelebAHQ, 'LSW': LSW}
 
 
 class Trainer:
-    def __init__(self, model_name, model_params, dataset_name, epochs, batch_size, optimizer_name, learning_rate,
+    def __init__(self, model_name, model_params, dataset_name, dataset_size_factor, epochs, batch_size, optimizer_name, learning_rate,
                  criterion_name, device_name, save_freq, gen_freq, image_size, experiment_path):
 
         logger.info('Initializing trainer...')
@@ -30,13 +30,14 @@ class Trainer:
             self.device = torch.device(device_name)
         logger.info('Using device ' + str(self.device))
 
-        self.dataset = VALID_DATASET_NAMES[dataset_name](image_size, batch_size)
+        self.dataset = VALID_DATASET_NAMES[dataset_name](image_size, batch_size, dataset_size_factor)
         self.model = VALID_MODEL_NAMES[model_name](model_params, optimizer_name, learning_rate, criterion_name,
                                                    len(self.dataset.attribute_to_idx), self.device)
 
         self.model_name = model_name
         self.model_params = model_params
         self.dataset_name = dataset_name
+        self.dataset_size_factor = dataset_size_factor
         self.epochs = epochs
         self.batch_size = batch_size
         self.optimizer_name = optimizer_name

@@ -1,8 +1,8 @@
 # config from original paper
 mode: train
 learning_rate: 0.0002
-batch_size: 16
-epochs: 100
+batch_size: 128
+epochs: 20
 optimizer: Adam
 criterion: BCELoss
 image_size: 64
