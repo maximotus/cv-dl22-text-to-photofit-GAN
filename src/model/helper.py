@@ -11,20 +11,20 @@ from collections import namedtuple
 from torch.nn import Conv2d, BatchNorm2d, PReLU, ReLU, Sigmoid, MaxPool2d, AdaptiveAvgPool2d, Sequential, Module, Dropout, BatchNorm1d, Linear
 
 
-class SpectralNormedConv2d(torch.nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=True):
-        super().__init__()
-
-        conv = torch.nn.Conv2d(in_channels, out_channels, kernel_size=(kernel_size, kernel_size),
-                               stride=(stride, stride), padding=padding, bias=bias)
+class SpectralNormedConv2d(torch.nn.Conv2d):
+    def __init__(self, in_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False):
+        super().__init__(in_channels, out_channels, kernel_size)
+        
+        conv = torch.nn.Conv2d(in_channels, out_channels, kernel_size=kernel_size,
+                               stride=stride, padding=padding, bias=bias)
         self.conv = torch.nn.utils.spectral_norm(conv)
 
     def forward(self, x):
         return self.conv(x)
 
 
-class SpectralNormedLinear(torch.nn.Module):
-    def __init__(self, in_channels, out_channels, bias=True):
+class SpectralNormedLinear(torch.nn.Module):#maybe Linear
+    def __init__(self, in_channels, out_channels, bias=False):
         super().__init__()
 
         linear = torch.nn.Linear(in_channels, out_channels, bias=bias)
@@ -158,7 +158,7 @@ class EqualLinear(nn.Module):
             self, in_dim, out_dim, bias=True, bias_init=0, lr_mul=1, activation=None
     ):
         super().__init__()
-
+        print(in_dim, out_dim, lr_mul)
         self.weight = nn.Parameter(torch.randn(out_dim, in_dim).div_(lr_mul))
 
         if bias:
@@ -174,7 +174,7 @@ class EqualLinear(nn.Module):
 
     def forward(self, input):
         if self.activation:
-
+            print(input.shape)
             out = F.linear(input, self.weight * self.scale)
             out = fused_leaky_relu(out, self.bias * self.lr_mul)
 
