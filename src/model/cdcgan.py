@@ -290,6 +290,7 @@ class CDCGAN:
         self.fix_images = []
 
         # fixed noise vector
+        # TODO refactor to trainer
         self.z_fix = torch.randn((1, 128)).to(self.device)
         self.c_fix = (torch.rand((1, self.num_classes), device=self.device) * 2.0).type(torch.long)
         # TODO properly defined attributes
@@ -394,11 +395,23 @@ class CDCGAN:
             save_image(img, save_path)
         logger.info('Saved randomly generated image in ' + path)
 
+    def save_predefined_img(self, n, experiment_path, epoch, c_map):
+        path = self.create_and_get_img_save_path(experiment_path, epoch)
+        name, c = list(c_map.keys()), list(c_map.values())
+        for i in range(n):
+            for j in range(len(name)):
+                img = self.generate_image(c=torch.FloatTensor(c[j]).unsqueeze(dim=0).to(self.device))
+                save_path = path + '/predef_img_' + name[j] + '_' + str(i) + '.png'
+                save_image(img, save_path)
+        logger.info('Saved predefined image in ' + path)
+
+
     def generate_image(self, c=None, z=None):
         if c is None:
             c = (torch.rand((1, self.num_classes), device=self.device) * 2.0).type(torch.long)
         if z is None:
             z = torch.randn((1, 128)).to(self.device)
+        print(c.shape)
         self.generator.eval()
         img = self.generator.forward(z, c)
         self.generator.train()
