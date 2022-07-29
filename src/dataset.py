@@ -8,6 +8,7 @@ from urllib.error import URLError
 
 import torch
 
+
 class CelebA:
     def __init__(self, image_size, batch_size, dataset_size_factor=1):
 
