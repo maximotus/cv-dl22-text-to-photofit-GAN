@@ -411,7 +411,6 @@ class CDCGAN:
             c = (torch.rand((1, self.num_classes), device=self.device) * 2.0).type(torch.long)
         if z is None:
             z = torch.randn((1, 128)).to(self.device)
-        print(c.shape)
         self.generator.eval()
         img = self.generator.forward(z, c)
         self.generator.train()

@@ -13,7 +13,7 @@ model:
   parameters:
     beta1: 0.5
     dropout: 0.2
-    use_spectral_norm: False
+    use_spectral_norm: True
     ngf: 64
     ndf: 64
     z_channels: 128

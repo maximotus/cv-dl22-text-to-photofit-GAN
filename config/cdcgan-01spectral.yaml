@@ -2,7 +2,7 @@
 mode: train
 learning_rate: 0.0002
 batch_size: 128
-epochs: 1
+epochs: 100
 optimizer: Adam
 criterion: BCELoss
 image_size: 64
