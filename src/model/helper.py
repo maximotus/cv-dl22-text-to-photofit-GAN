@@ -158,7 +158,7 @@ class EqualLinear(nn.Module):
             self, in_dim, out_dim, bias=True, bias_init=0, lr_mul=1, activation=None
     ):
         super().__init__()
-        print(in_dim, out_dim, lr_mul)
+
         self.weight = nn.Parameter(torch.randn(out_dim, in_dim).div_(lr_mul))
 
         if bias:
@@ -174,11 +174,13 @@ class EqualLinear(nn.Module):
 
     def forward(self, input):
         if self.activation:
+            print(self.activation)
             print(input.shape)
             out = F.linear(input, self.weight * self.scale)
             out = fused_leaky_relu(out, self.bias * self.lr_mul)
 
         else:
+            print(input.shape)
             out = F.linear(
                 input, self.weight * self.scale, bias=self.bias * self.lr_mul
             )
@@ -260,7 +262,8 @@ class ModulatedConv2d(nn.Module):
 
     def forward(self, input, style):
         batch, in_channel, height, width = input.shape
-
+        print(input.shape)
+        print(style.shape)
         style = self.modulation(style).view(batch, 1, in_channel, 1, 1)
         weight = self.scale * self.weight * style
 
@@ -358,6 +361,7 @@ class StyledConv(nn.Module):
         self.activate = FusedLeakyReLU(out_channel)
 
     def forward(self, input, style, noise=None):
+        print(style.shape)
         out = self.conv(input, style)
         out = self.noise(out, noise=noise)
         out = out + self.bias
@@ -372,7 +376,7 @@ class ToRGB(nn.Module):
 
         if upsample:
             self.upsample = Upsample(blur_kernel)
-
+        
         self.conv = ModulatedConv2d(in_channel, 3, 1, style_dim, demodulate=False)
         self.bias = nn.Parameter(torch.zeros(1, 3, 1, 1))
 
@@ -547,6 +551,9 @@ class Tedi_Generator(nn.Module):
             latent = torch.cat([latent, latent2], 1)
 
         out = self.input(latent)
+        print(out.shape)
+        print(latent.shape)
+        print(latent[:, 0].shape)
         out = self.conv1(out, latent[:, 0], noise=noise[0])
 
         skip = self.to_rgb1(out, latent[:, 1])

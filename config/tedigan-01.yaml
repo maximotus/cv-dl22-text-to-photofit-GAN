@@ -2,12 +2,12 @@
 mode: train
 learning_rate: 0.0001
 batch_size: 128
-epochs: 100
+epochs: 1
 optimizer: Adam
 criterion: BCELoss
 image_size: 256
 dataset: celebA
-dataset_size_factor: 4
+dataset_size_factor: 400
 model:
   name: TEDIGAN
   parameters:
@@ -16,7 +16,7 @@ model:
     use_spectral_norm: False
     ngf: 1024
     ndf: 512
-    z_channels: 128
+    z_channels: 512 #128
 device: auto # (cuda / cpu / auto)
 experiment_path: ..\experiments
 frequencies:
