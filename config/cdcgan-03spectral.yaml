@@ -7,7 +7,7 @@ optimizer: Adam
 criterion: BCELoss
 image_size: 64
 dataset: celebA
-dataset_size_factor: 4
+dataset_size_factor: 1
 model:
   name: CDCGAN
   parameters:
@@ -20,7 +20,7 @@ model:
 device: auto # (cuda / cpu / auto)
 experiment_path: ..\experiments
 frequencies:
-  save_freq: 1 # (i.e. how often should the model checkpoint be saved, in epochs)
+  save_freq: 9 # (i.e. how often should the model checkpoint be saved, in epochs)
   gen_freq: 1 # (i.e. how often should test images be generated, in epochs)
 num_imgs: 20 # how many randomly generated images should be saved
 predefined_images: {max: [0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,1,1,1,0,0,1,0,1,0,0,0,0,1,0,0,0,0,0,0,0,1], daniel: [0,1,1,1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,1,1,0,0,1,0,1,0,1,0,0,1,0,0,0,0,0,0,0,1]}

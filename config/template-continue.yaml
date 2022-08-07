@@ -1,8 +1,10 @@
 # config from original paper with dropout
-mode: train
+mode: continue
+trained_path: ..\experiments\train\cdcgan-03spectral\2022-08-06-15-09-24
+current_epoch: 9
 learning_rate: 0.0002
 batch_size: 128
-epochs: 100
+epochs: 15
 optimizer: Adam
 criterion: BCELoss
 image_size: 64
@@ -12,7 +14,7 @@ model:
   name: CDCGAN
   parameters:
     beta1: 0.5
-    dropout: 0.5
+    dropout: 0.3
     use_spectral_norm: True
     ngf: 64
     ndf: 64
@@ -20,7 +22,7 @@ model:
 device: auto # (cuda / cpu / auto)
 experiment_path: ..\experiments
 frequencies:
-  save_freq: 1 # (i.e. how often should the model checkpoint be saved, in epochs)
+  save_freq: 9 # (i.e. how often should the model checkpoint be saved, in epochs)
   gen_freq: 1 # (i.e. how often should test images be generated, in epochs)
 num_imgs: 20 # how many randomly generated images should be saved
 predefined_images: {max: [0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,1,1,1,0,0,1,0,1,0,0,0,0,1,0,0,0,0,0,0,0,1], daniel: [0,1,1,1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,1,1,0,0,1,0,1,0,1,0,0,1,0,0,0,0,0,0,0,1]}

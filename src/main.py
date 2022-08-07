@@ -7,10 +7,10 @@ from datetime import datetime
 
 from misc.error import ConfigurationError
 from misc.log import setup_logger
-from training import Trainer, Evaluator, PhotofitGenerator
+from training import Trainer, Evaluator, PhotofitGenerator, Continuation
 
 MODE_KEY = 'mode'
-MODES = ['train', 'eval', 'gen']
+MODES = ['train', 'eval', 'gen', 'continue']
 MODEL_KEY = 'model'
 MODEL_NAME_KEY = 'name'
 MODEL_PARAMETERS_KEY = 'parameters'
@@ -29,6 +29,8 @@ SAVE_FREQUENCY_KEY = 'save_freq'
 GEN_FREQUENCY_KEY = 'gen_freq'
 NUM_IMGS_KEY = 'num_imgs'
 PREDEF_IMG_DICT_KEY = 'predefined_images'
+TRAINED_PATH = 'trained_path'
+CURRENT_EPOCH = 'current_epoch'
 
 
 def parse_config(argv):
@@ -68,9 +70,14 @@ def create_experiment_dir(conf_file, exp_path, run_mode):
 if __name__ == '__main__':
     configuration_file, configuration = parse_config(sys.argv)
     mode = configuration.get(MODE_KEY)
-    experiment_path = create_experiment_dir(configuration_file, configuration.get(EXPERIMENT_PATH_KEY), mode)
-
-    logger = setup_logger(experiment_path)
+    
+    if mode == MODES[3]:
+        experiment_path = configuration.get(TRAINED_PATH)
+        logger = setup_logger(experiment_path)
+    else:
+        experiment_path = create_experiment_dir(configuration_file, configuration.get(EXPERIMENT_PATH_KEY), mode)
+        logger = setup_logger(experiment_path)
+    
     logger.info('Successfully read the given configuration file, created experiment directories and set up logger.')
     logger.info('Starting experiment in mode ' + mode + ' using configuration ' + configuration_file)
 
@@ -102,5 +109,24 @@ if __name__ == '__main__':
         if mode == MODES[2]:
             generator = PhotofitGenerator()
             generator.generate()
+        if mode == MODES[3]:
+            contd = Continuation(configuration.get(MODEL_KEY).get(MODEL_NAME_KEY),
+                              configuration.get(MODEL_KEY).get(MODEL_PARAMETERS_KEY),
+                              configuration.get(DATASET_KEY),
+                              configuration.get(DATASET_SIZE_FACTOR_KEY),
+                              configuration.get(CURRENT_EPOCH),
+                              configuration.get(EPOCHS_KEY),
+                              configuration.get(BATCH_SIZE_KEY),
+                              configuration.get(OPTIMIZER_KEY),
+                              configuration.get(LEARNING_RATE_KEY),
+                              configuration.get(CRITERION_KEY),
+                              configuration.get(DEVICE_KEY),
+                              configuration.get(FREQUENCIES_KEY).get(SAVE_FREQUENCY_KEY),
+                              configuration.get(FREQUENCIES_KEY).get(GEN_FREQUENCY_KEY),
+                              configuration.get(IMAGE_SIZE_KEY),
+                              configuration.get(NUM_IMGS_KEY),
+                              configuration.get(PREDEF_IMG_DICT_KEY),
+                              experiment_path)
+            contd.train()
     except (ConfigurationError, NotImplementedError) as e:
         logger.exception(e)
