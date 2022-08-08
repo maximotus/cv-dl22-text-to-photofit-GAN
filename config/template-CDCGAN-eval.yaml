@@ -8,6 +8,9 @@ criterion: BCELoss
 noise_size: 128
 image_size: 64
 dataset: celebA
+dataset_size_factor: 50000
+trained_path: ../experiments/train/template-CDCGAN-train/2022-08-08-17-07-12 # empty if start from scratch
+current_epoch: 3 # empty if start from scratch
 model:
   name: CDCGAN
   parameters:
@@ -24,3 +27,4 @@ frequencies:
   save_freq: 1 # (i.e. how often should the model checkpoint be saved, in epochs)
   gen_freq: 1 # (i.e. how often should test images be generated, in epochs)
 num_imgs: 20 # how many randomly generated images should be saved
+predefined_images: {max: [0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,1,1,1,0,0,1,0,1,0,0,0,0,1,0,0,0,0,0,0,0,1], daniel: [0,1,1,1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,1,1,0,0,1,0,1,0,1,0,0,1,0,0,0,0,0,0,0,1]}

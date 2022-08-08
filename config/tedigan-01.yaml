@@ -9,7 +9,7 @@ image_size: 256
 dataset: celebA
 dataset_size_factor: 400
 model:
-  name: TEDIGAN
+  name: tediGAN
   parameters:
     beta1: 0.0 #(0.0, 0.99)
     dropout: 0.4

@@ -238,7 +238,8 @@ class Generator(torch.nn.Module):
 
 
 class CDCGAN:
-    def __init__(self, model_params, optimizer_name, learning_rate, criterion_name, num_classes, device):
+    def __init__(self, model_params, optimizer_name, learning_rate, criterion_name, num_classes, device,
+                 pretrained_path, current_epoch):
         if optimizer_name not in VALID_OPTIMIZER_NAMES:
             raise ConfigurationError(
                 'Specified optimizer is not valid. Valid optimizers: ' + str(VALID_OPTIMIZER_NAMES))
@@ -269,16 +270,25 @@ class CDCGAN:
                                            dropout=self.dropout)
         self.discriminator.apply(weight_init)
         self.discriminator.to(self.device)
-        self.discriminator_optimizer = VALID_OPTIMIZER_NAMES[optimizer_name](self.discriminator.parameters(),
-                                                                             lr=self.lr, betas=(self.beta1, 0.999))
 
         # initialize generator network
         self.generator = Generator(self.device, z_channels=self.z_channels, nf=self.ngf, num_classes=self.num_classes)
         self.generator.apply(weight_init)
         self.generator.to(self.device)
+
+        # load pretrained models if given
+        if current_epoch is not None and pretrained_path is not None:
+            pretrained_generator_path = pretrained_path + '/model/generator/epoch-' + str(current_epoch) + '.pt'
+            pretrained_discriminator_path = pretrained_path + '/model/discriminator/epoch-' + str(current_epoch) + '.pt'
+            self.generator.load_state_dict(torch.load(pretrained_generator_path, map_location=device), strict=False)
+            self.discriminator.load_state_dict(torch.load(pretrained_discriminator_path, map_location=device), strict=False)
+            logger.info('Loaded pretrained models from ' + pretrained_generator_path + ' and ' + pretrained_discriminator_path)
+
+        # initialize optimizers
+        self.discriminator_optimizer = VALID_OPTIMIZER_NAMES[optimizer_name](self.discriminator.parameters(),
+                                                                             lr=self.lr, betas=(self.beta1, 0.999))
         self.generator_optimizer = VALID_OPTIMIZER_NAMES[optimizer_name](self.generator.parameters(),
                                                                          lr=self.lr, betas=(self.beta1, 0.999))
-
         # initialize state attributes
         self.average_losses = {'gan_loss': [], 'd_real_loss': [], 'd_fake_loss': []}
         self.epoch_losses = {'gan_loss': [], 'd_real_loss': [], 'd_fake_loss': []}
@@ -289,7 +299,7 @@ class CDCGAN:
         self.num_total = 0
         self.fix_images = []
 
-        # fixed noise vector
+        # initialize fixed noise vector
         # TODO refactor to trainer
         self.z_fix = torch.randn((1, 128)).to(self.device)
         self.c_fix = (torch.rand((1, self.num_classes), device=self.device) * 2.0).type(torch.long)
@@ -404,7 +414,6 @@ class CDCGAN:
                 save_path = path + '/predef_img_' + name[j] + '_' + str(i) + '.png'
                 save_image(img, save_path)
         logger.info('Saved predefined image in ' + path)
-
 
     def generate_image(self, c=None, z=None):
         if c is None:
