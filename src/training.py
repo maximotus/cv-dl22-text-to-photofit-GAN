@@ -47,6 +47,8 @@ class Trainer(Creator):
                  learning_rate, criterion_name, device_name, image_size, num_imgs, predefined_images, experiment_path,
                  epochs, save_freq, gen_freq, current_epoch, pretrained_path):
 
+        logger.info('Initializing trainer...')
+
         super().__init__(model_name, model_params, dataset_name, dataset_size_factor, batch_size, optimizer_name,
                          learning_rate, criterion_name, device_name, image_size, num_imgs, predefined_images,
                          experiment_path, current_epoch, pretrained_path)
