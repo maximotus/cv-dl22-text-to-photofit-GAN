@@ -10,7 +10,7 @@ import torch
 
 
 class CelebA:
-    def __init__(self, image_size, batch_size, dataset_size_factor=1):
+    def __init__(self, image_size, batch_size, dataset_size_fraction=1):
 
         transform = transforms.Compose([
             transforms.Resize(image_size),
@@ -29,7 +29,7 @@ class CelebA:
                                                target_type=['attr', 'identity', 'bbox', 'landmarks'],
                                                transform=transform, download=True)
 
-        data = torch.utils.data.Subset(data, list(range(0, len(data), dataset_size_factor)))
+        data = torch.utils.data.Subset(data, list(range(0, len(data), dataset_size_fraction)))
         self.data_loader = DataLoader(data, batch_size=batch_size, shuffle=True, num_workers=8)
         self.length = len(data)
 
