@@ -174,29 +174,32 @@ class Generator(torch.nn.Module):
     def forward(self, z, c):
         # z: [batch_size, num_z]
         # c: [batch_size, num_classes]
-        # print('GENERATOR')
-        # print('z', z.shape)
-        # print('c', c.shape)
+        logger.debug('GENERATOR')
+        logger.debug('0 z ' + str(z.shape))
+        logger.debug('0 c ' + str(c.shape))
 
         z = z[:, :, None, None].to(self.device)
-        # print('z', z.shape)
-        z = self.initial_z(z)
-        # print('z', z.shape)
+        logger.debug('0 expand z ' + str(z.shape))
+
         c = c[:, :, None, None].float().to(self.device)
-        # print('c', c.shape)
+        logger.debug('0 expand c ' + str(c.shape))
+
+        z = self.initial_z(z)
+        logger.debug('1 z ' + str(z.shape))
+
         c = self.initial_c(c)
-        # print('c', c.shape)
+        logger.debug('1 c ' + str(c.shape))
         # z: [batch_size, nf * 8, 4, 4]
         # c: [batch_size, nf * 8, 4, 4]
 
-        x = torch.cat([z, c], dim=1)
-        # print('x', x.shape)
-        # x: [batch_size, nf * 8 + nf * 8, 4, 4]
+        zc = torch.cat([z, c], dim=1)
+        logger.debug('0 zc ' + str(zc.shape))
+        # zc: [batch_size, nf * 8 + nf * 8, 4, 4]
 
-        x = self.block(x)
-        # print('x', x.shape)
-        # x: [batch_size, 3, 64, 64]
-        return x
+        zc = self.block(zc)
+        logger.debug('1 zc ' + str(zc.shape))
+        # zc: [batch_size, 3, 64, 64]
+        return zc
 
 
 class CDCGAN:
