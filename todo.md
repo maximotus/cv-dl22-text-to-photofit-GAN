@@ -1,5 +1,16 @@
 # TODOs
 
+## Prio 0
+
+- [ ] implement plot script for plotting stats for report
+- [ ] implement save_plots (save plots as pngs) at the end of a train run
+- [ ] update README.md with all necessary information to run our framework
+- [ ] write report
+- [ ] create presentation slides
+- [ ] make video
+
+## Prio 1
+
 - [ ] log continuation in main, dont use extra class for that (e.g. after line 79)
 - [ ] rename current_epoch to continuation_epoch
 - [ ] pass trained_path and and continuation_epoch as model parameters
