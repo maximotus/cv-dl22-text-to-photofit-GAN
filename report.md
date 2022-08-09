@@ -24,11 +24,11 @@
    2. Mode Collapse
    3. Imagesize
    4. More time + GPU-power
-   5. More attributes in dataset, more specialized dataset 
+   5. More attributes in dataset, more specialized dataset
 4. Future Work (creation of own dataset that is perfectly suitable for our task)
 5. Collaboration
-   1. Short paragraph outlining the 50/50-distribution of the workload (pair programming, etc.) 
-   2. Table annotating the main responsible(s) for each part of the framework 
+   1. Short paragraph outlining the 50/50-distribution of the workload (pair programming, etc.)
+   2. Table annotating the main responsible(s) for each part of the framework
 
 ## Photofit Creation using GANs
 
