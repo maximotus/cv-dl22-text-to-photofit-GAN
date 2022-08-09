@@ -138,14 +138,6 @@ class Generator(torch.nn.Module):
 
         self.device = device
 
-        # self.initial_z = torch.nn.Sequential(
-        #     torch.nn.ConvTranspose2d(z_channels, nf * 8, (4, 4), (1, 1), (0, 0), bias=False),
-        #     torch.nn.BatchNorm2d(nf * 8))
-        # self.initial_c = torch.nn.Sequential(
-        #     torch.nn.ConvTranspose2d(num_classes, nf * 8, (4, 4), (1, 1), (0, 0), bias=False),
-        #     torch.nn.BatchNorm2d(nf * 8)
-        # )
-
         self.initial_z = torch.nn.Sequential(
             torch.nn.Upsample(scale_factor=4.0),
             torch.nn.Conv2d(z_channels, nf * 8, kernel_size=(3, 3), stride=(1, 1), padding=1),
