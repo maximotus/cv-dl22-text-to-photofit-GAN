@@ -265,9 +265,9 @@ class CDCGAN:
         self.fix_images = []
 
         # initialize fixed noise vector
-        # TODO refactor to trainer
         self.z_fix = torch.randn((1, 128)).to(self.device)
         self.c_fix = (torch.rand((1, self.num_classes), device=self.device) * 2.0).type(torch.long)
+
         # TODO properly defined attributes
         # self.c_fix = torch.tensor([0, 0, 0, 0, 1, ...])
 
