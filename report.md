@@ -1,5 +1,35 @@
 # Highly descriptive text-to-face generation to synthesize authentic faces (photofits for criminology purposes) via GANs
 
+## Structure
+
+1. Introduction
+   1. The Goal of Photofit Creation using GANs (Max)
+   2. Related Work (Daniel)
+2. Main
+   1. Suitable Datasets (Max)
+      1. Overview
+      2. Our Decision
+   2. Framework
+      1. Architecture / Structure (Max)
+      2. CDCGAN (Max)
+      3. tediGAN (Daniel)
+      4. Metrics (Daniel)
+      5. Experiments
+         1. Configuration (Max)
+         2. Results (Daniel)
+            1. Report
+            2. Analysis / Discussion
+3. Conclusion
+   1. Datasets
+   2. Mode Collapse
+   3. Imagesize
+   4. More time + GPU-power
+   5. More attributes in dataset, more specialized dataset 
+4. Future Work (creation of own dataset that is perfectly suitable for our task)
+5. Collaboration
+   1. Short paragraph outlining the 50/50-distribution of the workload (pair programming, etc.) 
+   2. Table annotating the main responsible(s) for each part of the framework 
+
 ## Photofit Creation using GANs
 
 Our proposed goal for the final project of the "Computer Vision & Deep Learning: Visual Synthesis" lecture was to train 
