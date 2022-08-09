@@ -33,33 +33,6 @@ class Discriminator(torch.nn.Module):
         self.nf = nf
         self.num_classes = num_classes
 
-        # self.block_x = torch.nn.Sequential(conv(3, nf, kernel_size=(3, 3), stride=(1, 1), padding=1),
-        #                                    torch.nn.LeakyReLU(0.1, True),
-        #                                    conv(nf, nf * 2, kernel_size=(4, 4), stride=(2, 2), padding=1),
-        #                                    torch.nn.LeakyReLU(0.1, True),
-        #                                    conv(nf * 2, nf * 4, kernel_size=(4, 4), stride=(2, 2), padding=1),
-        #                                    torch.nn.LeakyReLU(0.1, True),
-        #                                    conv(nf * 4, nf * 8, kernel_size=(4, 4), stride=(2, 2), padding=1),
-        #                                    torch.nn.LeakyReLU(0.1, True))
-        # self.block_c = torch.nn.Sequential(conv(num_classes, nf, kernel_size=(3, 3), stride=(1, 1), padding=1),
-        #                                    torch.nn.LeakyReLU(0.1, True),
-        #                                    conv(nf, nf * 2, kernel_size=(4, 4), stride=(2, 2), padding=1),
-        #                                    torch.nn.LeakyReLU(0.1, True),
-        #                                    conv(nf * 2, nf * 4, kernel_size=(4, 4), stride=(2, 2), padding=1),
-        #                                    torch.nn.LeakyReLU(0.1, True),
-        #                                    conv(nf * 4, nf * 8, kernel_size=(4, 4), stride=(2, 2), padding=1),
-        #                                    torch.nn.LeakyReLU(0.1, True))
-        # self.block_x = torch.nn.Sequential(torch.nn.Conv2d(3, nf, kernel_size=(3, 3), stride=(1, 1), padding=1),
-        #                                    torch.nn.LeakyReLU(0.2, True),
-        #                                    torch.nn.Conv2d(nf, nf * 2, kernel_size=(3, 3), stride=(1, 1), padding=1),
-        #                                    torch.nn.LeakyReLU(0.2, True),
-        #                                    torch.nn.Conv2d(nf * 2, nf * 4, kernel_size=(3, 3), stride=(1, 1), padding=1),
-        #                                    torch.nn.LeakyReLU(0.2, True),
-        #                                    torch.nn.Conv2d(nf * 4, nf * 8, kernel_size=(3, 3), stride=(1, 1), padding=1),
-        #                                    torch.nn.LeakyReLU(0.2, True),
-        #                                    torch.nn.Conv2d(nf * 8, nf * 16, kernel_size=(3, 3), stride=(1, 1), padding=1),
-        #                                    torch.nn.LeakyReLU(0.2, True))
-
         # initialize helper functions
         self.sig = torch.nn.Sigmoid()
         self.relu = torch.nn.LeakyReLU(0.2, inplace=True)
