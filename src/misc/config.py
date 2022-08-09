@@ -13,6 +13,7 @@ VALID_CRITERION_NAMES = {'BCELoss': BCELoss, 'CrossEntropyLoss': CrossEntropyLos
 
 # keys corresponding to the overall specification
 MODE_KEY = 'mode'
+LOG_LEVEL_KEY = 'log_level'
 DEVICE_KEY = 'device'
 EXPERIMENT_PATH_KEY = 'experiment_path'
 EPOCHS_KEY = 'epochs'

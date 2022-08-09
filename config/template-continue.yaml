@@ -1,4 +1,5 @@
 mode: train
+log_level: 20
 device: cpu
 experiment_path: ..\experiments
 epochs: 500

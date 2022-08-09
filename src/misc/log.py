@@ -2,13 +2,13 @@ import logging
 import os
 
 
-def setup_logger(path):
+def setup_logger(path, lvl):
     log_path = os.path.join(path, 'out.log')
 
     formatter = logging.Formatter(fmt='%(asctime)s - %(levelname)s - %(module)s - %(message)s')
 
     root_logger = logging.getLogger()
-    root_logger.setLevel(logging.DEBUG)
+    root_logger.setLevel(lvl)
 
     file_handler = logging.FileHandler(log_path)
     file_handler.setFormatter(formatter)

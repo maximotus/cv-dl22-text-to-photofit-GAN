@@ -47,12 +47,13 @@ def create_experiment_dir(conf_file, exp_path, run_mode):
 if __name__ == '__main__':
     configuration_file, configuration = parse_config(sys.argv)
     mode = configuration.get(config.MODE_KEY)
+    log_level = configuration.get(config.LOG_LEVEL_KEY)
 
     if configuration.get(config.PRETRAINED_PATH_KEY) is not None:
         experiment_path = configuration.get(config.PRETRAINED_PATH_KEY)
     else:
         experiment_path = create_experiment_dir(configuration_file, configuration.get(config.EXPERIMENT_PATH_KEY), mode)
-    logger = setup_logger(experiment_path)
+    logger = setup_logger(experiment_path, log_level)
 
     logger.info('Successfully read the given configuration file, created experiment directories and set up logger.')
     logger.info('Starting experiment in mode ' + mode + ' using configuration ' + configuration_file)
