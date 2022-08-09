@@ -76,52 +76,52 @@ class Discriminator(torch.nn.Module):
     def forward(self, x, c):
         img_size = x.size(2)
 
-        # print('DISCRIMINATOR')
-        # print(1, x.shape)
-        # print(2, c.shape)
+        logger.debug('DISCRIMINATOR')
+        logger.debug('0 x ' + str(x.shape))
+        logger.debug('0 c ' + str(c.shape))
         x = self.conv_x(x)
         x = self.relu(x)
         x = self.dropout_x(x)
-        # print(3, x.shape)
+        logger.debug('1 x ' + str(x.shape))
 
         y = self.preprocess_c(c, img_size)
-        # print(4, y.shape)
+        logger.debug('1 y ' + str(y.shape))
 
         y = self.conv_y(y)
         y = self.relu(y)
         y = self.dropout_y(y)
-        # print(5, y.shape)
+        logger.debug('2 y ' + str(y.shape))
 
         xy = torch.cat([x, y], dim=1)
-        # print(xy.shape)
+        logger.debug(xy.shape)
         xy = self.conv1(xy)
         xy = self.bn1(xy)
         xy = self.relu(xy)
         xy = self.dropout1(xy)
-        # print(xy.shape)
+        logger.debug('1 xy ' + str(xy.shape))
 
         xy = self.conv2(xy)
         xy = self.bn2(xy)
         xy = self.relu(xy)
         xy = self.dropout2(xy)
-        # print(xy.shape)
+        logger.debug('2 xy ' + str(xy.shape))
 
         xy = self.conv3(xy)
         xy = self.bn3(xy)
         xy = self.relu(xy)
         xy = self.dropout3(xy)
-        # print(xy.shape)
+        logger.debug('3 xy ' + str(xy.shape))
 
         xy = self.conv4(xy)
         xy = self.bn4(xy)
         xy = self.relu(xy)
         xy = self.dropout4(xy)
-        # print(xy.shape)
+        logger.debug('4 xy ' + str(xy.shape))
 
         xy = self.conv5(xy)
-        # print(xy.shape)
+        logger.debug(xy.shape)
         xy = self.sig(xy)
-        # print(xy.shape)
+        logger.debug('5 xy ' + str(xy.shape))
 
         return xy
 
