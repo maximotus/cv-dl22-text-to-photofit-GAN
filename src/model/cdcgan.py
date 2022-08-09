@@ -266,10 +266,13 @@ class CDCGAN:
 
         # initialize fixed noise vector
         self.z_fix = torch.randn((1, 128)).to(self.device)
-        self.c_fix = (torch.rand((1, self.num_classes), device=self.device) * 2.0).type(torch.long)
+        self.c_fix = torch.tensor(
+            [[0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+              1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1]], dtype=torch.long)
 
-        # TODO properly defined attributes
-        # self.c_fix = torch.tensor([0, 0, 0, 0, 1, ...])
+        # random initialization of c_fix can lead to contradictory attributes
+        # like hair color brown and blond at the same time
+        # self.c_fix = (torch.rand((1, self.num_classes), device=self.device) * 2.0).type(torch.long)
 
         logger.info('Successfully initialized CDCGAN')
 
