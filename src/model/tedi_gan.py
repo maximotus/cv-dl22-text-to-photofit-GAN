@@ -1,15 +1,14 @@
-from misc.error import ConfigurationError
-import os
 import logging
+import misc.config as config
+import numpy as np
+import os
 import torch
-from torch.optim import Adam, Adagrad, SGD
-from torch.nn import BCELoss, CrossEntropyLoss
+
+from misc.error import ConfigurationError
 from model.helper import Tedi_Generator, GradualStyleEncoder, BackboneEncoderUsingLastLayerIntoW, BackboneEncoderUsingLastLayerIntoWPlus
 from torchvision.utils import save_image
 
 logger = logging.getLogger('root')
-VALID_OPTIMIZER_NAMES = {'Adam': Adam, 'Adagrad': Adagrad, 'SGD': SGD}
-VALID_CRITERION_NAMES = {'BCELoss': BCELoss, 'CrossEntropyLoss': CrossEntropyLoss}
 
 # prerequisits:
 # https://stackoverflow.com/questions/40504552/how-to-install-visual-c-build-tools c++ answer by Aaron Belchamber
@@ -21,9 +20,9 @@ class TediGAN(torch.nn.Module):
     def __init__(self, model_params, optimizer_name, learning_rate, criterion_name, num_classes, device,
                  pretrained_path, current_epoch):
         super(TediGAN, self).__init__()
-        if optimizer_name not in VALID_OPTIMIZER_NAMES:
+        if optimizer_name not in config.VALID_OPTIMIZER_NAMES:
             raise ConfigurationError(
-                'Specified optimizer is not valid. Valid optimizers: ' + str(VALID_OPTIMIZER_NAMES))
+                'Specified optimizer is not valid. Valid optimizers: ' + str(config.VALID_OPTIMIZER_NAMES))
 
         logger.info('Initializing TediGAN...')
 
@@ -39,10 +38,10 @@ class TediGAN(torch.nn.Module):
         self.device = device
 
         # initialize loss function
-        if criterion_name not in VALID_CRITERION_NAMES:
+        if criterion_name not in config.VALID_CRITERION_NAMES:
             raise ConfigurationError(
-                'Specified criterion is not valid. Valid loss functions: ' + str(VALID_CRITERION_NAMES))
-        self.criterion = VALID_CRITERION_NAMES[criterion_name]()
+                'Specified criterion is not valid. Valid loss functions: ' + str(config.VALID_CRITERION_NAMES))
+        self.criterion = config.VALID_CRITERION_NAMES[criterion_name]()
 
         # define architecture
         self.discriminator = GradualStyleEncoder(50, 'ir_se')  # self.set_encoder()
@@ -63,10 +62,10 @@ class TediGAN(torch.nn.Module):
                 'Loaded pretrained models from ' + pretrained_generator_path + ' and ' + pretrained_discriminator_path)
 
         # initialize optimizers
-        self.discriminator_optimizer = VALID_OPTIMIZER_NAMES[optimizer_name](self.discriminator.parameters(),
-                                                                             lr=self.lr, betas=(self.beta1, 0.999))
-        self.generator_optimizer = VALID_OPTIMIZER_NAMES[optimizer_name](self.generator.parameters(),
-                                                                         lr=self.lr, betas=(self.beta1, 0.999))
+        self.discriminator_optimizer = config.VALID_OPTIMIZER_NAMES[optimizer_name](self.discriminator.parameters(),
+                                                                                    lr=self.lr, betas=(self.beta1, 0.999))
+        self.generator_optimizer = config.VALID_OPTIMIZER_NAMES[optimizer_name](self.generator.parameters(),
+                                                                                lr=self.lr, betas=(self.beta1, 0.999))
         self.face_pool = torch.nn.AdaptiveAvgPool2d((256, 256))
         # load weights
         self.load_weights()

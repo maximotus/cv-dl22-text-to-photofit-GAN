@@ -1,61 +1,67 @@
 import logging
+import misc.config as config
 import torch
 
-from dataset import CelebA, CelebAHQ, LSW
 from misc.error import ConfigurationError
-from model.cdcgan import CDCGAN
-from model.tedi_gan import TediGAN
 from tqdm.auto import tqdm
 
 logger = logging.getLogger('root')
-VALID_MODEL_NAMES = {'CDCGAN': CDCGAN, 'TEDIGAN': TediGAN}
-VALID_DATASET_NAMES = {'celebA': CelebA, 'celebA_HQ': CelebAHQ, 'LSW': LSW}
 
 
 class Creator:
-    def __init__(self, model_name, model_params, dataset_name, dataset_size_factor, batch_size, optimizer_name,
-                 learning_rate, criterion_name, device_name, image_size, num_imgs, predefined_images, experiment_path,
-                 current_epoch, pretrained_path):
+    def __init__(self, device_name, experiment_path, num_imgs, predefined_images, model, dataloader):
 
         logger.info('Initializing photofit creator...')
 
-        if model_name not in VALID_MODEL_NAMES:
-            raise ConfigurationError('Specified model.name is not valid. Valid names: ' + str(VALID_MODEL_NAMES))
+        if dataloader.get(config.DATASET_KEY) not in config.VALID_DATASET_NAMES:
+            raise ConfigurationError('Specified dataset is not valid. Valid datasets: ' + str(config.VALID_DATASET_NAMES))
 
-        if dataset_name not in VALID_DATASET_NAMES:
-            raise ConfigurationError('Specified dataset is not valid. Valid datasets: ' + str(VALID_DATASET_NAMES))
+        if model.get(config.NAME_KEY) not in config.VALID_MODEL_NAMES:
+            raise ConfigurationError('Specified model.name is not valid. Valid names: ' + str(config.VALID_MODEL_NAMES))
 
         if device_name == 'auto':
             device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         else:
             device = torch.device(device_name)
+
         logger.info('Using device ' + str(device))
 
-        self.dataset = VALID_DATASET_NAMES[dataset_name](image_size, batch_size, dataset_size_factor)
-        self.model = VALID_MODEL_NAMES[model_name](model_params, optimizer_name, learning_rate, criterion_name,
-                                                   len(self.dataset.attribute_to_idx), device, pretrained_path,
-                                                   current_epoch)
+        self.dataset = config.VALID_DATASET_NAMES[dataloader.get(config.DATASET_KEY)](
+            dataloader.get(config.IMAGE_SIZE_KEY),
+            dataloader.get(config.BATCH_SIZE_KEY),
+            dataloader.get(config.SIZE_FRACTION_KEY))
+
+        self.model = config.VALID_MODEL_NAMES[model.get(config.NAME_KEY)](
+            model.get(config.MODEL_PARAMETERS_KEY),
+            model.get(config.OPTIMIZER_KEY),
+            model.get(config.LEARNING_RATE_KEY),
+            model.get(config.CRITERION_KEY),
+            len(self.dataset.attribute_to_idx),
+            device,
+            model.get(config.PRETRAINED_PATH_KEY),
+            model.get(config.START_EPOCH_KEY))
 
         self.num_imgs = num_imgs
         self.predefined_images = predefined_images
         self.experiment_path = experiment_path
-        self.current_epoch = current_epoch
+        self.current_epoch = model.get(config.START_EPOCH_KEY)
+
+        logger.info('Successfully initialized photofit creator')
 
 
 class Trainer(Creator):
-    def __init__(self, model_name, model_params, dataset_name, dataset_size_factor, batch_size, optimizer_name,
-                 learning_rate, criterion_name, device_name, image_size, num_imgs, predefined_images, experiment_path,
-                 epochs, save_freq, gen_freq, current_epoch, pretrained_path):
+    def __init__(self, device_name, experiment_path, epochs, num_imgs, predefined_images, frequencies, model,
+                 dataloader):
 
         logger.info('Initializing trainer...')
 
-        super().__init__(model_name, model_params, dataset_name, dataset_size_factor, batch_size, optimizer_name,
-                         learning_rate, criterion_name, device_name, image_size, num_imgs, predefined_images,
-                         experiment_path, current_epoch, pretrained_path)
+        super().__init__(device_name, experiment_path, num_imgs, predefined_images, model, dataloader)
 
         self.epochs = epochs
-        self.save_freq = save_freq
-        self.gen_freq = gen_freq
+        self.save_freq = frequencies.get(config.SAVE_FREQUENCY_KEY)
+        self.gen_freq = frequencies.get(config.GEN_FREQUENCY_KEY)
+
+        logger.info('Successfully initialized trainer')
 
     def train(self):
         if self.current_epoch is None:
@@ -84,12 +90,9 @@ class Trainer(Creator):
 
 
 class Evaluator(Creator):
-    def __init__(self, model_name, model_params, dataset_name, dataset_size_factor, batch_size, optimizer_name,
-                 learning_rate, criterion_name, device_name, image_size, num_imgs, predefined_images, experiment_path,
-                 current_epoch, pretrained_path):
-        super().__init__(model_name, model_params, dataset_name, dataset_size_factor, batch_size, optimizer_name,
-                         learning_rate, criterion_name, device_name, image_size, num_imgs, predefined_images,
-                         experiment_path, current_epoch, pretrained_path)
+    def __init__(self, device_name, experiment_path, epochs, num_imgs, predefined_images, frequencies, model,
+                 dataloader):
+        super().__init__(device_name, experiment_path, num_imgs, predefined_images, model, dataloader)
         # TODO
         raise NotImplementedError
 
@@ -99,12 +102,9 @@ class Evaluator(Creator):
 
 
 class PhotofitGenerator(Creator):
-    def __init__(self, model_name, model_params, dataset_name, dataset_size_factor, batch_size, optimizer_name,
-                 learning_rate, criterion_name, device_name, image_size, num_imgs, predefined_images, experiment_path,
-                 current_epoch, pretrained_path):
-        super().__init__(model_name, model_params, dataset_name, dataset_size_factor, batch_size, optimizer_name,
-                         learning_rate, criterion_name, device_name, image_size, num_imgs, predefined_images,
-                         experiment_path, current_epoch, pretrained_path)
+    def __init__(self, device_name, experiment_path, epochs, num_imgs, predefined_images, frequencies, model,
+                 dataloader):
+        super().__init__(device_name, experiment_path, num_imgs, predefined_images, model, dataloader)
         # TODO
         raise NotImplementedError
 

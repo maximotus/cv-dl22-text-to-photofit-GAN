@@ -1,18 +1,27 @@
-# TODO implement eval logic and adapt this template file
 mode: eval # (train / eval / gen)
-learning_rate: 0.001
-batch_size: 1
+device: cpu # (cuda / cpu / auto)
+experiment_path: ..\experiments
 epochs: 500
-optimizer: Adam
-criterion: BCELoss
-noise_size: 128
-image_size: 64
-dataset: celebA
-dataset_size_factor: 50000
-trained_path: ../experiments/train/template-CDCGAN-train/2022-08-08-17-07-12 # empty if start from scratch
-current_epoch: 3 # empty if start from scratch
+num_imgs: 20 # how many randomly generated images should be saved
+predefined_images: {max: [0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,1,1,1,0,0,1,0,1,0,0,0,0,1,0,0,0,0,0,0,0,1], daniel: [0,1,1,1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,1,1,0,0,1,0,1,0,1,0,0,1,0,0,0,0,0,0,0,1]}
+
+frequencies:
+  save_freq: 1 # (i.e. how often should the model checkpoint be saved, in epochs)
+  gen_freq: 1 # (i.e. how often should test images be generated, in epochs)
+
+dataloader:
+  dataset: celebA
+  size_fraction: 50000
+  batch_size: 1
+  image_size: 64
+
 model:
   name: CDCGAN
+  pretrained_path: ../experiments/train/template-CDCGAN-train/2022-08-08-17-07-12 # empty if start from scratch
+  start_epoch: 3 # empty if start from scratch
+  criterion: BCELoss
+  optimizer: Adam
+  learning_rate: 0.001
   parameters:
     dropout: 0.2
     alpha: 0.1
@@ -21,10 +30,3 @@ model:
     ndf: 64
     z_channels: 128
     use_spectral_norm: False
-device: cpu # (cuda / cpu / auto)
-experiment_path: ..\experiments
-frequencies:
-  save_freq: 1 # (i.e. how often should the model checkpoint be saved, in epochs)
-  gen_freq: 1 # (i.e. how often should test images be generated, in epochs)
-num_imgs: 20 # how many randomly generated images should be saved
-predefined_images: {max: [0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,1,1,1,0,0,1,0,1,0,0,0,0,1,0,0,0,0,0,0,0,1], daniel: [0,1,1,1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,1,1,0,0,1,0,1,0,1,0,0,1,0,0,0,0,0,0,0,1]}

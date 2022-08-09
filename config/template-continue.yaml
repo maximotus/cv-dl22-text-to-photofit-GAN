@@ -1,28 +1,32 @@
-# config from original paper with dropout
-mode: continue
-trained_path: ..\experiments\train\cdcgan-03spectral\2022-08-06-15-09-24
-current_epoch: 9
-learning_rate: 0.0002
-batch_size: 128
-epochs: 15
-optimizer: Adam
-criterion: BCELoss
-image_size: 64
-dataset: celebA
-dataset_size_factor: 1
+mode: train
+device: cpu
+experiment_path: ..\experiments
+epochs: 500
+num_imgs: 20
+predefined_images: {max: [0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,1,1,1,0,0,1,0,1,0,0,0,0,1,0,0,0,0,0,0,0,1], daniel: [0,1,1,1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,1,1,0,0,1,0,1,0,1,0,0,1,0,0,0,0,0,0,0,1]}
+
+frequencies:
+  save_freq: 1
+  gen_freq: 1
+
+dataloader:
+  dataset: celebA
+  size_fraction: 50000
+  batch_size: 1
+  image_size: 64
+
 model:
   name: CDCGAN
+  pretrained_path: ../experiments/train/template-CDCGAN-train/2022-08-08-17-07-12 # use pretrained model checkpoint to continue training from
+  start_epoch: 3 # specify epoch from which to continue training
+  criterion: BCELoss
+  optimizer: Adam
+  learning_rate: 0.001
   parameters:
-    beta1: 0.5
-    dropout: 0.3
-    use_spectral_norm: True
+    dropout: 0.2
+    alpha: 0.1
+    beta1: 0.1
     ngf: 64
     ndf: 64
     z_channels: 128
-device: auto # (cuda / cpu / auto)
-experiment_path: ..\experiments
-frequencies:
-  save_freq: 9 # (i.e. how often should the model checkpoint be saved, in epochs)
-  gen_freq: 1 # (i.e. how often should test images be generated, in epochs)
-num_imgs: 20 # how many randomly generated images should be saved
-predefined_images: {max: [0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,1,1,1,0,0,1,0,1,0,0,0,0,1,0,0,0,0,0,0,0,1], daniel: [0,1,1,1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,1,1,0,0,1,0,1,0,1,0,0,1,0,0,0,0,0,0,0,1]}
+    use_spectral_norm: False
