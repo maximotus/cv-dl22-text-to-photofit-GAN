@@ -52,6 +52,14 @@ The second part will be the generative part using a VAE or GAN to synthesize ima
 This task is interesting due to the real use case, that if it works it could support the work of police workers. Also, pretrained networks are not available and training/ building upon existing algorithms and trying to achieve the same or a higher baseline is a challenge we look forward to.
 
 
+## Related Work
+The number of papers concering the same topic as ours, text-to-face generation from attributes, is small. We found 17 papers based on a broad range of keywords. 
+The papers can be divided into two groups. One working with photofits/ forensic or composite sketches and the other with attribute guided face generation.
+The first group is mainly focused on generating images from those sketches. This is not what we intended to do. 
+The other group employs networks to generate faces from attributes which is a matches our goal.
+We selected two papers which give relevant information for our project. First "TediGAN: Text-Guided Diverse Face Image Generation and Manipulation" by Xia et al. published in 2021. The second paper is "Attribute-Guided Sketch Generation" by Tang et al. published in 2019, which is the only paper bringing both aspects together.
+
+
 ## 
 
 
