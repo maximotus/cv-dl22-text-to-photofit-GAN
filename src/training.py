@@ -117,13 +117,13 @@ class Evaluator(Creator):
         images = self.model.generate_images(n=self.num_imgs).detach()
         _images = torch.tensor_split(images, self.num_imgs, dim=0)
         for i, im in enumerate(_images):
-            save_image(im, self.experiment_path+'/img/'+str(i)+'.png')
+            save_image(im, self.experiment_path+'/img/'+str(i)+'.jpg')
 
         scores = {metric_name: 0 for metric_name in self.metrics}
 
         for metric_name in self.metrics:
             if metric_name == 'BRISQUE':
-                scores[metric_name] = config.VALID_METRIC_NAMES[metric_name](self.experiment_path+'/img/0.png')
+                scores[metric_name] = config.VALID_METRIC_NAMES[metric_name](self.experiment_path+'/img/0.jpg')
             elif metric_name == 'LPIPS':
                 scores[metric_name] = config.VALID_METRIC_NAMES[metric_name](self.experiment_path+'/img/0.jpg', '../../data/celeba/img_align_celeba/000001.jpg')
             else:
