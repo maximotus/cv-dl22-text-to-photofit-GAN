@@ -11,7 +11,7 @@ logger = logging.getLogger('root')
 class Creator:
     def __init__(self, device_name, experiment_path, num_imgs, predefined_images, model, dataloader):
 
-        logger.info('Initializing photofit creator...')
+        logger.info('Initializing creator...')
 
         if dataloader.get(config.DATASET_KEY) not in config.VALID_DATASET_NAMES:
             raise ConfigurationError('Specified dataset is not valid. Valid datasets: ' + str(config.VALID_DATASET_NAMES))
@@ -46,7 +46,7 @@ class Creator:
         self.experiment_path = experiment_path
         self.start_epoch = model.get(config.START_EPOCH_KEY)
 
-        logger.info('Successfully initialized photofit creator')
+        logger.info('Successfully initialized creator')
 
     def create(self, epoch=None):
         logger.info('Creating images...')
@@ -97,10 +97,15 @@ class Trainer(Creator):
 
 
 class Evaluator(Creator):
-    def __init__(self, device_name, experiment_path, num_imgs, predefined_images, model, dataloader):
+    def __init__(self, device_name, experiment_path, num_imgs, predefined_images, model, dataloader, metrics):
+
+        logger.info('Initializing evaluator...')
+
         super().__init__(device_name, experiment_path, num_imgs, predefined_images, model, dataloader)
-        # TODO
-        raise NotImplementedError
+
+        self.metrics = metrics
+
+        logger.info('Successfully initialized evaluator')
 
     def evaluate(self):
         # TODO
