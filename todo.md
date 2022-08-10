@@ -2,7 +2,7 @@
 
 ## Prio 0
 
-- [ ] implement plot script for plotting stats for report
+- [x] implement plot script for plotting stats for report
 - [ ] implement save_plots (save plots as pngs) at the end of a train run
 - [ ] update README.md with all necessary information to run our framework
 - [ ] write report

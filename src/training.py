@@ -1,6 +1,7 @@
 import logging
 import misc.config as config
 import torch
+from torchvision.utils import save_image
 
 from misc.error import ConfigurationError
 from tqdm.auto import tqdm
@@ -104,9 +105,34 @@ class Evaluator(Creator):
         super().__init__(device_name, experiment_path, num_imgs, predefined_images, model, dataloader)
 
         self.metrics = metrics
+        for metric in self.metrics:
+            if metric not in config.VALID_METRIC_NAMES:
+                raise ConfigurationError('Specified metric is not valid. Valid metrics: ' + str(config.VALID_METRIC_NAMES))           
 
         logger.info('Successfully initialized evaluator')
 
     def evaluate(self):
-        # TODO
-        raise NotImplementedError
+        # dataset = '../../data/celeba/image_align_celeba'
+        batch = next(iter(self.dataset.data_loader))[0][0:20]
+        images = self.model.generate_images(n=self.num_imgs).detach()
+        _images = torch.tensor_split(images, self.num_imgs, dim=0)
+        for i, im in enumerate(_images):
+            save_image(im, self.experiment_path+'/img/'+str(i)+'.png')
+
+        scores = {metric_name: 0 for metric_name in self.metrics}
+
+        for metric_name in self.metrics:
+            print(scores)
+            if metric_name == 'BRISQUE':
+                import torchvision
+                im = torchvision.transforms.ToPILImage(images[0])
+                scores[metric_name] = config.VALID_METRIC_NAMES[metric_name](im)
+            else:
+                scores[metric_name] = config.VALID_METRIC_NAMES[metric_name](images,batch)#(images, batch)#self.experiment_path+'/img/', '../../data/celeba/image_align_celeba'
+
+        print(scores)
+
+        
+
+
+        
