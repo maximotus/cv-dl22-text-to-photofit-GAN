@@ -48,11 +48,12 @@ class Creator:
 
         logger.info('Successfully initialized photofit creator')
 
-    def create(self):
+    def create(self, epoch=None):
         logger.info('Creating images...')
-        self.model.save_fixed_img(self.experiment_path, self.start_epoch)
-        self.model.save_random_img(self.num_imgs, self.experiment_path, self.start_epoch)
-        self.model.save_predefined_img(self.num_imgs, self.experiment_path, self.start_epoch, self.predefined_images)
+        epoch = self.start_epoch if epoch is None else epoch
+        self.model.save_fixed_img(self.experiment_path, epoch)
+        self.model.save_random_img(self.num_imgs, self.experiment_path, epoch)
+        self.model.save_predefined_img(self.num_imgs, self.experiment_path, epoch, self.predefined_images)
         logger.info('Successfully created images')
 
 
@@ -92,9 +93,7 @@ class Trainer(Creator):
                 self.model.save_stats(self.experiment_path, epoch)
 
             if epoch % self.gen_freq == 0:
-                self.model.save_fixed_img(self.experiment_path, epoch)
-                self.model.save_random_img(self.num_imgs, self.experiment_path, epoch)
-                self.model.save_predefined_img(self.num_imgs, self.experiment_path, epoch, self.predefined_images)
+                self.create(epoch)
 
 
 class Evaluator(Creator):
