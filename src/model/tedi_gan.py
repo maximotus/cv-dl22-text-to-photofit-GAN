@@ -12,6 +12,7 @@ logger = logging.getLogger('root')
 
 # prerequisits:
 # https://stackoverflow.com/questions/40504552/how-to-install-visual-c-build-tools c++ answer by Aaron Belchamber
+# Download: 'stylegan2-ffhq-config-f.pt' from https://drive.google.com/drive/folders/1-EywdirN_d_DvYWQYe9aKODKj-y30zMM
 # Cuda Toolkit 11.6
 # pytorch for cuda 11.6
 

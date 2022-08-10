@@ -2,6 +2,7 @@ import math
 import random
 import os
 import numpy as np
+import logging
 import torch
 from torch import nn
 from torch.nn import functional as F
@@ -10,6 +11,8 @@ from torch.utils.cpp_extension import load
 from collections import namedtuple
 from torch.nn import Conv2d, BatchNorm2d, PReLU, ReLU, Sigmoid, MaxPool2d, AdaptiveAvgPool2d, Sequential, Module, Dropout, BatchNorm1d, Linear
 
+logger = logging.getLogger('root')
+torch.set_printoptions(profile="full")
 
 class SpectralNormedConv2d(torch.nn.Conv2d):
     def __init__(self, in_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False):
@@ -174,13 +177,20 @@ class EqualLinear(nn.Module):
 
     def forward(self, input):
         if self.activation:
-            print(self.activation)
-            print(input.shape)
+            logger.info(self.activation)
+            logger.info(input.shape)
             out = F.linear(input, self.weight * self.scale)
             out = fused_leaky_relu(out, self.bias * self.lr_mul)
 
         else:
-            print(input.shape)
+            logger.info("EqualLinear -forward")
+            logger.info(input.shape)
+            logger.info(input)
+            logger.info(self.weight.shape)
+            logger.info(self.scale)
+            logger.info(self.bias.shape)
+            logger.info(self.lr_mul)
+            logger.info((self.weight*self.scale).shape)
             out = F.linear(
                 input, self.weight * self.scale, bias=self.bias * self.lr_mul
             )
@@ -262,8 +272,8 @@ class ModulatedConv2d(nn.Module):
 
     def forward(self, input, style):
         batch, in_channel, height, width = input.shape
-        print(input.shape)
-        print(style.shape)
+        logger.info(input.shape)
+        logger.info(style)
         style = self.modulation(style).view(batch, 1, in_channel, 1, 1)
         weight = self.scale * self.weight * style
 
@@ -361,7 +371,7 @@ class StyledConv(nn.Module):
         self.activate = FusedLeakyReLU(out_channel)
 
     def forward(self, input, style, noise=None):
-        print(style.shape)
+        logger.info(style.shape)
         out = self.conv(input, style)
         out = self.noise(out, noise=noise)
         out = out + self.bias
@@ -549,15 +559,16 @@ class Tedi_Generator(nn.Module):
             latent2 = styles[1].unsqueeze(1).repeat(1, self.n_latent - inject_index, 1)
 
             latent = torch.cat([latent, latent2], 1)
-
+        logger.info("gen1")
         out = self.input(latent)
-        print(out.shape)
-        print(latent.shape)
-        print(latent[:, 0].shape)
+        logger.info("gen2")
+        logger.info(out.shape)
+        logger.info(latent.shape)
+        logger.info(latent[:, 0])
         out = self.conv1(out, latent[:, 0], noise=noise[0])
-
+        logger.info("gen3")
         skip = self.to_rgb1(out, latent[:, 1])
-
+        logger.info("gen4")
         i = 1
         for conv1, conv2, noise1, noise2, to_rgb in zip(
                 self.convs[::2], self.convs[1::2], noise[1::2], noise[2::2], self.to_rgbs
@@ -569,7 +580,7 @@ class Tedi_Generator(nn.Module):
             i += 2
 
         image = skip
-
+        logger.info("genEnd")
         if return_latents:
             return image, latent
         elif return_features:
@@ -1188,9 +1199,17 @@ class GradualStyleBlock(Module):
         self.linear = EqualLinear(out_c, out_c, lr_mul=1)
 
     def forward(self, x):
+        
+        logger.info("disc1")
         x = self.convs(x)
+        
+        logger.info("disc2")
         x = x.view(-1, self.out_c)
+        
+        logger.info("disc3")
         x = self.linear(x)
+        
+        logger.info("disc4")
         return x
 
 
