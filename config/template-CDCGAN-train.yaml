@@ -1,4 +1,4 @@
-mode: train # (train / eval / gen)
+mode: gen # (train / eval / gen)
 log_level: 20 # CRITICAL = 50, ERROR = 40, WARNING = 30, INFO = 20, DEBUG = 10, NOTSET = 0
 device: cpu # (cuda / cpu / auto)
 experiment_path: ..\experiments
@@ -18,8 +18,8 @@ dataloader:
 
 model:
   name: CDCGAN
-  pretrained_path: ../experiments/train/template-CDCGAN-train/2022-08-08-17-07-12 # empty if start from scratch
-  start_epoch: 3 # empty if start from scratch
+  pretrained_path: ../experiments/train/template-CDCGAN-train/2022-08-10-10-08-52 # empty if start from scratch
+  start_epoch: 0 # empty if start from scratch
   criterion: BCELoss
   optimizer: Adam
   learning_rate: 0.001
