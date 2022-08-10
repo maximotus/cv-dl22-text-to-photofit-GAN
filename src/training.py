@@ -106,14 +106,3 @@ class Evaluator(Creator):
     def evaluate(self):
         # TODO
         raise NotImplementedError
-
-
-class PhotofitGenerator(Creator):
-    def __init__(self, device_name, experiment_path, num_imgs, predefined_images, model, dataloader):
-        super().__init__(device_name, experiment_path, num_imgs, predefined_images, model, dataloader)
-        # TODO
-        raise NotImplementedError
-
-    def generate(self):
-        # TODO
-        raise NotImplementedError
