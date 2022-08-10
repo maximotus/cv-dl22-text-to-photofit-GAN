@@ -19,6 +19,7 @@ EXPERIMENT_PATH_KEY = 'experiment_path'
 EPOCHS_KEY = 'epochs'
 NUM_IMGS_KEY = 'num_imgs'
 PREDEFINED_IMAGES_KEY = 'predefined_images'
+METRICS_KEY = 'metrics'
 
 # keys corresponding to the frequencies specification
 FREQUENCIES_KEY = 'frequencies'
