@@ -7,7 +7,7 @@ import misc.config as config
 from datetime import datetime
 from misc.error import ConfigurationError
 from misc.log import setup_logger
-from training import Trainer, Evaluator, PhotofitGenerator
+from training import Creator, Trainer, Evaluator
 
 
 def parse_config(argv):
@@ -82,7 +82,7 @@ if __name__ == '__main__':
         if mode == config.VALID_MODES[2]:
             # TODO
             raise NotImplementedError
-            # generator = PhotofitGenerator()
-            # generator.generate()
+            # creator = Creator()
+            # creator.create()
     except (ConfigurationError, NotImplementedError) as e:
         logger.exception(e)
