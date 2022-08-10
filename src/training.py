@@ -48,6 +48,13 @@ class Creator:
 
         logger.info('Successfully initialized photofit creator')
 
+    def create(self):
+        logger.info('Creating images...')
+        self.model.save_fixed_img(self.experiment_path, self.start_epoch)
+        self.model.save_random_img(self.num_imgs, self.experiment_path, self.start_epoch)
+        self.model.save_predefined_img(self.num_imgs, self.experiment_path, self.start_epoch, self.predefined_images)
+        logger.info('Successfully created images')
+
 
 class Trainer(Creator):
     def __init__(self, device_name, experiment_path, epochs, num_imgs, predefined_images, frequencies, model,
@@ -72,6 +79,7 @@ class Trainer(Creator):
             logger.info('Continuing training from epoch ' + str(self.start_epoch))
 
         for epoch in tqdm(range(self.start_epoch, self.start_epoch + self.epochs), desc='Epoch'):
+            logger.info('Starting epoch ' + str(epoch))
             for step, batch in enumerate(tqdm(self.dataset.data_loader, desc='Batch')):
                 images = batch[0]
                 attributes = batch[1][0]
