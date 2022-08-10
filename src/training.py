@@ -112,7 +112,7 @@ class Evaluator(Creator):
         logger.info('Successfully initialized evaluator')
 
     def evaluate(self):
-        # dataset = '../../data/celeba/image_align_celeba'
+        # dataset = '../../data/celeba/img_align_celeba'
         batch = next(iter(self.dataset.data_loader))[0][0:20]
         images = self.model.generate_images(n=self.num_imgs).detach()
         _images = torch.tensor_split(images, self.num_imgs, dim=0)
@@ -122,17 +122,11 @@ class Evaluator(Creator):
         scores = {metric_name: 0 for metric_name in self.metrics}
 
         for metric_name in self.metrics:
-            print(scores)
             if metric_name == 'BRISQUE':
-                import torchvision
-                im = torchvision.transforms.ToPILImage(images[0])
-                scores[metric_name] = config.VALID_METRIC_NAMES[metric_name](im)
+                scores[metric_name] = config.VALID_METRIC_NAMES[metric_name](self.experiment_path+'/img/0.png')
+            elif metric_name == 'LPIPS':
+                scores[metric_name] = config.VALID_METRIC_NAMES[metric_name](self.experiment_path+'/img/0.jpg', '../../data/celeba/img_align_celeba/000001.jpg')
             else:
-                scores[metric_name] = config.VALID_METRIC_NAMES[metric_name](images,batch)#(images, batch)#self.experiment_path+'/img/', '../../data/celeba/image_align_celeba'
+                scores[metric_name] = config.VALID_METRIC_NAMES[metric_name](self.experiment_path+'/img/', '../../data/celeba/img_align_celeba')#(images, batch)#
 
-        print(scores)
-
-        
-
-
-        
+        logger.info(scores)
