@@ -60,17 +60,19 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-This is the report corresponding to the final project of the teaching event ``Computer Vision and Deep Learning: Visual Synthesis'' in the summer of 2022 at LMU Munich.
-We designed a framework that currently provides two GAN-Models -- cDCGAN and TediGAN -- that are easy to train, evaluate and use to generate photofits.
-It is implemented in PyTorch and highly configurable to accommodate many test cases.
-Due to its architecture other models, datasets and metrics can easily be added.
-The corresponding repository of the framework can be found under
-\href{https://github.com/maximotus/cv-dl22-text-to-photofit-GAN}{https://github.com/maximotus/cv-dl22-text-to-photofit-GAN}.
-\end{abstract}
+    This is the report corresponding to the final project of the teaching event ``Computer Vision and Deep Learning: Visual Synthesis'' in the summer of 2022 at LMU Munich.
+    We designed a framework that currently provides two GAN-Models -- cDCGAN and TediGAN -- that are easy to train, evaluate and use to generate photofits.
+    It is implemented in PyTorch and highly configurable to accommodate many test cases.
+    Due to its architecture other models, datasets and metrics can easily be added.
+    The corresponding repository of the framework can be found under
+    \href{https://github.com/maximotus/cv-dl22-text-to-photofit-GAN}{https://github.com/maximotus/cv-dl22-text-to-photofit-GAN}.
+    \end{abstract}
+\pagebreak
 \tableofcontents
-
+\pagebreak
 \section{Introduction}
-\subsection{The Goal of Photofit Creation using GANs}\label{sec:goal}
+\subsection{The Goal of Photofit Creation using GANs}
+\label{goal}
 Our proposed goal for the final project of the "Computer Vision \& Deep Learning: Visual Synthesis" lecture was to train 
 existing Generative Adversarial Network (GAN, compare \cite{gan}) models and fine-tune their architectures in respect to generate authentic
 and unambiguous samples of real looking faces. These samples should be of such quality that they could be used as
@@ -86,12 +88,12 @@ use a text-encoder model for the embedding of a continuous text describing a cri
 such that the semantics of the textual description remain intact. On the other hand, we thought about a GAN or VAE model
 creating faces from those latent embeddings.
 
-\subsection{Vector-to-Face Synthesis}\label{sec:vec-to-face}
+\subsection{Vector-to-Face Synthesis}\label{vec-to-face}
 However, during the execution of the project we changed our plan to only focus on the generation part because of four
 crucial arguments. First, the lecture is about visual synthesis and not natural language processing, so our main focus
 should be on the creation of images and not on the semantic embedding of continuous text into the latent space.
 Second, training a text-encoder and a GAN respectively means twice as much calculation time which is inappropriate for
-the relatively short project time. Third, in respect to our described goal (see \ref{sec:goal}) we think that possible
+the relatively short project time. Third, in respect to our described goal (see \ref{goal}) we think that possible
 downstream applications would benefit more if the photofit creation is conditioned by vectors with values either 0 or 1
 representing the truth value (0=False, 1=True) for each descriptive attribute of an image / a face. Fourth, the attempt
 of only generating phantom images based on attribute vectors is sufficient to get a proof of concept and to use such 
@@ -101,13 +103,13 @@ Therefore, to keep things simple and appropriate we decided to focus solely on t
 consisting of two separate models, i.e., a discriminator / encoder and a generator / decoder \cite{gan}.
 
 We finalized a more stable adaption of a classical GAN, namely a Deep Convolutional GAN (DCGAN) which explicitly  uses
-convolutional and convolutional-transpose layers in the discriminator and generator respectively \cite{dcgan}.
+convolutional and con\-vo\-lu\-tio\-nal-transpose layers in the discriminator and generator respectively \cite{dcgan}.
 Since we do not just need to generate random images, but rather images that fit the vectorized description of
 a criminals face we conditioned our DCGAN to also use the attribute vector as input -- then it is called a Conditional
 DCGAN (CDCGAN).
 
 Moreover, we decided to re-implement another CDCGAN architecture: tediGAN \cite{Xia_2021_CVPR}.
-Due to time constraints and some other reasons -- see \ref{sec:tedi} -- we were not able to finalize the
+Due to time constraints and some other reasons -- see \ref{tedi} -- we were not able to finalize the
 re-implementation of the tediGAN.
 
 \subsection{Related Work}
@@ -147,19 +149,19 @@ there is some redundancy and incompleteness within -- e.g. one extra attribute f
 Brown\_Hair, and Gray\_Hair, but there is no attribute like  Red\_Hair.
 
 \begin{table}[h]
-\centering
-    \begin{tabular}{|c|c|c|}
-        \hline
-        Dataset & Number of images & Number of Attributes \\
-        \hline
-        LFW & $\approx 13,200$ & $74$ \\
-        CelebA & $\approx 200,000$ & $40$ \\
-        CelebA-HQ & $\approx 30,000$ & $40$ \\
-        MAAD-Face & $\approx 3,300,300$ & $47$ \\
-        \hline
-    \end{tabular}
-    \label{tab:dataset-stats}
-\end{table}
+    \centering
+        \begin{tabular}{|c|c|c|}
+            \hline
+            Dataset & Number of images & Number of Attributes \\
+            \hline
+            LFW & $\approx 13,200$ & $74$ \\
+            CelebA & $\approx 200,000$ & $40$ \\
+            CelebA-HQ & $\approx 30,000$ & $40$ \\
+            MAAD-Face & $\approx 3,300,300$ & $47$ \\
+            \hline
+        \end{tabular}
+        \label{tab:dataset-stats}
+    \end{table}
 
 \subsubsection{Our Decision}
 Comparing the statistics of the datasets (see \ref{tab:dataset-stats}), we concluded to initially use a set that has a good trade-off
@@ -182,7 +184,7 @@ The key features consist of a clear experiment configuration via a yaml-file (1)
 datasets and metrics (2) as well as a complete and useful documentation of the results (3).
 
 Regarding the key feature (1), a detailed documentation on such a configuration file can be found below --
-see \ref{sec:config}.
+see \ref{config}.
 On the program start the specified configuration file is parsed in the module misc/main.py.
 For the cases of any misconfiguration an error designed especially for such cases -- compare misc/error.py -- will be
 thrown and the program stops.
@@ -204,7 +206,7 @@ holding all results (e.g., samples), statistics (e.g., losses and probabilities)
 snapshot of the configuration file from the beginning of the execution.
 
 \subsubsection{CDCGAN}
-As already mentioned in \ref{sec:vec-to-face}, a CDCGAN is a GAN using convolutional and convolutional-transpose layers
+As already mentioned in \ref{vec-to-face}, a CDCGAN is a GAN using convolutional and convolutional-transpose layers
 -- compare \cite{dcgan}.
 We implemented a classical approach in the module model/cdcgan.py using a discriminator model and a generator model --
 compare \cite{gan}.
@@ -218,8 +220,7 @@ principle of concatenating the attribute vector with the images and the noise ve
 respectively.
 The final architecture of our CDCGAN is represented in \ref{lst:arch}.
 
-\begin{lstlisting}[basicstyle=\tiny]
-\label{lst:arch}
+\begin{lstlisting}[basicstyle=\tiny,label={lst:arch}]
 Generator(
   (initial_z): Sequential(
     (0): Upsample(scale_factor=4.0, mode=nearest)
@@ -276,7 +277,7 @@ Discriminator(
 \end{lstlisting}
 
 \subsubsection{TediGAN}
-\label{sec:tedi}
+\label{tedi}
 TediGAN is a GAN and Framework proposed by Xia et al. To generate their images they use an inverted pretrained StyleGAN. The Framework includes multiple options to choose between layers and StyleGANs. 
 Unfortunately neither the git-repository nor their paper provides clear information which was their final and best version. The framework also uses config files in an incomprehensible way. We tried to 
 implement the network into our framework but couldn't get it to start training. Problems we encountered were the configs, which we replaced by one single choice. They also wrote certain layers in C++ and 
@@ -294,14 +295,14 @@ To check overall spatial image quality one could use BRISQUE. It checks for e.g.
 Kynkäänniemi et al. propose an improved precision and recall framework, which can additionally to precision and recall scores also calculate a realism score. They use a StyleGAN to evaluate a set of images \cite{NEURIPS2019_0234c510}.
 Some papers also use humans to give feedback on realness of generated images, which can be unreliable and the number of samples to review is limited \cite{Xia_2021_CVPR}.
 
-In our framework we implemented FID, LPIPS and BRISQUE. Kynkäänniemi's metric is implemented in an outdated version of TensorFlow. 
+In our framework we implemented FID, LPIPS and BRISQUE. Kyn\-kään\-niemi's metric is implemented in an outdated version of TensorFlow. 
 While implementing each metric a few key differences appeared which do not get clarified by any paper: e.g. LPIPS calculate the similarity between two pictures. 
 But are they chosen at random or is an order selected in the beginning and then those images get compared? We chose to generate images based on the same attribute-vectors and compare those to one another.
 
 \subsubsection{Experiments}
 
 \paragraph{Configuration}
-\label{sec:config}
+\label{config}
 
 Below you can see a template configuration file for the training of the CDCGAN model on the celebA dataset.
 This example configuration outlines that our framework is highly configurable. 
@@ -413,8 +414,8 @@ A relative good result is fig.\ref{fig:relgood1} and fig.\ref{fig:relgood2}. But
 \section{Conclusion}
 In this chapter we want to conclude an reflect on the results and things we noticed while implementing or experimenting.
 \subsection{Datasets}
-First, we observed some defects in the training images that some faces were stretched or had some artifacts e.g see images\ref{fig:badDatasetImage}, \ref{fig:badDatasetImage2} and \ref{fig:badDatasetImage3}.
-Second, the attributes are redundant and incomplete. E.g. 4 attributes for hair color, Red\_Hair is completely missing. 
+First, we observed some defects in the training images that some faces were stretched or had some artifacts e.g see images \ref{fig:badDatasetImage}, \ref{fig:badDatasetImage2} and \ref{fig:badDatasetImage3}.
+Second, the attributes are redundant and incomplete. E.g., 4 attributes for hair color, Red\_Hair is completely missing. 
 Third it would be better if the direction in which a person looks, would only be straight ahead or be labeled. fig.\ref{fig:wrongDirectionImage} and fig.\ref{fig:wrongDirectionImage2}.
 Four, due to the small time frame we were unable to run our experiments with the other datasets mentioned above, chapter: \ref{SuitableDatasets}.
 Fifth, often it is the case that many faces match to one and the same attribute-vector so for criminology purposes one should consider to use a dataset with a much larger attribute-vector.
@@ -460,7 +461,7 @@ we also expected our GAN to sample different images for the same $c$. However th
 \subsection{Image size}
 For time and hardware reasons we opted to scale the dataset images to size 64 by 64. We assume that we can achieve better results with bigger sized images due to a higher detail level.
 
-\subsection{More time + GPU-power}
+\subsection{More Resources}
 With more time and better hardware (maybe even multiple GPUs) we would have done more extensive testing and more training runs, and prove our hypothesis that a more detailed dataset and larger images lead to a general improvement.
 
 \section{Future Work}
