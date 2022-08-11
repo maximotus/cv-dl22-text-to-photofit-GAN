@@ -4,31 +4,31 @@ TODO maybe change text-to-face to vector-to-face? @SchubertDaniel
 
 ## Structure
 
-1. Introduction
-   1. The Goal of Photofit Creation using GANs (Max)
-   2. Related Work (Daniel)
+1. Introduction (DONE)
+   1. The Goal of Photofit Creation using GANs (Max) (DONE)
+   2. Related Work (Daniel) (DONE)
 2. Main
-   1. Suitable Datasets (Max)
-      1. Overview
-      2. Our Decision
+   1. Suitable Datasets (Max) (DONE)
+      1. Overview (DONE)
+      2. Our Decision (DONE)
    2. Framework
-      1. Architecture / Structure (Max)
-      2. CDCGAN (Max)
-      3. tediGAN (Daniel)
-      4. Metrics (Daniel)
+      1. Architecture / Structure (Max) (TODO)
+      2. CDCGAN (Max) (TODO)
+      3. tediGAN (Daniel) (DONE)
+      4. Metrics (Daniel) (DONE)
       5. Experiments
-         1. Configuration (Max)
-         2. Results (Daniel)
-            1. Report
-            2. Analysis / Discussion
-3. Conclusion
+         1. Configuration (Max) (TODO)
+         2. Results (Daniel) (ALMOST DONE)
+            1. Report (DONE)
+            2. Analysis / Discussion (ALMOST DONE)
+3. Conclusion (TODO)
    1. Datasets
    2. Mode Collapse
    3. Imagesize
    4. More time + GPU-power
    5. More attributes in dataset, more specialized dataset
-4. Future Work (creation of own dataset that is perfectly suitable for our task)
-5. Collaboration
+4. Future Work (creation of own dataset that is perfectly suitable for our task) (TODO)
+5. Collaboration (TODO)
    1. Short paragraph outlining the 50/50-distribution of the workload (pair programming, etc.)
    2. Table annotating the main responsible(s) for each part of the framework
 
@@ -90,10 +90,10 @@ much appreciate, a text-to-face approach could be seen as a possible adaption.
 During our research in the project planning phase we stumbled across various datasets that could be useful to us in
 terms of their properties. Some examples of datasets containing faces and corresponding descriptions or attributes are:
 
-- [celebA](https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html)
-- [celebA HQ](http://mmlab.ie.cuhk.edu.hk/projects/CelebA/CelebAMask_HQ.html#:~:text=CelebAMask%2DHQ%20is%20a%20large,facial%20attributes%20corresponding%20to%20CelebA.)
-- [LFW](http://vis-www.cs.umass.edu/lfw/)
-- [MAAD-Face](https://github.com/pterhoer/MAAD-Face)
+- a [celebA](https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html)
+- a [celebA HQ](http://mmlab.ie.cuhk.edu.hk/projects/CelebA/CelebAMask_HQ.html#:~:text=CelebAMask%2DHQ%20is%20a%20large,facial%20attributes%20corresponding%20to%20CelebA.)
+- a [LFW](http://vis-www.cs.umass.edu/lfw/)
+- a [MAAD-Face](https://github.com/pterhoer/MAAD-Face)
 
 Nevertheless, these datasets are not made for criminology purposes, and so they do not perfectly fit our approach of
 generating photofits. This has two main reasons.
