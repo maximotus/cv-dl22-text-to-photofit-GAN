@@ -185,6 +185,9 @@ Percieved realness is an intuitve score between 0 and 5: 0 just noise, 1 shape r
 | dropout=0.5, spectral=True, DS_size=1/4  | 0.821 0.179 0.131                                                | 0.263 0.262 3.003            | 141.477 | 0.353 | 45.244  | 2                                    |
 | dropout=0.5, spectral=True, DS_size=1    | 0.929 0.070 0.048                                                | 0.108 0.107 5.587            | 135.339 | 0.213 | 64.889  | 1.5                                  |
 
+[supposedToBeGoodNetworkGraph](/results/cdcgan04 dropout=0.5 spectral=false datasetsize=quarter-acc-plot.png)
+[supposedToBeBadNetwork](/results/cdcgan04 dropout=0.5 spectral=true datasetsize=full-acc-plot.png)
+
 
 ### Analysis / Discussion
 When deciding which network was the best you can proceed based on statistics, on the proposed metrics or visually judgeing the generated images per epoch and foremost the last epoch. 
