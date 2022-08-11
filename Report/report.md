@@ -18,9 +18,9 @@ TODO maybe change text-to-face to vector-to-face? @SchubertDaniel
       4. Metrics (Daniel) (DONE)
       5. Experiments
          1. Configuration (Max) (TODO)
-         2. Results (Daniel) (ALMOST DONE)
+         2. Results (Daniel) (DONE)
             1. Report (DONE)
-            2. Analysis / Discussion (ALMOST DONE)
+            2. Analysis / Discussion (DONE)
 3. Conclusion (TODO)
    1. Datasets
    2. Mode Collapse
@@ -172,7 +172,7 @@ We planned the training process to run every model variation at least once for 1
 
 ### Report
 Percieved realness is an intuitve score between 0 and 5: 0 just noise, 1 shape recognizeable, ge2 = can recognize faces, ge3= face with noise, ge4=face with small artifacts, 5=real faces without errors. DS_size means Dataset size.
-| network                                  | accuracy_real accuracy_fake_before_disc accuracy_fake_after_disc | loss_real loss_fake loss_gan | FID     | LPIPS | BRISQUE | percieved realness (between 0 and 5) |
+   | network                                  | accuracy_real accuracy_fake_before_disc accuracy_fake_after_disc | loss_real loss_fake loss_gan | FID     | LPIPS | BRISQUE | percieved realness (between 0 and 5) |
 |------------------------------------------|------------------------------------------------------------------|------------------------------|---------|-------|---------|--------------------------------------|
 | dropout=0, spectral=False, DS_size=1/4   | 0.994 0.006 0.0007                                               | 0.0072 0.0074 13.868         | 339.957 | 0.379 | 16.946  | 1                                    |
 | dropout=0, spectral=True, DS_size=1/4    | 0.968 0.031 0.009                                                | 0.046 0.411 6.815            | 139.744 | 0.161 | 45.917  | 2.5                                  |
@@ -219,34 +219,56 @@ Human-Robot Interaction" by Deng et al., published in [paper](https://ieeexplore
 - [17] "Conditional Image Generation with PixelCNN Decoders" by Oord et al., published in [paper](https://proceedings.neurips.cc/paper/2016/hash/b1301141feffabac455e1f90a7de2054-Abstract.html)
 - [18] "Conditional generative adversarial nets for convolutional face generation" by Gauthieret al., published in 2014 [paper](https://www.foldl.me/uploads/2015/conditional-gans-face-generation/paper.pdf)
 - [19] "ELEGANT: Exchanging Latent Encodings with GAN for Transferring Multiple Face Attributes" by Xiao et al., published in 2018 [paper](https://openaccess.thecvf.com/content_ECCV_2018/html/Taihong_Xiao_ELEGANT_Exchanging_Latent_ECCV_2018_paper.html)
-- [20] "The Unreasonable Effectiveness of Deep Features as a Perceptual Metric" by Zhang et al., published in 2018 [LPIPS-paper](https://arxiv.org/abs/1801.03924)
+- [20] "The Unreasonable Effectiveness of Deep Features as a Perceptual Metric" by Zhang et al., published in 2018 [LPIPS-paper](https://arxiv.org/abs/1801.03924) 
+- [21] "No-Reference Image Quality Assessment in the Spatial Domain" by et al., published in 2012 [BRISQUE-paper](https://ieeexplore.ieee.org/document/6272356)
 
+## Conclusion
+In this chapter we want to conclude an reflect on the results and things we noticed while implementing or experimenting.
+### Datasets
+First, we observed some defects in the training images that some faces were streched or had some artifacts e.g [badDatasetImage](/results/000111.jpg) [badDatasetImage2](/results/000117.jpg) [badDatasetImage3](/results/000194.jpg).
+Second, the attributes are redunand, incomplete. E.g. 4 attributes for hair color, Red_Hair is completly missing. 
+Third it would be better if the direction in which a person looks, would only be straight ahead or be labeled. [wrongDirectionImage](000199.jpg) [wrongDirectionImage2](000240.jpg)
+Four, due to the small time frame we were unable to run our experiments with the other datasets mentioned above (reference)
+Fifth, often it is the case that many faces match to one and the same attribute-vector so for criminology purposes one should consider to use a dataset with a much larger attribute-vector.
+### Mode Collapse
+Mode Collapse is a common problem when working with GANs [reference](https://machinelearning.wtf/terms/mode-collapse/). Normally a GAN is consider successful if it's samples can fool a discriminator and the generator samples diverse images with a distribution like in the real world. This mean that given an attribute-vector c the GAN should sample different images. Mode collapse happens if the GAN starts to produce the same image again and again for the same c because it successfully fools the discriminator. 
+[ModeCollapse](/results/modecollapse.JPG) 
+The image is a result after 100 epochs with spectral convolutions and 0% dropout. As you can see the images all look alike and there is no real difference between them. Also we have checked some attribute-vectors and as one might assume there are multiple individuals annotated with the same vector. This seems pretty plausible with a dataset of more than 200 thousand images and a relatively small attribute-vector size of 40. Therefore we also expected our GAN to sample different images for the same c. However thinking of photofits it could be useful to run into mode collapse, here a specific vector should always lead to the same result. 
+### Imagesize
+For time and hardware reasons we opted to scale the dataset images to size 64 by 64. We assume that we can achieve better results with bigger sized images due to a higher detail level.
+### More time + GPU-power
+With more time and better hardware (maybe even multiple GPUs) we would have done more extensive testing and more training runs. And prove our hypothesis that a more detailed dataset and larger images lead to a general improvment
+## Future work
+As described in the conclusion we would like to train our GAN on other datasets(referenceToDatasets) and with a larger image size(referenceToImageSize). 
+Also the development of a new dataset specialized for criminology purposes would be helpful for us and downstream applications.
+Such a dataset should contain much more than fourty attributes, we assume about 200 would be a good starting point. Moreover the images of the dataset should not include bad samples as pointed out above but only passport photo should be included.
+Regarding mode collapse it would be interesting if someone could use this phenomenon for photofit generation.
 
-## 
+## Collaboration
+We started our project commonly by exchanging our ideas, thoughts and how to approach our topic.
+We did most of the implementation of our framework by pair programming. Certain parts which only one of us did are marked in the table below.
+|Implementation|Person|
+|------|--------|
+|main.py error.py log.py|Max|
+|CDCGAN.py|70-30 Max-Daniel|
+|TediGAN.py|30-70 Max-Daniel|
+|Metrics.py|Daniel|
+|Config.py|Max|
+|Dataset.py|Max|
+|Training.py|80-20 Max-Daniel|
+|Experiments|Daniel|
 
-
-Gliederung
-
-Einleitung: Was wir erreichen wollte proposal umfangreicher
-Related work -Daniel
-Datensets die es gibt, welches wir genommen haben+ warum -max
-(implementation) Our work: 
-    Framework, cdcGAN - Max
-    + tediGAN, Metrics -daniel
-Experimente: 
-        configs, max
-            ergebnisse daniel
-            analysieren -zusammen
-
-Conclusion:
-    Datensets, 
-    Mode Collapse, 
-    Imagesize, 
-    conclusion, 
-    more time + GPU-power, 
-    more attributes in dataset, more specialized dataset 
-Future Works.
-    Was ein Datenset bräuchte für diese Aufgabe, wie ausschauen, attribute
-
-Table 
-    Capitel Author
+|Report-chapter|Person|
+|------|--------|
+|1.1|Max|
+|1.2|Daniel|
+|2.1|Max|
+|2.2.1|Max|
+|2.2.2|Max|
+|2.2.3|Daniel|
+|2.2.4|Daniel|
+|2.2.5.1|Max|
+|2.2.5.1|Daniel|
+|3|Together|
+|4|Together|
+|5|Together|

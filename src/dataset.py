@@ -20,12 +20,12 @@ class CelebA:
         ])
 
         try:
-            data = torchvision.datasets.CelebA(root='../../data', split='all',
+            data = torchvision.datasets.CelebA(root='../data', split='all',
                                                target_type=['attr', 'identity', 'bbox', 'landmarks'],
                                                transform=transform, download=True)
         except URLError:
             ssl._create_default_https_context = ssl._create_unverified_context
-            data = torchvision.datasets.CelebA(root='../../data', split='all',
+            data = torchvision.datasets.CelebA(root='../data', split='all',
                                                target_type=['attr', 'identity', 'bbox', 'landmarks'],
                                                transform=transform, download=True)
 
@@ -33,7 +33,7 @@ class CelebA:
         self.data_loader = DataLoader(data, batch_size=batch_size, shuffle=True, num_workers=8)
         self.length = len(data)
 
-        attributes = linecache.getline(r'../../data/celeba/list_attr_celeba.txt', 2).strip().split(' ')
+        attributes = linecache.getline(r'../data/celeba/list_attr_celeba.txt', 2).strip().split(' ')
         self.attribute_to_idx = dict(zip(attributes, range(len(attributes))))
 
 
