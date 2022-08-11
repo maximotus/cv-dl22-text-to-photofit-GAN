@@ -55,8 +55,11 @@
 % \lstset{
 %   basicstyle=\fontsize{5}\selectfont\ttfamily
 % }
+
 \title{Highly Descriptive Vetor-to-Face Generation to Synthezsize Authentic Faces (Photofits for Criminology Purposes) via a GAN}
-\author{Max Erler and Daniel Schubert}
+\author{Max Erler and Daniel Schubert\\
+Supervisor: Pingchuan Main\\
+Chair of Machine Vision \& Learning Group: Prof. Dr. Björn Ommer}
 \begin{document}
 \maketitle
 \begin{abstract}
@@ -160,6 +163,7 @@ Brown\_Hair, and Gray\_Hair, but there is no attribute like  Red\_Hair.
             MAAD-Face & $\approx 3,300,300$ & $47$ \\
             \hline
         \end{tabular}
+        \caption{Dataset statistics}
         \label{tab:dataset-stats}
     \end{table}
 
@@ -370,10 +374,12 @@ Percieved realness is an intuitive score between 0 and 5: $0\widehat{=} $ just n
     \begin{tabular}[c]{@{}l@{}}dropout=0.5\\ spectral=True\\ DS\_size=1\end{tabular}    & \begin{tabular}[c]{@{}l@{}}0.929\\ 0.070\\ 0.048\end{tabular}                                                & \begin{tabular}[c]{@{}l@{}}0.108\\ 0.107\\ 5.587\end{tabular}            & 135.339 & 0.213 & 64.889  & 1.5                                                                            \\ \hline
 \end{tabular}
 }
+\caption{Experiments and results}
 \end{table}
 
 When deciding which network was the best you can proceed based on statistics, on the proposed metrics or visually judgeing the generated images per epoch and foremost the last epoch. 
-One could also proceed based on theoretically taught metrics, e.g. generator accuracy and discriminator accuracy should meet at 0.5 or at least converge against each other. In this case the network with spectral convolution and dropout value being 0.3 is supposed to be the best one. But even on first glance every human would be able to differentiate between real and fake images. 
+One could also proceed based on theoretically taught metrics, e.g. generator accuracy and discriminator accuracy should meet at 0.5 or at least converge against each other. In this case the network with spectral convolution and dropout 
+value being 0.3 is supposed to be the best one, see fig.\ref{fig:goodGraphAcc} and \ref{fig:goodGraphLoss} But even on first glance every human would be able to differentiate between real and fake images.
 Running metrics proposed in the metrics section:\ref{metrics}, on trained networks resulted in some mismatching images even compared to the generated ones in the last epoch. When going on the metrics FID is probably the most meaningful. The best network according to this metric would be with dropout 20\% and without a spectral convolutional layer. Some generated images are just noise. Every now and then you can recognize parts of a face but the rest is still just random artifacts. So the results are only partly acceptable. The network with 0\% dropout without a spectral layer is correctly the worst variant with the highest FID score of 339.957 and images looking like weird color sprinkles, see figure \ref{fig:worstImage}.
 When looking through all images of every last epoch the best network is tied between (dropout=50\%, spectral=True, DS\_size=1/4) and (dropout=0\%, spectral=True, DS\_size=1/4). But even these images still have some artifacts in the image or on the face, the images are highly noisy around the face. 
 Sometimes the network tries to generate two faces into one, fig.\ref{fig:twoFacesInOne}. 
@@ -409,6 +415,16 @@ A relative good result is fig.\ref{fig:relgood1} and fig.\ref{fig:relgood2}. But
         \makebox[\textwidth][c]{\includegraphics[width=0.25\textwidth]{./results/29.jpg}}
         \caption{Really bad result.}
         \label{fig:worstImage}
+\end{figure}
+\begin{figure}
+    \makebox[\textwidth][c]{\includegraphics[width=\textwidth]{./results/cdcgan04 dropout=0.5 spectral=false datasetsize=quarter-acc-plot.png}}
+    \caption{Graph with converging accuracies from GAN and discriminator.}
+    \label{fig:goodGraphAcc}
+\end{figure}
+\begin{figure}
+    \makebox[\textwidth][c]{\includegraphics[width=\textwidth]{./results/cdcgan04 dropout=0.5 spectral=false datasetsize=quarter-loss-plot.png}}
+    \caption{Graph with converging and minimizing loss from GAN and discriminator.}
+    \label{fig:goodGraphLoss}
 \end{figure}
 
 \section{Conclusion}
@@ -488,6 +504,7 @@ We did most of the implementation of our framework by pair programming. Certain 
         Experiments & Daniel\\
         \hline
     \end{tabular} 
+    \caption{Implementation Collaboration}
 \end{table}
 \begin{table}[h]
 \centering
@@ -509,6 +526,7 @@ We did most of the implementation of our framework by pair programming. Certain 
         5 & Together \\
         \hline
     \end{tabular}
+    \caption{Report Collaboration}
 \end{table}
 
 \nocite{*}
