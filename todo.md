@@ -2,6 +2,7 @@
 
 ## Prio 0
 
+- [ ] language english in report / latex (e.g. "Abbildung 8") 
 - [x] implement plot script for plotting stats for report
 - [ ] implement save_plots (save plots as pngs) at the end of a train run
 - [ ] update README.md with all necessary information to run our framework
