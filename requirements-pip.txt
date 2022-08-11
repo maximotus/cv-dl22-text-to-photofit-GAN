@@ -1,0 +1,4 @@
+pytorch-fid
+lpips
+image-quality
+pybrisque
