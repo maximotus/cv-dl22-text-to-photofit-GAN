@@ -43,7 +43,7 @@ class CelebAHQ:
         raise NotImplementedError
 
 
-class LSW:
+class LFW:
     def __init__(self, image_size, batch_size):
         # TODO
         raise NotImplementedError
