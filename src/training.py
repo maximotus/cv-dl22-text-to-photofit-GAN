@@ -1,4 +1,6 @@
 import logging
+import os
+
 import misc.config as config
 import torch
 from torchvision.utils import save_image
@@ -112,21 +114,34 @@ class Evaluator(Creator):
         logger.info('Successfully initialized evaluator')
 
     def evaluate(self):
-        # dataset = '../../data/celeba/img_align_celeba'
-        batch = next(iter(self.dataset.data_loader))[0][0:20]
-        images = self.model.generate_images(n=self.num_imgs).detach()
-        _images = torch.tensor_split(images, self.num_imgs, dim=0)
-        for i, im in enumerate(_images):
-            save_image(im, self.experiment_path+'/img/'+str(i)+'.jpg')
+        paths = [self.experiment_path + '/img-fake', self.experiment_path + '/img-real']
+
+        real_attributes = next(iter(self.dataset.data_loader))[1][0][0:self.num_imgs]
+        real_images = next(iter(self.dataset.data_loader))[0][0:self.num_imgs]
+        real_images = torch.tensor_split(real_images, self.num_imgs, dim=0)
+        fake_images = self.model.generate_images(n=self.num_imgs, c=real_attributes).detach()
+        fake_images = torch.tensor_split(fake_images, self.num_imgs, dim=0)
+
+        for i in range(self.num_imgs):
+            fake_image = fake_images[i]
+            real_image = real_images[i]
+
+            for path in paths:
+                if not os.path.exists(path):
+                    os.makedirs(path)
+                    print('Created directory', path)
+
+            save_image(fake_image, paths[0] + '/' + str(i) + '.jpg')
+            save_image(real_image, paths[1] + '/' + str(i) + '.jpg')
 
         scores = {metric_name: 0 for metric_name in self.metrics}
 
         for metric_name in self.metrics:
             if metric_name == 'BRISQUE':
-                scores[metric_name] = config.VALID_METRIC_NAMES[metric_name](self.experiment_path+'/img/0.jpg')
+                scores[metric_name] = config.VALID_METRIC_NAMES[metric_name](paths[0] + '/0.jpg')
             elif metric_name == 'LPIPS':
-                scores[metric_name] = config.VALID_METRIC_NAMES[metric_name](self.experiment_path+'/img/0.jpg', '../../data/celeba/img_align_celeba/000001.jpg')
+                scores[metric_name] = config.VALID_METRIC_NAMES[metric_name](paths[0] + '/0.jpg', paths[1] + '/0.jpg',)
             else:
-                scores[metric_name] = config.VALID_METRIC_NAMES[metric_name](self.experiment_path+'/img/', '../../data/celeba/img_align_celeba')#(images, batch)#
+                scores[metric_name] = config.VALID_METRIC_NAMES[metric_name](paths[0], paths[1])
 
         logger.info(scores)
