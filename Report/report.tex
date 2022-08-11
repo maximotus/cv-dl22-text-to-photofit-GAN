@@ -14,6 +14,44 @@
 \titlespacing*{\paragraph}
 {0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
 
+% YAML highlighting
+\usepackage{adjustbox}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{listings}
+\newcommand\YAMLcolonstyle{\color{red}\mdseries}
+\newcommand\YAMLkeystyle{\color{black}\bfseries}
+\newcommand\YAMLvaluestyle{\color{blue}\mdseries}
+\makeatletter
+% here is a macro expanding to the name of the language
+% (handy if you decide to change it further down the road)
+\newcommand\language@yaml{yaml}
+\expandafter\expandafter\expandafter\lstdefinelanguage
+\expandafter{\language@yaml}
+{
+  keywords={true,false,null,y,n},
+  keywordstyle=\color{darkgray}\bfseries,
+  breaklines=true,
+  basicstyle=\YAMLkeystyle,                                 % assuming a key comes first
+  sensitive=false,
+  comment=[l]{\#},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\YAMLvaluestyle\ttfamily,
+  moredelim=[l][\color{orange}]{\&},
+  moredelim=[l][\color{magenta}]{*},
+  moredelim=**[il][\YAMLcolonstyle{:}\YAMLvaluestyle]{:},   % switch to value style at :
+  morestring=[b]',
+  morestring=[b]",
+  literate =    {---}{{\ProcessThreeDashes}}3
+                {>}{{\textcolor{red}\textgreater}}1
+                {|}{{\textcolor{red}\textbar}}1
+                {\ -\ }{{\mdseries\ -\ }}3,
+}
+% switch to key style at EOL
+\lst@AddToHook{EveryLine}{\ifx\lst@language\language@yaml\YAMLkeystyle\fi}
+\makeatother
+\newcommand\ProcessThreeDashes{\llap{\color{cyan}\mdseries-{-}-}}
+
 
 \begin{document}
 
@@ -27,8 +65,9 @@ We designed a framework that currently provides two GAN-Models -- cDCGAN and Ted
 \section{Introduction}
 
 \subsection{The Goal of Photofit Creation using GANs}
-Our proposed goal for the final project of the ``Computer Vision \& Deep Learning: Visual Synthesis'' lecture was to train 
-existing Generative Adversarial Network (GAN) models and fine-tune their architectures in respect to generate authentic
+\label{sec:goal}
+Our proposed goal for the final project of the "Computer Vision \& Deep Learning: Visual Synthesis" lecture was to train 
+existing Generative Adversarial Network (GAN, compare \cite{gan}) models and fine-tune their architectures in respect to generate authentic
 and unambiguous samples of real looking faces. These samples should be of such quality that they could be used as
 photofits (also phantom images, i.e. pictures representing a person's memory of a criminal's face, compare 
 https://dictionary.cambridge.org/de/worterbuch/englisch/photofit-picture). Even if this common task is already done
@@ -44,21 +83,22 @@ such that the semantics of the textual description remain intact. On the other h
 creating faces from those latent embeddings.
 
 \subsection{Vector-to-Face Synthesis}
+\label{sec:vec-to-face}
 However, during the execution of the project we changed our plan to only focus on the generation part because of four
 crucial arguments. First, the lecture is about visual synthesis and not natural language processing, so our main focus
 should be on the creation of images and not on the semantic embedding of continuous text into the latent space.
 Second, training a text-encoder and a GAN respectively means twice as much calculation time which is inappropriate for
-the relatively short project time. Third, in respect to our described goal (see ``The Goal'', TODO) we think that possible
+the relatively short project time. Third, in respect to our described goal (see \ref{sec:goal}) we think that possible
 downstream applications would benefit more if the photofit creation is conditioned by vectors with values either 0 or 1
 representing the truth value (0=False, 1=True) for each descriptive attribute of an image / a face. Fourth, the attempt
 of only generating phantom images based on attribute vectors is sufficient to get a proof of concept and to use such 
 model for criminology purposes.
 
 Therefore, to keep things simple and appropriate we decided to focus solely on the principle of using a GAN network --
-consisting of two separate models, i.e. a discriminator / encoder and a generator / decoder (TODO source GAN Godfellow).
+consisting of two separate models, i.e., a discriminator / encoder and a generator / decoder \cite{gan}.
 
 We finalized a more stable adaption of a classical GAN, namely a Deep Convolutional GAN (DCGAN) which explicitly  uses
-convolutional and convolutional-transpose layers in the discriminator and generator respectively (TODO source DCGAN).
+convolutional and convolutional-transpose layers in the discriminator and generator respectively \cite{dcgan}.
 Since we do not just need to generate random images, but rather images that fit the vectorized description of
 a criminals face we conditioned our DCGAN to also use the attribute vector as input -- then it is called a Conditional
 DCGAN (CDCGAN).
@@ -116,9 +156,54 @@ photofit creation in the future. And especially, it will work better on a better
 Even if MAAD-Face aims to be better than
 celebA and LFW, we decided to
 use celebA. MAAD-Face has too many images as if we could manage to train our GAN on it in the give time frame of the project and LFW has too few images.
+
 \subsection{Framework}
 \subsubsection{Architecture / Structure}
+In respect of a uniform and consistent setting for the experiments on different models and datasets we decided to
+implement a highly configurable and extendable framework.
+Having such a framework that is easily and uniformly executable for different combinations of configurations is a very
+powerful tool -- especially regarding adapted experiments / work in the future.
+
+The key features consist of a clear experiment configuration via a yaml-file (1), the simple extensibility of the models,
+datasets and metrics (2) as well as a complete and useful documentation of the results (3).
+
+Regarding the key feature (1), a detailed documentation on such a configuration file can be found below --
+see \ref{sec:config}.
+On the program start the specified configuration file is parsed in the module misc/main.py.
+For the cases of any misconfiguration an error designed especially for such cases -- compare misc/error.py -- will be
+thrown and the program stops.
+
+The key feature (2) led to the decision to implement a predominantly generic module training.py which holds a
+parent-child class-structure that can handle any learning or evaluation of a photofit creation model based on machine
+learning.
+The inheritance concept represents the three fundamental execution types / modes of the framework, namely train
+(short for training, corresponding class: Trainer), eval (short for evaluation, corresponding class: Evaluator) and gen
+(short for generation, corresponding class: Creator).
+Moreover, the training of a pretrained model can be continued providing a path to the pretrained model and epoch
+checkpoint.
+The huge benefit of this key feature is the re-usability of pretrained models as well as their generic evaluation and
+the generation of photofits.
+
+The evaluation of training results is easy due to key feature (3).
+The module main.py creates a clearly arranged directory with an unique name -- i.e., the timestamp of the execution --
+holding all results (e.g., samples), statistics (e.g., losses and probabilities), model-checkpoints, the logs and a
+snapshot of the configuration file from the beginning of the execution.
+
 \subsubsection{CDCGAN}
+As already mentioned in \ref{sec:vec-to-face}, a CDCGAN is a GAN using convolutional and convolutional-transpose layers
+-- compare \cite{dcgan}.
+We implemented a classical approach in the module model/cdcgan.py using a discriminator model and a generator model --
+compare \cite{gan}.
+The discriminators job is to distinguish between real and fake samples whereas the generators job is to produce samples
+that make the discriminator believe they are real.
+Since our goal is the vector-to-face synthesis we also conditioned both of the models so they are able to learn the
+context of an image and its attributes.
+So the generator will especially be able to sample images from the latent space that fit a given attribute vector.
+To make the network architecture work on the celebA dataset we had to rethink the whole layer architectures and the
+principle of concatenating the attribute vector with the images and the noise vector in the discriminator and generator
+respectively.
+The final architecture of our CDCGAN is represented in \ref{} TODO.
+
 \subsubsection{TediGAN}
 TediGAN is a GAN and Framework proposed by Xia et al. To generate their images they use an inverted pretrained StyleGAN. The Framework includes multiple options to choose between layers and StyleGANs. 
 Unfortunately neither the git-repository nor their paper provides clear information which was their final and best version. The framework also uses config files in an incomprehensible way. We tried to 
@@ -142,7 +227,52 @@ While implementing each metric a few key differences appeared which do not get c
 But are they chosen at random or is an order selected in the beginning and then those images get compared? We chose to generate images based on the same attribute-vectors and compare those to one another.
 
 \subsubsection{Experiments}
+
 \paragraph{Configuration}
+\label{sec:config}
+
+Below you can see a template configuration file for the training of the CDCGAN model on the celebA dataset.
+This example configuration outlines that our framework is highly configurable. 
+
+\begin{lstlisting}[language=yaml]
+mode: train # (train / eval / gen)
+log_level: 20 # CRITICAL = 50, ERROR = 40, WARNING = 30, INFO = 20, DEBUG = 10, NOTSET = 0
+device: cpu # (cuda / cpu / auto)
+experiment_path: ..\experiments # directory where the results should be persisted
+epochs: 500 # number of epochs
+num_imgs: 20 # how many randomly generated images should be saved
+predefined_images: {
+    max: [0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,1,1,1,0,0,1,0,1,0,0,0,0,1,0,0,0,0,0,0,0,1],
+    daniel: [0,1,1,1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,1,1,0,0,1,0,1,0,1,0,0,1,0,0,0,0,0,0,0,1]} # predefined attribute vectors for the image generation
+
+frequencies:
+  save_freq: 1 # (i.e. how often should the model checkpoint be saved, in epochs)
+  gen_freq: 1 # (i.e. how often should test images be generated, in epochs)
+
+dataloader:
+  dataset: celebA # name of the dataset
+  size_fraction: 4 # 4 means use 1/4th of the dataset
+  batch_size: 128 # number of images processed in one forward-call of the models
+  image_size: 64 # image size (64 x 64)
+
+model:
+  name: CDCGAN # name of the mode
+  pretrained_path: ../experiments/train/template-CDCGAN-train/2022-08-10-10-08-52 # empty if start from scratch
+  start_epoch: 0 # empty if start from scratch
+  criterion: BCELoss # name of the loss function
+  optimizer: Adam # name of the optimizer
+  learning_rate: 0.001 # learning rate for the optimizer
+  parameters:
+    dropout: 0.2 # how many neurons should be deactivated during forwarding
+    alpha: 0.1 # model specific parameter
+    beta1: 0.1 # model specific parameter
+    ngf: 64 # number of features in the generator
+    ndf: 64 # number of features in the discriminator
+    z_channels: 128 # size of the noise vector
+    use_spectral_norm: False # whether to wrap convolutional layers in spectral_norm or not
+\end{lstlisting}
+
+
 \paragraph{Results}
 We planned the training process to run every model variation at least once for 100 epochs on a quarter of the celebA dataset. Each Training run took between 9 and 11 hours. After this preliminary phase we looked at the generated images, loss, accuracy and metrics of our networks. We then decided that a dropout of 0.3 or 0.5 and spectral convolution layer were beneficial. Thus we ran those on the entire dataset size. Those runs took 12 hours on our system. We also tried out running a model for 200 epochs but noticed mode collapse happened every time. Mode collapse also happend when restarting on an epoch without collapse.
 
