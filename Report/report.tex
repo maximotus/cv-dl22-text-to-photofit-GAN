@@ -132,29 +132,41 @@ Nevertheless, these datasets are not made for criminology purposes, and so they 
 generating photofits. This has two main reasons.
 
 First, baseline face datasets are mainly constructed for face recognition applications. On the one hand, as the authors
-of MAAD-Face outline, this leads to the consequence that datasets like
+of MAAD-Face outline -- compare \cite{DBLP2} -- this leads to the consequence that datasets like
 celebA or LFW indeed contain a large amount of face images, but struggle with the overall annotation correctness and the total number of attributes.
 On the other hand, MAAD-Face aims to be better in those terms by merging
 face image datasets with their attribute annotations together and check their correctness by a human evaluation.
 
 Second, as we already expected beforehand and was confirmed during the project execution, such relatively low numbers of
-distinctive attributes (compare table, TODO) would not fit the demand for accuracy needed for phantom image creation.
+distinctive attributes -- compare table \ref{tab:dataset-stats} -- would not fit the demand for accuracy needed for phantom image creation.
 Moreover, considering the 40 attributes of celebA one can see that
 there is some redundancy and incompleteness within -- e.g. one extra attribute for each Black\_Hair, Blond\_Hair,
 Brown\_Hair, and Gray\_Hair, but there is no attribute like  Red\_Hair.
 
-TODO table with dataset stats
+\begin{table}[h]
+\centering
+    \begin{tabular}{|c|c|c|}
+        \hline
+        Dataset & Number of images & Number of Attributes \\
+        \hline
+        LFW & $\approx 13,200$ & $74$ \\
+        CelebA & $\approx 200,000$ & $40$ \\
+        CelebA-HQ & $\approx 30,000$ & $40$ \\
+        MAAD-Face & $\approx 3,300,300$ & $47$ \\
+        \hline
+    \end{tabular}
+    \label{tab:dataset-stats}
+\end{table}
 
 \subsubsection{Our Decision}
-Comparing the statistics of the datasets from above, we concluded to initially use a set that has a good trade-off
+Comparing the statistics of the datasets (see \ref{tab:dataset-stats}), we concluded to initially use a set that has a good trade-off
 between the total number of face images and the total number of distinctive attributes. Even if they are not perfectly
 fitted for criminology purposes, our assumption is that if the concept of attribute-conditioned face generation works on
 one of these datasets, it will also work on more accurate datasets that could be developed especially for the task of
 photofit creation in the future. And especially, it will work better on a better suited dataset.
 
-Even if MAAD-Face aims to be better than
-celebA and LFW, we decided to
-use celebA. MAAD-Face has too many images as if we could manage to train our GAN on it in the give time frame of the project and LFW has too few images.
+Even if MAAD-Face aims to be better than celebA and LFW, we decided to use celebA.
+MAAD-Face has too many images as if we could manage to train our GAN on it in the give time frame of the project and LFW has too few images.
 
 \subsection{Framework}
 \subsubsection{Architecture / Structure}
