@@ -1,5 +1,7 @@
 # Highly descriptive text-to-face generation to synthesize authentic faces (photofits for criminology purposes) via GANs
 
+TODO maybe change text-to-face to vector-to-face? @SchubertDaniel
+
 ## Structure
 
 1. Introduction
@@ -30,7 +32,9 @@
    1. Short paragraph outlining the 50/50-distribution of the workload (pair programming, etc.)
    2. Table annotating the main responsible(s) for each part of the framework
 
-## Photofit Creation using GANs
+## Introduction
+
+### Photofit Creation using GANs
 
 Our proposed goal for the final project of the "Computer Vision & Deep Learning: Visual Synthesis" lecture was to train 
 existing Generative Adversarial Network (GAN) models and fine-tune their architectures in respect to generate authentic
@@ -38,9 +42,55 @@ and unambiguous samples of real looking faces. These samples should be of such q
 photofits (also phantom images, i.e. pictures representing a person's memory of a criminal's face, compare 
 https://dictionary.cambridge.org/de/worterbuch/englisch/photofit-picture). Even if this common task is already done
 by phantom sketch artists working for the police or for lawyers, our assumption is that a GAN creating such photofits
-could easily outperform every sketch artist in terms of costs, speed, accuracy and photo-realism.
+could easily outperform every sketch artist in terms of costs, speed, accuracy and photo-realism. Thus, such a network
+for the creation of photofits could be a very useful tool for criminology workers.
 
-TODO
+### Text-to-Face Synthesis
+
+Inspired by DALL-E and DALL-E 2 (see https://openai.com/dall-e-2/), our first intention was a text-to-image approach
+using two separate models – analogous to https://arxiv.org/abs/2012.03308 ??? TODO. On the one hand, we considered to
+use a text-encoder model for the embedding of a continuous text describing a criminal's face into the latent space –
+such that the semantics of the textual description remain intact. On the other hand, we thought about a GAN or VAE model
+creating faces from those latent embeddings.
+
+### Vector-to-Face Synthesis
+
+However, during the execution of the project we changed our plan to only focus on the generation part because of four
+crucial arguments. First, the lecture is about visual synthesis and not natural language processing, so our main focus
+should be on the creation of images and not on the semantic embedding of continuous text into the latent space.
+Second, training a text-encoder and a GAN respectively means twice as much calculation time which is inappropriate for
+the relatively short project time. Third, in respect to our described goal (see "The Goal", TODO) we think that possible
+downstream applications would benefit more if the photofit creation is conditioned by vectors with values either 0 or 1
+representing the truth value (0=False, 1=True) for each descriptive attribute of an image / a face. Fourth, the attempt
+of only generating phantom images based on attribute vectors is sufficient to get a proof of concept and to use such 
+model for criminology purposes.
+
+Therefore, to keep things simple and appropriate we decided to focus solely on the principle of using a GAN network –
+consisting of two separate models, i.e. a discriminator / encoder and a generator / decoder (TODO source GAN Godfellow).
+
+We finalized a more stable adaption of a classical GAN, namely a Deep Convolutional GAN (DCGAN) which explicitly  uses
+convolutional and convolutional-transpose layers in the discriminator and generator respectively (TODO source DCGAN).
+Since we do not just need to generate random images, but rather images that fit the vectorized description of
+a criminals face we conditioned our DCGAN to also use the attribute vector as input – then it is called a Conditional
+DCGAN (CDCGAN).
+
+Moreover, we decided to re-implement another CDCGAN architecture: tediGAN (TODO source tediGAN).
+TODO @SchubertDaniel short description of tediGAN analogous to the paragraph before describing a CDCGAN
+Due to time constraints and some other reasons (see TODO) we were not able to finalize the re-implementation of the
+tediGAN.
+
+TODO maybe remove the following
+Provided that this project or a similar one is pursued further in the future which we would very
+much appreciate, a text-to-face approach could be seen as a possible adaption.
+
+## Main
+
+### Suitable Datasets
+
+During our research in the project planning phase we stumbled across various datasets that could be useful to us in
+terms of their properties. Some examples of datasets containing faces and corresponding descriptions or attributes are:
+
+- TODO
 
 The input text should include descriptive criteria,
 e.g. pointy nose, bald, blue eyes, wide mouth, long eyebrows or curly hair.
