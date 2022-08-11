@@ -15,7 +15,7 @@ This Framework currently provides two GAN-Models – cDCGAN and TediGAN – that
 # How to use
 ## Requirements
 - Python 3.9
-- see requrirements.txt
+- see requirements-pip.txt or requirements-conda.txt
 ## Configuration
 '''yaml
 mode: train # (train / eval / gen)
@@ -38,8 +38,8 @@ dataloader:
 
 model:
   name: CDCGAN
-  # pretrained_path: ../experiments/train/template-CDCGAN-train/2022-08-10-10-08-52 # empty if start from scratch
-  # start_epoch: 0 # empty if start from scratch
+  #pretrained_path: ../experiments/train/template-CDCGAN-train/2022-08-10-10-08-52 # empty if start from scratch
+  #start_epoch: 0 # empty if start from scratch
   criterion: BCELoss
   optimizer: Adam
   learning_rate: 0.001
@@ -52,6 +52,7 @@ model:
     z_channels: 128
     use_spectral_norm: False
 '''
+
 ## Execution
 When first executing the main.py the dataset will be downloaded, often the daily quota of available downloads from the google server is reached and an error "zipfile.BadZipFile: File is not a zip file" occures. By trying every few minutes one should be able to completely download the dataset.
 ```bash
