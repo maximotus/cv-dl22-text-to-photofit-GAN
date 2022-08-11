@@ -22,8 +22,6 @@
 Highly descriptive text-to-face generation to sythesize authentic faces (photofits for criminology purposes) via a GAN. Main project of the  teaching event "Computer Vision and Deep Learning: Visual Synthesis" in the summer of 2022 at LMU Munich.
 We designed a framework that currently provides two GAN-Models -- cDCGAN and TediGAN -- that are easy to train, evaluate and use to generate photofits. It is implemented in PyTorch and highly configurable to accomodate many test cases. Due to its architecture other models, datasets and metrics can easily be added. We are looking forward to your pull requests.
 
-
-\cite[]{celebA}
 \end{abstract}
 \tableofcontents
 
@@ -264,7 +262,8 @@ We started our project commonly by exchanging our ideas, thoughts and how to app
 We did most of the implementation of our framework by pair programming. Certain parts which only one of us did are marked in the table below.
 \begin{table}[h]
 \centering
-    \begin{tabular}{c|c}
+    \begin{tabular}{|c|c|}
+        \hline
         Implementation & Person \\        
         \hline
         main.py error.py log.py & Max\\
@@ -275,11 +274,13 @@ We did most of the implementation of our framework by pair programming. Certain 
         Dataset.py & Max\\
         Training.py & 80-20 Max-Daniel\\
         Experiments & Daniel\\
+        \hline
     \end{tabular} 
 \end{table}
 \begin{table}[h]
 \centering
-    \begin{tabular}{c|c}
+    \begin{tabular}{|c|c|}
+        \hline
         Report-chapter & Person \\        
         \hline
         1.1 & Max \\
@@ -294,6 +295,7 @@ We did most of the implementation of our framework by pair programming. Certain 
         3 & Together \\
         4 & Together \\
         5 & Together \\
+        \hline
     \end{tabular}
 \end{table}
 
