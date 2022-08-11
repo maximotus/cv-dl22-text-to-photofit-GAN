@@ -1,4 +1,4 @@
-from dataset import CelebA, CelebAHQ, LSW
+from dataset import CelebA, CelebAHQ, LFW
 from model.cdcgan import CDCGAN
 from model.tedi_gan import TediGAN
 from torch.nn import BCELoss, CrossEntropyLoss
@@ -8,7 +8,7 @@ from metric import FID, LPIPS, brisque_score, precision_and_recall_score
 # valid names to be specified in the configuration yaml files
 VALID_MODES = ['train', 'eval', 'gen']
 VALID_MODEL_NAMES = {'CDCGAN': CDCGAN, 'TEDIGAN': TediGAN}
-VALID_DATASET_NAMES = {'celebA': CelebA, 'celebA_HQ': CelebAHQ, 'LSW': LSW}
+VALID_DATASET_NAMES = {'celebA': CelebA, 'celebA_HQ': CelebAHQ, 'LFW': LFW}
 VALID_OPTIMIZER_NAMES = {'Adam': Adam, 'Adagrad': Adagrad, 'SGD': SGD}
 VALID_CRITERION_NAMES = {'BCELoss': BCELoss, 'CrossEntropyLoss': CrossEntropyLoss}
 VALID_METRIC_NAMES = {'FID': FID, 'LPIPS': LPIPS, 'BRISQUE': brisque_score, 'PARS': precision_and_recall_score}

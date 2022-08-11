@@ -1,7 +1,6 @@
 import subprocess
 import lpips
 from PIL import Image
-import imquality.brisque as brisque
 from torchvision import transforms
 import brisque
 import cv2

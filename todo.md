@@ -12,7 +12,7 @@
 - [ ] write report
 - [ ] create presentation slides
 - [ ] make video
-- [ ] rename LSW to LFW
+- [x] rename LSW to LFW
 
 ## Prio 1
 
