@@ -1,11 +1,12 @@
 \documentclass[12pt, a4paper]{article}
-% \usepackage[german]{babel}
+\usepackage[nocompress]{cite}
 \usepackage{graphicx}
 \usepackage[onehalfspacing]{setspace}
 \usepackage{hyperref}
 \hypersetup{
     urlcolor=cyan
     }
+
 % extra hierarchielevel
 \usepackage{titlesec}
 \setcounter{secnumdepth}{4}
@@ -60,33 +61,30 @@
 \maketitle
 \begin{abstract}
 Highly descriptive text-to-face generation to sythesize authentic faces (photofits for criminology purposes) via a GAN. Main project of the  teaching event ``Computer Vision and Deep Learning: Visual Synthesis'' in the summer of 2022 at LMU Munich.
-We designed a framework that currently provides two GAN-Models -- cDCGAN and TediGAN -- that are easy to train, evaluate and use to generate photofits. It is implemented in PyTorch and highly configurable to accomodate many test cases. Due to its architecture other models, datasets and metrics can easily be added. We are looking forward to your pull requests.
+We designed a framework that currently provides two GAN-Models -- cDCGAN and TediGAN -- that are easy to train, evaluate and use to generate photofits. It is implemented in PyTorch and highly configurable to accommodate many test cases. Due to its architecture other models, datasets and metrics can easily be added. We are looking forward to your pull requests.
 
 \end{abstract}
 \tableofcontents
 
 \section{Introduction}
 
-\subsection{The Goal of Photofit Creation using GANs}
-\label{sec:goal}
+\subsection{The Goal of Photofit Creation using GANs}\label{sec:goal}
 Our proposed goal for the final project of the "Computer Vision \& Deep Learning: Visual Synthesis" lecture was to train 
 existing Generative Adversarial Network (GAN, compare \cite{gan}) models and fine-tune their architectures in respect to generate authentic
 and unambiguous samples of real looking faces. These samples should be of such quality that they could be used as
-photofits (also phantom images, i.e. pictures representing a person's memory of a criminal's face, compare 
-https://dictionary.cambridge.org/de/worterbuch/englisch/photofit-picture). Even if this common task is already done
-by phantom sketch artists working for the police or for lawyers, our assumption is that a GAN creating such photofits
-could easily outperform every sketch artist in terms of costs, speed, accuracy and photo-realism. Thus, such a network
-for the creation of photofits could be a very useful tool for criminology workers.
+photofits (also phantom images, i.e. pictures representing a person's memory of a criminal's face, compare \cite{photofitDef}).
+Even if this common task is already done by phantom sketch artists working for the police or for lawyers, our assumption
+is that a GAN creating such photofits could easily outperform every sketch artist in terms of costs, speed, accuracy and photo-realism.
+Thus, such a network for the creation of photofits could be a very useful tool for criminology workers.
 
 \subsection{Text-to-Face Synthesis}
-Inspired by DALL-E and DALL-E 2 (see https://openai.com/dall-e-2/), our first intention was a text-to-image approach
-using two separate models -- analogous to https://arxiv.org/abs/2012.03308 ??? TODO. On the one hand, we considered to
+Inspired by DALL-E and DALL-E 2 (see \cite{dallE}), our first intention was a text-to-image approach
+using two separate models -- analogous to \cite{Xia_2021_CVPR}. On the one hand, we considered to
 use a text-encoder model for the embedding of a continuous text describing a criminal's face into the latent space --
 such that the semantics of the textual description remain intact. On the other hand, we thought about a GAN or VAE model
 creating faces from those latent embeddings.
 
-\subsection{Vector-to-Face Synthesis}
-\label{sec:vec-to-face}
+\subsection{Vector-to-Face Synthesis}\label{sec:vec-to-face}
 However, during the execution of the project we changed our plan to only focus on the generation part because of four
 crucial arguments. First, the lecture is about visual synthesis and not natural language processing, so our main focus
 should be on the creation of images and not on the semantic embedding of continuous text into the latent space.
@@ -106,13 +104,12 @@ Since we do not just need to generate random images, but rather images that fit 
 a criminals face we conditioned our DCGAN to also use the attribute vector as input -- then it is called a Conditional
 DCGAN (CDCGAN).
 
-Moreover, we decided to re-implement another CDCGAN architecture: tediGAN (TODO source tediGAN).
-TODO @SchubertDaniel short description of tediGAN analogous to the paragraph before describing a CDCGAN
-Due to time constraints and some other reasons (see TODO) we were not able to finalize the re-implementation of the
-tediGAN.
+Moreover, we decided to re-implement another CDCGAN architecture: tediGAN \cite{Xia_2021_CVPR}.
+Due to time constraints and some other reasons -- see \ref{sec:tedi} -- we were not able to finalize the
+re-implementation of the tediGAN.
 
 \subsection{Related Work}
-The number of papers concering the same topic as ours, text-to-face generation from attributes, is small. We found 17 papers based on a broad range of keywords. 
+The number of papers concerning the same topic as ours, text-to-face generation from attributes, is small. We found 17 papers based on a broad range of keywords.
 The papers can be divided into two groups. One working with photofits/ forensic or composite sketches and the other with attribute guided face generation.
 The first group is mainly focused on generating images from those sketches \cite{6359918, LEI202013, SANNIDHAN2019452}. This is not what we intended to do. 
 The other group employs networks to generate faces from attributes which matches our goal \cite{Xia_2021_CVPR,Lu_2018_ECCV,9117185,9320290,9412022,8462648,Gecer_2018_ECCV,8606936,9146375,Bodla_2018_ECCV,NIPS2016_b1301141,gauthier2014conditional,Xiao_2018_ECCV}.
@@ -126,10 +123,10 @@ the only paper bringing both aspects together. And the DCGAN paper from Goodfell
 During our research in the project planning phase we stumbled across various datasets that could be useful to us in
 terms of their properties. Some examples of datasets containing faces and corresponding descriptions or attributes are:
 \begin{itemize}
-    \item \href{https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html}{celebA}
-    \item \href{http://mmlab.ie.cuhk.edu.hk/projects/CelebA/CelebAMask_HQ.html#:~:text=CelebAMask\%2DHQ\%20is\%20a\%20large,facial\%20attributes\%20corresponding\%20to\%20CelebA}{celebA HQ}
-    \item \href{http://vis-www.cs.umass.edu/lfw/}{LFW}
-    \item \href{https://github.com/pterhoer/MAAD-Face}{MAAD-Face}
+    \item \href{https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html}{celebA}, see \cite{celebA}
+    \item \href{http://mmlab.ie.cuhk.edu.hk/projects/CelebA/CelebAMask_HQ.html#:~:text=CelebAMask\%2DHQ\%20is\%20a\%20large,facial\%20attributes\%20corresponding\%20to\%20CelebA}{celebA HQ}, see \cite{CelebAMask-HQ}
+    \item \href{http://vis-www.cs.umass.edu/lfw/}{LFW}, see \cite{LFW}
+    \item \href{https://github.com/pterhoer/MAAD-Face}{MAAD-Face}, see \cite{DBLP2}
 \end{itemize}
 
 Nevertheless, these datasets are not made for criminology purposes, and so they do not perfectly fit our approach of
@@ -208,6 +205,7 @@ respectively.
 The final architecture of our CDCGAN is represented in \ref{} TODO.
 
 \subsubsection{TediGAN}
+\label{sec:tedi}
 TediGAN is a GAN and Framework proposed by Xia et al. To generate their images they use an inverted pretrained StyleGAN. The Framework includes multiple options to choose between layers and StyleGANs. 
 Unfortunately neither the git-repository nor their paper provides clear information which was their final and best version. The framework also uses config files in an incomprehensible way. We tried to 
 implement the network into our framework but couldn't get it to start training. Problems we encountered were the configs, which we replaced by one single choice. They also wrote certain layers in C++ and 
