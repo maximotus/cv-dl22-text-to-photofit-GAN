@@ -150,6 +150,71 @@ The papers can be divided into two groups. One working with photofits/ forensic 
 The first group is mainly focused on generating images from those sketches. This is not what we intended to do. 
 The other group employs networks to generate faces from attributes which is a matches our goal.
 We selected two papers which give relevant information for our project. First "TediGAN: Text-Guided Diverse Face Image Generation and Manipulation" by Xia et al. published in 2021. The second paper is "Attribute-Guided Sketch Generation" by Tang et al. published in 2019, which is the only paper bringing both aspects together.
+## tediGAN
+TediGAN is a GAN and Framework proposed by Xia et al. To generate their images they use a inverted pretrained StyleGAN. The Framework includes multiple options to choose between layers and StyleGANs. Unfortunately neither the git-repository nor their paper provides clear information which was their final and best version. The framework also uses config files in an incomprehensible way. We tried to implement the network into our framework but couldn't get it to start training. Problems we encountered were the configs, which we replaced by one single choice. They also wrote certain layers in C++ and Cuda which we initially struggled with but in the end got to work. But then we encountered a dimension error which was weird due to all shapes matching one another. To resolve the dimension error we logged and followed the flow of the images in the fit() method. To get further information about the configs we contacted the authors but never got an answer.
+To check for implementation errors we also cloned their repository and tried executing their proposed way to train with their framework. It failed to start due to missing config options.
+
+## metrics
+Regarding the metrics we orientated us among the most frequently used ones from the papers we read and chose the four most relevant. 
+In regard of image generation normal metrics, like accuracy, are very relative and should not be used due to their lack of information value. In most ML context this would not apply. When training a discriminator to decide if a picture is from a real dataset or generated from the GAN's generator, the scores most of the time do not result in "good" as in real images. A human could easily differentiate both. 
+So for image generation and their realness one should use one of the following metrics for evaluating the new images on the overall similarity: Fréchet Inception Distance (FID), patch similarity (Learned Perceptual Image Patch Similarity, LPIPS), Blind/Referenceless Image Spatial Quality Evaluator (BRISQUE) or a metric using a discriminator specifically trained for this task, where you know the results are satisfactory.
+FID calculates the Fréchet distance is originally used for the distance between curves of functions but can also be used for the probability distribution, in our case two datasets (FID_metric.pdf). $$d^2 = |\mu_X - \mu_Y|^2 + tr(\sum_X + \sum_Y - 2 (\sum_X \sum_Y)^{\frac{1}{2}})$$
+One way to check patch similiarity between two images is using LPIPS. This metric is based on comparing similarity of activations in a predefined network. A lower score is better. (LPIPS_metric.pdf)
+To check overall spatial image quality one could use BRISQUE. It checks for e.g. noise or blurriness. 
+Kynkäänniemi et al. propose an improved precision and recall framework, which can additionally to precision and recall scores also calculate a realism score. They use a StyleGAN to evaluate a set of images (tutor_metric.pdf).
+Some papers also use humans to give feedback on realness of generated images, which can be unreliable and the number of samples to review is limited (tedi).
+
+In our framework we implemented FID, LPIPS and BRISQUE. Kynkäänniemi's metric is implemented in an outdated version of TensorFlow. While implementing each metric a few key differences appeared which do not get clarified by any paper: e.g. LPIPS calculate the similarity between two pictures. But are they chosen at random or is an order selected in the beginning and then those images get compared?
+
+## Results
+We planned the training process to run every model variation at least once for 100 epochs on a quarter of the celeba dataset. Each Training run took between 9 and 11 hours. After this preliminary phase we looked at the generated images, loss, accuracy and metrics of our networks. We then decided that a dropout of 0.3 or 0.5 and spectral convolution layer were beneficial. Thus we ran those on the entire dataset size. Those runs took 12 hours on our system. We also tried out running a model for 200 epochs but noticed mode collapse happened every time. Mode collapse also happend when restarting on an epoch without collapse.
+
+### Report
+Percieved realness is an intuitve score between 0 and 5: 0 just noise, 1 shape recognizeable, ge2 = can recognize faces, ge3= face with noise, ge4=face with small artifacts, 5=real faces without errors. DS_size means Dataset size.
+| network                                  | accuracy_real accuracy_fake_before_disc accuracy_fake_after_disc | loss_real loss_fake loss_gan | FID     | LPIPS | BRISQUE | percieved realness (between 0 and 5) |
+|------------------------------------------|------------------------------------------------------------------|------------------------------|---------|-------|---------|--------------------------------------|
+| dropout=0, spectral=False, DS_size=1/4   | 0.994 0.006 0.0007                                               | 0.0072 0.0074 13.868         | 382.694 | 0.390 | 24.778  | 1                                    |
+| dropout=0, spectral=True, DS_size=1/4    | 0.968 0.031 0.009                                                | 0.046 0.411 6.815            | 226.220 | 0.316 | 51.853  | 2.5                                  |
+| dropout=0.2, spectral=False, DS_size=1/4 | 0.894 0.105 0.062                                                | 0.210 0.211 6.640            | 243.059 | 0.391 | 54.116  | 2.5                                  |
+| dropout=0.2, spectral=True, DS_size=1/4  | 0.969 0.028 0.062                                                | 0.0418 0.0356 6.6371         | 268.212 | 0.332 | 55.380  | 2                                    |
+| dropout=0.3, spectral=False, DS_size=1/4 | 0.826 0.180 0.129                                                | 0.393 1.003 3.766            | 251.380 | 0.294 | 29.43   | 1                                    |
+| dropout=0.3, spectral=True, DS_size=1/4  | 0.952 0.046 0.022                                                | 0.0612 0.0616 5.7318         | 303.187 | 0.369 | 51.221  | 1                                    |
+| dropout=0.3, spectral=True, DS_size=1    | 0.999 7.308 7.210                                                | 1.12 0.0 44.171              | 316.730 | 0.429 | 38.675  | 1                                    |
+| dropout=0.5, spectral=False, DS_size=1/4 | 0.506 0.501 0.496                                                | 0.750 1.737 0.768            | 257.383 | 0.439 | 25.909  | 1                                    |
+| dropout=0.5, spectral=True, DS_size=1/4  | 0.821 0.179 0.131                                                | 0.263 0.262 3.003            | 239.046 | 0.372 | 40.401  | 2                                    |
+| dropout=0.5, spectral=True, DS_size=1    | 0.929 0.070 0.048                                                | 0.108 0.107 5.587            | 246.569 | 0.379 | 35.747  | 1.5                                  |
+
+
+### Analysis / Discussion
+When deciding which network was the best you can proceed based on statistics, on the proposed metrics or visually judgeing the generated images per epoch and foremost the last epoch. 
+One could also proceed based on theoretically taught metrics, e.g. generator accuracy and discriminator accuracy should meet at 0.5 or at least converge against each other. In this case the network with spectral convolution and dropout value being 0.3 is supposed to be the best one. But even on first glance every human would be able to differentiate between real and fake images. 
+Running metrics proposed in the metrics section on trained networks resulted in some mismatching images even compared to the generated ones in the last epoch. When going on the metrics FID is probably the most meaningful. The best network according to this metric would be with dropout 0% and with a spectral convolutional layer. Some generated images are just noise. Every now and then you can recognize parts of a face but the rest is still just random artifacts. So the results are only partly acceptable.
+When looking through all images of every last epoch the best network is tied between (dropout=50%, spectral=True, DS_size=1/4) and (dropout=0%, spectral=True, DS_size=1/4). But even these images still have some artifacts in the image or on the face, the images are highly noisy around the face. Sometimes the network tries to generate two faces into one[twoFacesInOne](predef_img_max_7_3specfull_85.png). Also our networks seemed unable to learn the difference between certain attributes. E.g. they are not able to generate blonde people [blonde](predef_img_max_2_spectral2quarter99.png) or they put sunglasses on people [sunglasses](predef_img_max_2_spectral4full.png). The sunglasses phenomenon happend with a constant z-vector which didn't specify it and the glasses would appear and disappear epoch-wise.
+A relative good result is [relGood](good-4-spectral-full.png) and [relGood2](predef_img_daniel_1_spectral4quarter.png) 
+
+
+# Sources:
+- "TediGAN: Text-Guided Diverse Face Image Generation and Manipulation" by Xia et al., published in 2021 [tediGAN-paper](https://openaccess.thecvf.com/content/CVPR2021/html/Xia_TediGAN_Text-Guided_Diverse_Face_Image_Generation_and_Manipulation_CVPR_2021_paper.html)
+- "Improved Precision and Recall Metric for Assessing Generative Models" by Kynkäänniemi et al., published in 2019 [Precision and Recall metric paper](https://proceedings.neurips.cc/paper/2019/hash/0234c510bc6d908b28c70ff313743079-Abstract.html)
+- "GANs Trained by a Two Time-Scale Update Rule Converge to a Local Nash Equilibrium" by Heusel et al., published in 2017 [FID paper](https://proceedings.neurips.cc/paper/2017/hash/8a1d694707eb0fefe65871369074926d-Abstract.html)
+- "Attribute-Guided Sketch Generation" by Tang et al., published in 2019 [paper](https://ieeexplore.ieee.org/abstract/document/8756586)
+- "Matching Composite Sketches to Face Photos: A Component-Based Approach" by Han et al., published in 2012 [paper](https://ieeexplore.ieee.org/abstract/document/6359918)
+- "Face sketch-to-photo transformation with multi-scale self-attention GAN" by Lei et al., published in 2020 [paper](https://www.sciencedirect.com/science/article/abs/pii/S0925231220301995)
+- "Evaluating the Performance of Face Sketch Generation using Generative Adversarial Networks" by Sannidhan et al., published in 2019 [paper](https://www.sciencedirect.com/science/article/abs/pii/S0167865519302831)
+- "Attribute-Guided Face Generation Using Conditional CycleGAN" by Lu et al., published in 2018, [paper](https://openaccess.thecvf.com/content_ECCV_2018/html/Yongyi_Lu_Attribute-Guided_Face_Generation_ECCV_2018_paper.html)#
+- "Dynamic Facial Expression Generation on Hilbert Hypersphere with Conditional Wasserstein Generative Adversarial Nets" by Otberdout et al., published in 2020 [paper](https://ieeexplore.ieee.org/abstract/document/9117185)
+- "How are attributes expressed in face DCNNs?" by Dhar et al., published in 2019 [paper](https://ieeexplore.ieee.org/abstract/document/9320290)
+- "Attributes Aware Face Generation with Generative Adversarial Networks" by Yuan et al., published in 2020 [paper](https://ieeexplore.ieee.org/abstract/document/9412022)
+- "FRONTAL FACE GENERATION FROM MULTIPLE POSE-VARIANT FACES WITH CGAN IN REAL-WORLD SURVEILLANCE SCENE" by Cheng et al., published in 2018 [paper](https://www.researchgate.net/publication/327805981_Frontal_Face_Generation_from_Multiple_Pose-Variant_Faces_with_CGAN_in_Real-World_Surveillance_Scene)
+- "Semi-supervised Adversarial Learning to Generate
+Photorealistic Face Images of New Identities from 3D Morphable Model" by Gecer et al., published in 2018 [paper](https://openaccess.thecvf.com/content_ECCV_2018/html/Baris_Gecer_Semi-supervised_Adversarial_Learning_ECCV_2018_paper.html)
+- "cGAN Based Facial Expression Recognition for
+Human-Robot Interaction" by Deng et al., published in [paper](https://ieeexplore.ieee.org/abstract/document/8606936)
+- "Generating Face Images with Attributes for Free" by Liu et al., published in [paper](https://ieeexplore.ieee.org/abstract/document/9146375)
+- "Semi-supervised FusedGAN for Conditional Image Generation" by Bodla et al., published in 2018 [paper](https://openaccess.thecvf.com/content_ECCV_2018/html/Navaneeth_Bodla_Semi-supervised_FusedGAN_for_ECCV_2018_paper.html)
+- "Conditional Image Generation with PixelCNN Decoders" by Oord et al., published in [paper](https://proceedings.neurips.cc/paper/2016/hash/b1301141feffabac455e1f90a7de2054-Abstract.html)
+- "Conditional generative adversarial nets for convolutional face generation" by Gauthieret al., published in 2014 [paper](https://www.foldl.me/uploads/2015/conditional-gans-face-generation/paper.pdf)
+- "ELEGANT: Exchanging Latent Encodings with GAN for Transferring Multiple Face Attributes" by Xiao et al., published in 2018 [paper](https://openaccess.thecvf.com/content_ECCV_2018/html/Taihong_Xiao_ELEGANT_Exchanging_Latent_ECCV_2018_paper.html)
 
 
 ## 
