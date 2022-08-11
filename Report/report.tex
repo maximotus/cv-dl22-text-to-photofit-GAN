@@ -1,12 +1,11 @@
 \documentclass[12pt, a4paper]{article}
-\usepackage[german]{babel}
+% \usepackage[german]{babel}
 \usepackage{graphicx}
 \usepackage[onehalfspacing]{setspace}
 \usepackage{hyperref}
 \hypersetup{
     urlcolor=cyan
     }
-
 % extra hierarchielevel
 \usepackage{titlesec}
 \setcounter{secnumdepth}{4}
@@ -19,7 +18,7 @@
 \begin{document}
 
 \begin{abstract}
-Highly descriptive text-to-face generation to sythesize authentic faces (photofits for criminology purposes) via a GAN. Main project of the  teaching event "Computer Vision and Deep Learning: Visual Synthesis" in the summer of 2022 at LMU Munich.
+Highly descriptive text-to-face generation to sythesize authentic faces (photofits for criminology purposes) via a GAN. Main project of the  teaching event ``Computer Vision and Deep Learning: Visual Synthesis'' in the summer of 2022 at LMU Munich.
 We designed a framework that currently provides two GAN-Models -- cDCGAN and TediGAN -- that are easy to train, evaluate and use to generate photofits. It is implemented in PyTorch and highly configurable to accomodate many test cases. Due to its architecture other models, datasets and metrics can easily be added. We are looking forward to your pull requests.
 
 \end{abstract}
@@ -28,7 +27,7 @@ We designed a framework that currently provides two GAN-Models -- cDCGAN and Ted
 \section{Introduction}
 
 \subsection{The Goal of Photofit Creation using GANs}
-Our proposed goal for the final project of the "Computer Vision \& Deep Learning: Visual Synthesis" lecture was to train 
+Our proposed goal for the final project of the ``Computer Vision \& Deep Learning: Visual Synthesis'' lecture was to train 
 existing Generative Adversarial Network (GAN) models and fine-tune their architectures in respect to generate authentic
 and unambiguous samples of real looking faces. These samples should be of such quality that they could be used as
 photofits (also phantom images, i.e. pictures representing a person's memory of a criminal's face, compare 
@@ -49,7 +48,7 @@ However, during the execution of the project we changed our plan to only focus o
 crucial arguments. First, the lecture is about visual synthesis and not natural language processing, so our main focus
 should be on the creation of images and not on the semantic embedding of continuous text into the latent space.
 Second, training a text-encoder and a GAN respectively means twice as much calculation time which is inappropriate for
-the relatively short project time. Third, in respect to our described goal (see "The Goal", TODO) we think that possible
+the relatively short project time. Third, in respect to our described goal (see ``The Goal'', TODO) we think that possible
 downstream applications would benefit more if the photofit creation is conditioned by vectors with values either 0 or 1
 representing the truth value (0=False, 1=True) for each descriptive attribute of an image / a face. Fourth, the attempt
 of only generating phantom images based on attribute vectors is sufficient to get a proof of concept and to use such 
@@ -72,9 +71,11 @@ tediGAN.
 \subsection{Related Work}
 The number of papers concering the same topic as ours, text-to-face generation from attributes, is small. We found 17 papers based on a broad range of keywords. 
 The papers can be divided into two groups. One working with photofits/ forensic or composite sketches and the other with attribute guided face generation.
-The first group is mainly focused on generating images from those sketches [5,6,7]. This is not what we intended to do. 
-The other group employs networks to generate faces from attributes which is a matches our goal [1,8-19].
-We selected two papers which give relevant information for our project. First "TediGAN: Text-Guided Diverse Face Image Generation and Manipulation" by Xia et al. published in 2021 [1]. The second paper is "Attribute-Guided Sketch Generation" by Tang et al. published in 2019 [4], which is the only paper bringing both aspects together.
+The first group is mainly focused on generating images from those sketches \cite{6359918, LEI202013, SANNIDHAN2019452}. This is not what we intended to do. 
+The other group employs networks to generate faces from attributes which matches our goal \cite{Xia_2021_CVPR,Lu_2018_ECCV,9117185,9320290,9412022,8462648,Gecer_2018_ECCV,8606936,9146375,Bodla_2018_ECCV,NIPS2016_b1301141,gauthier2014conditional,Xiao_2018_ECCV}.
+We selected three papers which give relevant information for our project. First ``TediGAN: Text-Guided Diverse Face Image Generation and Manipulation'' by Xia 
+et al. published in 2021\cite{Xia_2021_CVPR}. The second paper is ``Attribute-Guided Sketch Generation'' by Tang et al. published in 2019\cite{Tang}, which is 
+the only paper bringing both aspects together. And the DCGAN paper from Goodfellow et al.\cite{Tang}.
 
 \section{Main}
 \subsection{Dataset}
@@ -119,29 +120,33 @@ use celebA. MAAD-Face has too many images as if we could manage to train our GAN
 \subsubsection{Architecture / Structure}
 \subsubsection{CDCGAN}
 \subsubsection{TediGAN}
-TediGAN is a GAN and Framework proposed by Xia et al. To generate their images they use a inverted pretrained StyleGAN. The Framework includes multiple options to choose between layers and StyleGANs. Unfortunately neither the git-repository nor their paper provides clear information which was their final and best version. The framework also uses config files in an incomprehensible way. We tried to implement the network into our framework but couldn't get it to start training. Problems we encountered were the configs, which we replaced by one single choice. They also wrote certain layers in C++ and Cuda which we initially struggled with but in the end got to work. But then we encountered a dimension error which was weird due to all shapes matching one another. To resolve the dimension error we logged and followed the flow of the images in the fit() method. To get further information about the configs we contacted the authors but never got an answer.
+TediGAN is a GAN and Framework proposed by Xia et al. To generate their images they use an inverted pretrained StyleGAN. The Framework includes multiple options to choose between layers and StyleGANs. 
+Unfortunately neither the git-repository nor their paper provides clear information which was their final and best version. The framework also uses config files in an incomprehensible way. We tried to 
+implement the network into our framework but couldn't get it to start training. Problems we encountered were the configs, which we replaced by one single choice. They also wrote certain layers in C++ and 
+Cuda which we initially struggled with but in the end got to work. But then we encountered a dimension error which was weird due to all shapes matching one another. To resolve the dimension error we 
+logged and followed the flow of the images in the fit() method. To get further information about the configs we contacted the authors but never got an answer.
 To check for implementation errors we also cloned their repository and tried executing their proposed way to train with their framework. It failed to start due to missing config options.
 
 \subsubsection{Metrics}
 Regarding the metrics we orientated us among the most frequently used ones from the papers we read and chose the four most relevant. 
-In regard of image generation normal metrics, like accuracy, are very relative and should not be used due to their lack of information value. In most ML context this would not apply. When training a discriminator to decide if a picture is from a real dataset or generated from the GAN's generator, the scores most of the time do not result in "good" as in real images. A human could easily differentiate both. 
-So for image generation and their realness one should use one of the following metrics for evaluating the new images on the overall similarity: Fréchet Inception Distance (FID), patch similarity (Learned Perceptual Image Patch Similarity, LPIPS), Blind/Referenceless Image Spatial Quality Evaluator (BRISQUE) or a metric using a discriminator specifically trained for this task, where you know the results are satisfactory.
-FID calculates the Fréchet distance is originally used for the distance between curves of functions but can also be used for the probability distribution, in our case two datasets [3]. $$d^2 = |\mu_X - \mu_Y|^2 + tr(\sum_X + \sum_Y - 2 (\sum_X \sum_Y)^{\frac{1}{2}})$$
-One way to check patch similiarity between two images is using LPIPS. This metric is based on comparing similarity of activations in a predefined network. A lower score is better [20]. 
+In regard of image generation normal metrics, like accuracy, are very relative and should not be used due to their lack of information value. In most ML context this would not apply. When training a discriminator to decide if a picture is from a real dataset or generated from the GAN's generator, the scores most of the time do not result in ``good'' as in real images. A human could easily differentiate both. 
+So for image generation and their realness one should use one of the following metrics for evaluating the new images: on the overall similarity the Fréchet Inception Distance (FID), patch similarity (Learned Perceptual Image Patch Similarity, LPIPS), Blind/Referenceless Image Spatial Quality Evaluator (BRISQUE) or a metric using a discriminator specifically trained for this task, where you know the results are satisfactory.
+FID calculates the Fréchet distance which is originally used for the distance between curves of functions but can also be used for the probability distribution, in our case two datasets \cite{NIPS2017_8a1d6947}. $$d^2 = |\mu_X - \mu_Y|^2 + tr(\sum_X + \sum_Y - 2 (\sum_X \sum_Y)^{\frac{1}{2}})$$
+One way to check patch similarity between two images is using LPIPS. This metric is based on comparing similarity of activations in a predefined network. A lower score is better \cite{DBLP}. 
 To check overall spatial image quality one could use BRISQUE. It checks for e.g. noise or blurriness. 
-Kynkäänniemi et al. propose an improved precision and recall framework, which can additionally to precision and recall scores also calculate a realism score. They use a StyleGAN to evaluate a set of images [2].
-Some papers also use humans to give feedback on realness of generated images, which can be unreliable and the number of samples to review is limited [1].
+Kynkäänniemi et al. propose an improved precision and recall framework, which can additionally to precision and recall scores also calculate a realism score. They use a StyleGAN to evaluate a set of images \cite{NEURIPS2019_0234c510}.
+Some papers also use humans to give feedback on realness of generated images, which can be unreliable and the number of samples to review is limited \cite{Xia_2021_CVPR}.
 
 In our framework we implemented FID, LPIPS and BRISQUE. Kynkäänniemi's metric is implemented in an outdated version of TensorFlow. 
 While implementing each metric a few key differences appeared which do not get clarified by any paper: e.g. LPIPS calculate the similarity between two pictures. 
-But are they chosen at random or is an order selected in the beginning and then those images get compared? We choose to generate images based on the same attribute-vectors and compare those to one another.
+But are they chosen at random or is an order selected in the beginning and then those images get compared? We chose to generate images based on the same attribute-vectors and compare those to one another.
 
 \subsubsection{Experiments}
 \paragraph{Configuration}
 \paragraph{Results}
-We planned the training process to run every model variation at least once for 100 epochs on a quarter of the celeba dataset. Each Training run took between 9 and 11 hours. After this preliminary phase we looked at the generated images, loss, accuracy and metrics of our networks. We then decided that a dropout of 0.3 or 0.5 and spectral convolution layer were beneficial. Thus we ran those on the entire dataset size. Those runs took 12 hours on our system. We also tried out running a model for 200 epochs but noticed mode collapse happened every time. Mode collapse also happend when restarting on an epoch without collapse.
+We planned the training process to run every model variation at least once for 100 epochs on a quarter of the celebA dataset. Each Training run took between 9 and 11 hours. After this preliminary phase we looked at the generated images, loss, accuracy and metrics of our networks. We then decided that a dropout of 0.3 or 0.5 and spectral convolution layer were beneficial. Thus we ran those on the entire dataset size. Those runs took 12 hours on our system. We also tried out running a model for 200 epochs but noticed mode collapse happened every time. Mode collapse also happend when restarting on an epoch without collapse.
 
-Percieved realness is an intuitve score between 0 and 5: 0 just noise, 1 shape recognizeable, ge2 = can recognize faces, ge3= face with noise, ge4=face with small artifacts, 5=real faces without errors. DS\_size means Dataset size.
+Percieved realness is an intuitive score between 0 and 5: $0\widehat{=} $ just noise, $1\widehat{=} $ shape recognizeable, $\ge 2\widehat{=} $ can recognize faces, $\ge 3\widehat{=} $ face with noise, $\ge 4\widehat{=} $ face with small artifacts, $5 \widehat{=} $ real faces without errors. DS\_size means dataset size.
 \begin{table}
 \centering
 \resizebox{\textwidth}{!}{%
@@ -164,12 +169,12 @@ Percieved realness is an intuitve score between 0 and 5: 0 just noise, 1 shape r
 
 When deciding which network was the best you can proceed based on statistics, on the proposed metrics or visually judgeing the generated images per epoch and foremost the last epoch. 
 One could also proceed based on theoretically taught metrics, e.g. generator accuracy and discriminator accuracy should meet at 0.5 or at least converge against each other. In this case the network with spectral convolution and dropout value being 0.3 is supposed to be the best one. But even on first glance every human would be able to differentiate between real and fake images. 
-Running metrics proposed in the metrics section on trained networks resulted in some mismatching images even compared to the generated ones in the last epoch. When going on the metrics FID is probably the most meaningful. The best network according to this metric would be with dropout 20\% and without a spectral convolutional layer. Some generated images are just noise. Every now and then you can recognize parts of a face but the rest is still just random artifacts. So the results are only partly acceptable. The network with 0\% dropout without a spectral layer is correctly the worst variant with the highest FID score of 339.957 and images looking like weird color sprinkles \ref{fig:worstImage}
+Running metrics proposed in the metrics section on trained networks resulted in some mismatching images even compared to the generated ones in the last epoch. When going on the metrics FID is probably the most meaningful. The best network according to this metric would be with dropout 20\% and without a spectral convolutional layer. Some generated images are just noise. Every now and then you can recognize parts of a face but the rest is still just random artifacts. So the results are only partly acceptable. The network with 0\% dropout without a spectral layer is correctly the worst variant with the highest FID score of 339.957 and images looking like weird color sprinkles, see figure \ref{fig:worstImage}.
 When looking through all images of every last epoch the best network is tied between (dropout=50\%, spectral=True, DS\_size=1/4) and (dropout=0\%, spectral=True, DS\_size=1/4). But even these images still have some artifacts in the image or on the face, the images are highly noisy around the face. 
-Sometimes the network tries to generate two faces into one \ref{fig:twoFacesInOne}. 
+Sometimes the network tries to generate two faces into one, fig.\ref{fig:twoFacesInOne}. 
 Also our networks seemed unable to learn the difference between certain attributes. 
-E.g. they are not able to generate blonde people \ref{fig:blonde} or they put sunglasses on people \ref{fig:sunglasses}. The sunglasses phenomenon happend with a constant c-vector which didn't specify it and the glasses would appear and disappear epoch-wise.
-A relative good result is \ref{fig:relgood1} and \ref{fig:relgood2}. But even those fake images are distinguishable compared to the used dataset.
+E.g. they are not able to generate blonde people fig.\ref{fig:blonde} or they put sunglasses on people fig.\ref{fig:sunglasses}. The sunglasses phenomenon happend with a constant c-vector which didn't specify it and the glasses would appear and disappear epoch-wise.
+A relative good result is fig.\ref{fig:relgood1} and fig.\ref{fig:relgood2}. But even those fake images are distinguishable compared to the used dataset.
 \begin{figure}
     \makebox[\textwidth][c]{\includegraphics[width=0.25\textwidth]{./results/predef_img_max_7_3specfull_85.png}}%
     \caption{Mutliple eyes in one face.}
@@ -204,10 +209,10 @@ A relative good result is \ref{fig:relgood1} and \ref{fig:relgood2}. But even th
 \section{Conclusion}
 In this chapter we want to conclude an reflect on the results and things we noticed while implementing or experimenting.
 \subsection{Datasets}
-First, we observed some defects in the training images that some faces were streched or had some artifacts e.g \ref{fig:badDatasetImage} \ref{fig:badDatasetImage2} \ref{fig:badDatasetImage3}.
-Second, the attributes are redunand, incomplete. E.g. 4 attributes for hair color, Red\_Hair is completly missing. 
-Third it would be better if the direction in which a person looks, would only be straight ahead or be labeled. \ref{fig:wrongDirectionImage} \ref{fig:wrongDirectionImage2}
-Four, due to the small time frame we were unable to run our experiments with the other datasets mentioned above \ref{SuitableDatasets}
+First, we observed some defects in the training images that some faces were stretched or had some artifacts e.g see images\ref{fig:badDatasetImage}, \ref{fig:badDatasetImage2} and \ref{fig:badDatasetImage3}.
+Second, the attributes are redundant and incomplete. E.g. 4 attributes for hair color, Red\_Hair is completely missing. 
+Third it would be better if the direction in which a person looks, would only be straight ahead or be labeled. fig.\ref{fig:wrongDirectionImage} and fig.\ref{fig:wrongDirectionImage2}.
+Four, due to the small time frame we were unable to run our experiments with the other datasets mentioned above, chapter: \ref{SuitableDatasets}.
 Fifth, often it is the case that many faces match to one and the same attribute-vector so for criminology purposes one should consider to use a dataset with a much larger attribute-vector.
 \begin{figure}
     \makebox[\textwidth][c]{\includegraphics[width=0.25\textwidth]{./results/000111.jpg}}
@@ -236,21 +241,23 @@ Fifth, often it is the case that many faces match to one and the same attribute-
 \end{figure}
 
 \subsection{Mode Collapse}
-Mode Collapse is a common problem when working with GANs \href{https://machinelearning.wtf/terms/mode-collapse/}{reference}. 
-Normally a GAN is consider successful if it's samples can fool a discriminator and the generator samples diverse images with a distribution like in the real world. 
-This mean that given an attribute-vector c the GAN should sample different images. Mode collapse happens if the GAN starts to produce the same image again and again for the same c 
-because it successfully fools the discriminator. \ref{fig:modecollapse}
-The image is a result after 100 epochs with spectral convolutions and 0\% dropout. As you can see the images all look alike and there is no real difference between them. Also we have checked some attribute-vectors and as one might assume there are multiple individuals annotated with the same vector. This seems pretty plausible with a dataset of more than 200 thousand images and a relatively small attribute-vector size of 40. Therefore we also expected our GAN to sample different images for the same c. However thinking of photofits it could be useful to run into mode collapse, here a specific vector should always lead to the same result.
+Mode Collapse is a common problem when working with GANs \href{https://machinelearning.wtf/terms/mode-collapse/}{(see this article)}. 
+Normally a GAN is considered successful if its samples can fool a discriminator and the generator samples diverse images with a distribution like in the real world. 
+This means that given an attribute-vector $c$ the GAN should sample different images. Mode collapse happens if the GAN starts to produce the same image again and again for the same $c$
+because it successfully fools the discriminator. An example can be seen in fig.\ref{fig:modecollapse}.
+The image is a result after 100 epochs with spectral convolutions and 0\% dropout. As you can see the images all look alike and there is no real difference between them. Also we have checked some attribute-vectors 
+and as one might assume there are multiple individuals annotated with the same vector. This seems pretty plausible with a dataset of more than 200 thousand images and a relatively small attribute-vector size of 40. Therefore 
+we also expected our GAN to sample different images for the same $c$. However thinking of photofits it could be useful to run into mode collapse, here a specific vector should always lead to the same result.
 \begin{figure}
     \makebox[\textwidth][c]{\includegraphics[width=\textwidth]{./results/modecollapse.JPG}}
     \caption{Example for mode collapse after 100 epochs.}
     \label{fig:modecollapse}
 \end{figure}
-\subsection{Imagesize}
+\subsection{Image size}
 For time and hardware reasons we opted to scale the dataset images to size 64 by 64. We assume that we can achieve better results with bigger sized images due to a higher detail level.
 
 \subsection{More time + GPU-power}
-With more time and better hardware (maybe even multiple GPUs) we would have done more extensive testing and more training runs. And prove our hypothesis that a more detailed dataset and larger images lead to a general improvement.
+With more time and better hardware (maybe even multiple GPUs) we would have done more extensive testing and more training runs, and prove our hypothesis that a more detailed dataset and larger images lead to a general improvement.
 
 \section{Future Work}
 As described in the conclusion we would like to train our GAN on other datasets(referenceToDatasets) and with a larger image size(referenceToImageSize). 
