@@ -24,3 +24,4 @@
 - [x] rename TRAINED_PATH to PRETRAINED_PATH_KEY
 - [x] rename CURRENT_EPOCH to CURRENT_EPOCH_KEY
 - [x] epochs is not max_epochs, but rather the number of remaining epochs. so we can just do range(epochs) instead of range(current_epoch + 1, epochs)
+- [ ] adapt CDCGAN.generate_image method to be able to generate multiple images
