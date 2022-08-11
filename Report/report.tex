@@ -127,7 +127,7 @@ Cuda which we initially struggled with but in the end got to work. But then we e
 logged and followed the flow of the images in the fit() method. To get further information about the configs we contacted the authors but never got an answer.
 To check for implementation errors we also cloned their repository and tried executing their proposed way to train with their framework. It failed to start due to missing config options.
 
-\subsubsection{Metrics}
+\subsubsection{Metrics}\label{metrics}
 Regarding the metrics we orientated us among the most frequently used ones from the papers we read and chose the four most relevant. 
 In regard of image generation normal metrics, like accuracy, are very relative and should not be used due to their lack of information value. In most ML context this would not apply. When training a discriminator to decide if a picture is from a real dataset or generated from the GAN's generator, the scores most of the time do not result in ``good'' as in real images. A human could easily differentiate both. 
 So for image generation and their realness one should use one of the following metrics for evaluating the new images: on the overall similarity the Fréchet Inception Distance (FID), patch similarity (Learned Perceptual Image Patch Similarity, LPIPS), Blind/Referenceless Image Spatial Quality Evaluator (BRISQUE) or a metric using a discriminator specifically trained for this task, where you know the results are satisfactory.
@@ -169,7 +169,7 @@ Percieved realness is an intuitive score between 0 and 5: $0\widehat{=} $ just n
 
 When deciding which network was the best you can proceed based on statistics, on the proposed metrics or visually judgeing the generated images per epoch and foremost the last epoch. 
 One could also proceed based on theoretically taught metrics, e.g. generator accuracy and discriminator accuracy should meet at 0.5 or at least converge against each other. In this case the network with spectral convolution and dropout value being 0.3 is supposed to be the best one. But even on first glance every human would be able to differentiate between real and fake images. 
-Running metrics proposed in the metrics section on trained networks resulted in some mismatching images even compared to the generated ones in the last epoch. When going on the metrics FID is probably the most meaningful. The best network according to this metric would be with dropout 20\% and without a spectral convolutional layer. Some generated images are just noise. Every now and then you can recognize parts of a face but the rest is still just random artifacts. So the results are only partly acceptable. The network with 0\% dropout without a spectral layer is correctly the worst variant with the highest FID score of 339.957 and images looking like weird color sprinkles, see figure \ref{fig:worstImage}.
+Running metrics proposed in the metrics section:\ref{metrics}, on trained networks resulted in some mismatching images even compared to the generated ones in the last epoch. When going on the metrics FID is probably the most meaningful. The best network according to this metric would be with dropout 20\% and without a spectral convolutional layer. Some generated images are just noise. Every now and then you can recognize parts of a face but the rest is still just random artifacts. So the results are only partly acceptable. The network with 0\% dropout without a spectral layer is correctly the worst variant with the highest FID score of 339.957 and images looking like weird color sprinkles, see figure \ref{fig:worstImage}.
 When looking through all images of every last epoch the best network is tied between (dropout=50\%, spectral=True, DS\_size=1/4) and (dropout=0\%, spectral=True, DS\_size=1/4). But even these images still have some artifacts in the image or on the face, the images are highly noisy around the face. 
 Sometimes the network tries to generate two faces into one, fig.\ref{fig:twoFacesInOne}. 
 Also our networks seemed unable to learn the difference between certain attributes. 
@@ -260,7 +260,7 @@ For time and hardware reasons we opted to scale the dataset images to size 64 by
 With more time and better hardware (maybe even multiple GPUs) we would have done more extensive testing and more training runs, and prove our hypothesis that a more detailed dataset and larger images lead to a general improvement.
 
 \section{Future Work}
-As described in the conclusion we would like to train our GAN on other datasets(referenceToDatasets) and with a larger image size(referenceToImageSize). 
+As described in the conclusion we would like to train our GAN on other datasets, section \ref{SuitableDatasets}, and with a larger image size than 64 by 64. 
 Also the development of a new dataset specialized for criminology purposes would be helpful for us and downstream applications.
 Such a dataset should contain much more than fourty attributes, we assume about 200 would be a good starting point. Moreover the images of the dataset should not include bad samples as pointed out above but only passport photo should be included.
 Regarding mode collapse it would be interesting if someone could use this phenomenon for photofit generation.
