@@ -90,7 +90,49 @@ much appreciate, a text-to-face approach could be seen as a possible adaption.
 During our research in the project planning phase we stumbled across various datasets that could be useful to us in
 terms of their properties. Some examples of datasets containing faces and corresponding descriptions or attributes are:
 
-- TODO
+- [celebA](https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html)
+- [celebA HQ](http://mmlab.ie.cuhk.edu.hk/projects/CelebA/CelebAMask_HQ.html#:~:text=CelebAMask%2DHQ%20is%20a%20large,facial%20attributes%20corresponding%20to%20CelebA.)
+- [LFW](http://vis-www.cs.umass.edu/lfw/)
+- [MAAD-Face](https://github.com/pterhoer/MAAD-Face)
+
+Nevertheless, these datasets are not made for criminology purposes, and so they do not perfectly fit our approach of
+generating photofits. This has two main reasons.
+
+First, baseline face datasets are mainly constructed for face recognition applications. On the one hand, as the authors
+of [MAAD-Face](https://github.com/pterhoer/MAAD-Face) outline, this leads to the consequence that datasets like
+[celebA](https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html) or [LFW](http://vis-www.cs.umass.edu/lfw/) indeed contain a
+large amount of face images, but struggle with the overall annotation correctness and the total number of attributes.
+On the other hand, [MAAD-Face](https://github.com/pterhoer/MAAD-Face) aims to be better in those terms by merging
+face image datasets with their attribute annotations together and check their correctness by a human evaluation.
+
+Second, as we already expected beforehand and was confirmed during the project execution, such relatively low numbers of
+distinctive attributes (compare table, TODO) would not fit the demand for accuracy needed for phantom image creation.
+Moreover, considering the 40 attributes of [celebA](https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html) one can see that
+there is some redundancy and incompleteness within – e.g. one extra attribute for each Black_Hair, Blond_Hair,
+Brown_Hair, and Gray_Hair, but there is no attribute like  Red_Hair.
+
+TODO table with dataset stats
+
+### Used Dataset
+
+Comparing the statistics of the datasets from above, we concluded to initially use a set that has a good trade-off
+between the total number of face images and the total number of distinctive attributes. Even if they are not perfectly
+fitted for criminology purposes, our assumption is that if the concept of attribute-conditioned face generation works on
+one of these datasets, it will also work on more accurate datasets that could be developed especially for the task of
+photofit creation in the future. And especially, it will work better on a better suited dataset.
+
+Even if [MAAD-Face](https://github.com/pterhoer/MAAD-Face) aims to be better than
+[celebA](https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html) and [LFW](http://vis-www.cs.umass.edu/lfw/), we decided to
+use [celebA](https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html). [MAAD-Face](https://github.com/pterhoer/MAAD-Face)
+has too many images as if we could manage to train our GAN on it in the give time frame of the project and
+[LFW](http://vis-www.cs.umass.edu/lfw/) has too few images.
+
+
+
+TODO citations
+
+TODO problem to keep in mind: lack in number of attribute annotations and the overall annotation correctness, see
+https://github.com/pterhoer/MAAD-Face
 
 The input text should include descriptive criteria,
 e.g. pointy nose, bald, blue eyes, wide mouth, long eyebrows or curly hair.
