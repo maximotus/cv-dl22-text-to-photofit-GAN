@@ -2,7 +2,10 @@
 
 ## Prio 0
 
-- [ ] language english in report / latex (e.g. "Abbildung 8") 
+- [ ] language english in report / latex (e.g. "Abbildung 8")
+- [ ] mention in the experiments section that we only useed CDCGAN and not tediGAN (so its more clear, even if it could be clear from context in tedigan section)
+- [ ] future work: extend framework and eliminate duplicated code in tediGAN and CDCGAN (e.g. b using a parent class GAN)
+- [ ] print CDCGAN architectures and insert to report
 - [x] implement plot script for plotting stats for report
 - [ ] implement save_plots (save plots as pngs) at the end of a train run
 - [ ] update README.md with all necessary information to run our framework
