@@ -1,5 +1,11 @@
 # TODOs
 
+## Submission folder should contain
+- [ ] final code as zip
+- [ ] report as pdf
+- [ ] slides as pdf
+- [ ] presentation as mp4
+
 ## Prio 0
 
 - [ ] check executability of the whole framework 
