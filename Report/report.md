@@ -34,7 +34,7 @@ TODO maybe change text-to-face to vector-to-face? @SchubertDaniel
 
 ## Introduction
 
-### Photofit Creation using GANs
+### Photofit Creation using GANs -Done
 
 Our proposed goal for the final project of the "Computer Vision & Deep Learning: Visual Synthesis" lecture was to train 
 existing Generative Adversarial Network (GAN) models and fine-tune their architectures in respect to generate authentic
@@ -45,7 +45,7 @@ by phantom sketch artists working for the police or for lawyers, our assumption 
 could easily outperform every sketch artist in terms of costs, speed, accuracy and photo-realism. Thus, such a network
 for the creation of photofits could be a very useful tool for criminology workers.
 
-### Text-to-Face Synthesis
+### Text-to-Face Synthesis -Done
 
 Inspired by DALL-E and DALL-E 2 (see https://openai.com/dall-e-2/), our first intention was a text-to-image approach
 using two separate models – analogous to https://arxiv.org/abs/2012.03308 ??? TODO. On the one hand, we considered to
@@ -53,7 +53,7 @@ use a text-encoder model for the embedding of a continuous text describing a cri
 such that the semantics of the textual description remain intact. On the other hand, we thought about a GAN or VAE model
 creating faces from those latent embeddings.
 
-### Vector-to-Face Synthesis
+### Vector-to-Face Synthesis-done
 
 However, during the execution of the project we changed our plan to only focus on the generation part because of four
 crucial arguments. First, the lecture is about visual synthesis and not natural language processing, so our main focus
@@ -85,7 +85,7 @@ much appreciate, a text-to-face approach could be seen as a possible adaption.
 
 ## Main
 
-### Suitable Datasets
+### Suitable Datasets-done
 
 During our research in the project planning phase we stumbled across various datasets that could be useful to us in
 terms of their properties. Some examples of datasets containing faces and corresponding descriptions or attributes are:
@@ -113,7 +113,7 @@ Brown_Hair, and Gray_Hair, but there is no attribute like  Red_Hair.
 
 TODO table with dataset stats
 
-### Used Dataset
+### Used Dataset-done
 
 Comparing the statistics of the datasets from above, we concluded to initially use a set that has a good trade-off
 between the total number of face images and the total number of distinctive attributes. Even if they are not perfectly
@@ -134,28 +134,18 @@ TODO citations
 TODO problem to keep in mind: lack in number of attribute annotations and the overall annotation correctness, see
 https://github.com/pterhoer/MAAD-Face
 
-The input text should include descriptive criteria,
-e.g. pointy nose, bald, blue eyes, wide mouth, long eyebrows or curly hair.
-
-The first part will be to classifiy / detect important attributes from the text – which is given as an accurate description (i.e. one or more sentences) – and embed them into the latent feature space.
-
-The second part will be the generative part using a VAE or GAN to synthesize images from the textual embeddings.
-
-This task is interesting due to the real use case, that if it works it could support the work of police workers. Also, pretrained networks are not available and training/ building upon existing algorithms and trying to achieve the same or a higher baseline is a challenge we look forward to.
-
-
-## Related Work
+## Related Work -DOne
 The number of papers concering the same topic as ours, text-to-face generation from attributes, is small. We found 17 papers based on a broad range of keywords. 
 The papers can be divided into two groups. One working with photofits/ forensic or composite sketches and the other with attribute guided face generation.
 The first group is mainly focused on generating images from those sketches [5,6,7]. This is not what we intended to do. 
 The other group employs networks to generate faces from attributes which is a matches our goal [1,8-19].
 We selected two papers which give relevant information for our project. First "TediGAN: Text-Guided Diverse Face Image Generation and Manipulation" by Xia et al. published in 2021 [1]. The second paper is "Attribute-Guided Sketch Generation" by Tang et al. published in 2019 [4], which is the only paper bringing both aspects together.
 
-## tediGAN
+## tediGAN-done
 TediGAN is a GAN and Framework proposed by Xia et al. To generate their images they use a inverted pretrained StyleGAN. The Framework includes multiple options to choose between layers and StyleGANs. Unfortunately neither the git-repository nor their paper provides clear information which was their final and best version. The framework also uses config files in an incomprehensible way. We tried to implement the network into our framework but couldn't get it to start training. Problems we encountered were the configs, which we replaced by one single choice. They also wrote certain layers in C++ and Cuda which we initially struggled with but in the end got to work. But then we encountered a dimension error which was weird due to all shapes matching one another. To resolve the dimension error we logged and followed the flow of the images in the fit() method. To get further information about the configs we contacted the authors but never got an answer.
 To check for implementation errors we also cloned their repository and tried executing their proposed way to train with their framework. It failed to start due to missing config options.
 
-## metrics
+## metrics-done
 Regarding the metrics we orientated us among the most frequently used ones from the papers we read and chose the four most relevant. 
 In regard of image generation normal metrics, like accuracy, are very relative and should not be used due to their lack of information value. In most ML context this would not apply. When training a discriminator to decide if a picture is from a real dataset or generated from the GAN's generator, the scores most of the time do not result in "good" as in real images. A human could easily differentiate both. 
 So for image generation and their realness one should use one of the following metrics for evaluating the new images on the overall similarity: Fréchet Inception Distance (FID), patch similarity (Learned Perceptual Image Patch Similarity, LPIPS), Blind/Referenceless Image Spatial Quality Evaluator (BRISQUE) or a metric using a discriminator specifically trained for this task, where you know the results are satisfactory.
@@ -167,10 +157,10 @@ Some papers also use humans to give feedback on realness of generated images, wh
 
 In our framework we implemented FID, LPIPS and BRISQUE. Kynkäänniemi's metric is implemented in an outdated version of TensorFlow. While implementing each metric a few key differences appeared which do not get clarified by any paper: e.g. LPIPS calculate the similarity between two pictures. But are they chosen at random or is an order selected in the beginning and then those images get compared? We choose to generate images based on the same attribute-vectors and compare those to one another.
 
-## Results
+## Results-done
 We planned the training process to run every model variation at least once for 100 epochs on a quarter of the celeba dataset. Each Training run took between 9 and 11 hours. After this preliminary phase we looked at the generated images, loss, accuracy and metrics of our networks. We then decided that a dropout of 0.3 or 0.5 and spectral convolution layer were beneficial. Thus we ran those on the entire dataset size. Those runs took 12 hours on our system. We also tried out running a model for 200 epochs but noticed mode collapse happened every time. Mode collapse also happend when restarting on an epoch without collapse.
 
-### Report
+### Report-done
 Percieved realness is an intuitve score between 0 and 5: 0 just noise, 1 shape recognizeable, ge2 = can recognize faces, ge3= face with noise, ge4=face with small artifacts, 5=real faces without errors. DS_size means Dataset size.
    | network                                  | accuracy_real accuracy_fake_before_disc accuracy_fake_after_disc | loss_real loss_fake loss_gan | FID     | LPIPS | BRISQUE | percieved realness (between 0 and 5) |
 |------------------------------------------|------------------------------------------------------------------|------------------------------|---------|-------|---------|--------------------------------------|
@@ -220,23 +210,23 @@ Human-Robot Interaction" by Deng et al., published in [paper](https://ieeexplore
 - [18] "Conditional generative adversarial nets for convolutional face generation" by Gauthieret al., published in 2014 [paper](https://www.foldl.me/uploads/2015/conditional-gans-face-generation/paper.pdf)
 - [19] "ELEGANT: Exchanging Latent Encodings with GAN for Transferring Multiple Face Attributes" by Xiao et al., published in 2018 [paper](https://openaccess.thecvf.com/content_ECCV_2018/html/Taihong_Xiao_ELEGANT_Exchanging_Latent_ECCV_2018_paper.html)
 - [20] "The Unreasonable Effectiveness of Deep Features as a Perceptual Metric" by Zhang et al., published in 2018 [LPIPS-paper](https://arxiv.org/abs/1801.03924) 
-- [21] "No-Reference Image Quality Assessment in the Spatial Domain" by et al., published in 2012 [BRISQUE-paper](https://ieeexplore.ieee.org/document/6272356)
+- [21] "" by et al., published in 2012 [BRISQUE-paper](https://ieeexplore.ieee.org/document/6272356)
 
-## Conclusion
+## Conclusion-done
 In this chapter we want to conclude an reflect on the results and things we noticed while implementing or experimenting.
-### Datasets
+### Datasets-done
 First, we observed some defects in the training images that some faces were streched or had some artifacts e.g [badDatasetImage](/results/000111.jpg) [badDatasetImage2](/results/000117.jpg) [badDatasetImage3](/results/000194.jpg).
 Second, the attributes are redunand, incomplete. E.g. 4 attributes for hair color, Red_Hair is completly missing. 
 Third it would be better if the direction in which a person looks, would only be straight ahead or be labeled. [wrongDirectionImage](000199.jpg) [wrongDirectionImage2](000240.jpg)
 Four, due to the small time frame we were unable to run our experiments with the other datasets mentioned above (reference)
 Fifth, often it is the case that many faces match to one and the same attribute-vector so for criminology purposes one should consider to use a dataset with a much larger attribute-vector.
-### Mode Collapse
+### Mode Collapse-done
 Mode Collapse is a common problem when working with GANs [reference](https://machinelearning.wtf/terms/mode-collapse/). Normally a GAN is consider successful if it's samples can fool a discriminator and the generator samples diverse images with a distribution like in the real world. This mean that given an attribute-vector c the GAN should sample different images. Mode collapse happens if the GAN starts to produce the same image again and again for the same c because it successfully fools the discriminator. 
 [ModeCollapse](/results/modecollapse.JPG) 
 The image is a result after 100 epochs with spectral convolutions and 0% dropout. As you can see the images all look alike and there is no real difference between them. Also we have checked some attribute-vectors and as one might assume there are multiple individuals annotated with the same vector. This seems pretty plausible with a dataset of more than 200 thousand images and a relatively small attribute-vector size of 40. Therefore we also expected our GAN to sample different images for the same c. However thinking of photofits it could be useful to run into mode collapse, here a specific vector should always lead to the same result. 
-### Imagesize
+### Imagesize-done
 For time and hardware reasons we opted to scale the dataset images to size 64 by 64. We assume that we can achieve better results with bigger sized images due to a higher detail level.
-### More time + GPU-power
+### More time + GPU-power-done
 With more time and better hardware (maybe even multiple GPUs) we would have done more extensive testing and more training runs. And prove our hypothesis that a more detailed dataset and larger images lead to a general improvment
 ## Future work
 As described in the conclusion we would like to train our GAN on other datasets(referenceToDatasets) and with a larger image size(referenceToImageSize). 
