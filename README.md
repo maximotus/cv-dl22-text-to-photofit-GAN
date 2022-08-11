@@ -13,7 +13,7 @@ This Framework currently provides two GAN-Models – cDCGAN and TediGAN – that
 - LPIPS [paper](https://arxiv.org/abs/1801.03924)
 - BRISQUE [paper](https://ieeexplore.ieee.org/document/6272356)
 # How to use
-## Requrirements
+## Requirements
 - Python 3.9
 - see requrirements.txt
 ## Configuration
@@ -53,6 +53,7 @@ model:
     use_spectral_norm: False
 '''
 ## Execution
+When first executing the main.py the dataset will be downloaded, often the daily quota of available downloads from the google server is reached and an error "zipfile.BadZipFile: File is not a zip file" occures. By trying every few minutes one should be able to completely download the dataset.
 ```bash
 python main.py ../config/<CONFIG-NAME>.yaml
 ```
