@@ -93,3 +93,5 @@ python main.py ../config/template-CDCGAN-train.yaml
 python main.py ../config/template-CDCGAN-eval.yaml
 python main.py ../config/template-CDCGAN-gen.yaml
 ```
+
+You will find the results in the directory specified by the experiment_path parameter in the configuration file.
