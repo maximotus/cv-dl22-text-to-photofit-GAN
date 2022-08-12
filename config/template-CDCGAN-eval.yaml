@@ -9,7 +9,6 @@ metrics:
   - FID # frechet distance between two datasets
   - LPIPS # perceptual similarity between to images (generated and from dataset)
   - BRISQUE # Blind/Referenceless Image Spatial Quality Evaluator
-  - PARS # precision and recall score
 
 dataloader:
   dataset: celebA
