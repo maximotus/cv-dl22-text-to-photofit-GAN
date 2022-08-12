@@ -36,7 +36,7 @@ The easiest workaround until the bug is officially fixed is to normally install 
 brisque/brisque.py.
 
 ## Configuration
-'''yaml
+```yaml
 mode: train # (train / eval / gen)
 log_level: 20 # CRITICAL = 50, ERROR = 40, WARNING = 30, INFO = 20, DEBUG = 10, NOTSET = 0
 device: auto # (cuda / cpu / auto)
@@ -70,7 +70,7 @@ model:
     ndf: 64
     z_channels: 128
     use_spectral_norm: False
-'''
+```
 
 ## Execution
 When first executing the main.py the dataset will be downloaded, often the daily quota of available downloads from the google server is reached and an error "zipfile.BadZipFile: File is not a zip file" occures. By trying every few minutes one should be able to completely download the dataset.
