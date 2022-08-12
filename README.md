@@ -27,13 +27,19 @@ conda activate <env-name>
 pip install requirements-pip.txt
 ```
 
-**Warning:** Our framework uses a pip package called [pybrisque](https://pypi.org/project/pybrisque/) that contains a bug in
+**Warning 1:** Our framework uses a pip package called [pybrisque](https://pypi.org/project/pybrisque/) that contains a bug in
 the official release. The import `import svmutil` in brisque/brisque.py line 8 is wrong and should be replaced with
 `from libsvm import svmutil`. There is already an
 [open pull request on GitHub regarding this issue](https://github.com/bukalapak/pybrisque/pull/14).
 The easiest workaround until the bug is officially fixed is to normally install this package
 (if you use our requirements-pip.txt it will be installed within that process) and then to replace line 8 in
 brisque/brisque.py.
+
+**Warning 2:**
+Evaluating with the FID metric on Windows systems may lead to an `AttributeError: module 'os' has no attribute 'sched_getaffinity'`.
+This issue is also [described on StackOverflow](https://stackoverflow.com/questions/42538153/python-3-6-0-os-module-does-not-have-sched-getaffinity-method).
+The easiest workaround is replacing `num_avail_cpus = len(os.sched_getaffinity(0))` with `num_avail_cpus = 4` (or whatever your
+cpu can handle).
 
 ## Configuration
 ```yaml
@@ -83,6 +89,9 @@ Alternatively, one could try to download the files manually from the correspondi
 You can find self-explanatory configuration templates in the config folder.
 The normal workflow is to specify a configuration file for either one of the modes train, eval or gen and then to
 execute the framework using the command below.
+
+If you run in errors during the execution of our framework, please make sure you have considered our setup properly
+and also the warnings.
 
 ```bash
 # general syntax

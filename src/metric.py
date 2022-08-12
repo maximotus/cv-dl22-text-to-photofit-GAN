@@ -5,6 +5,7 @@ from torchvision import transforms
 import brisque
 import cv2
 
+
 def FID(image_folder_path1: str, image_folder_path2: str):
     # https://github.com/mseitzer/pytorch-fid
     '''
