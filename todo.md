@@ -1,23 +1,23 @@
 # TODOs
 
 ## Submission folder should contain
-- [ ] final code as zip
-- [ ] report as pdf
-- [ ] slides as pdf
-- [ ] presentation as mp4
+- [x] final code as zip
+- [x] report as pdf
+- [x] slides as pdf
+- [x] presentation as mp4
 
 ## Prio 0
 
-- [ ] setup of cuda_home in README.md or out-comment the parts in helper.py and tedi_gan.py that are not working for the final submission
-- [ ] include example vector and its output to report and presentation (because it is our main part of the project)
-- [ ] check executability of the whole framework
+- [x] setup of cuda_home in README.md or out-comment the parts in helper.py and tedi_gan.py that are not working for the final submission
+- [x] include example vector and its output to report and presentation (because it is our main part of the project)
+- [x] check executability of the whole framework
   - [x] train
-  - [ ] eval (see (a)) @SchubertDaniel
+  - [x] eval (see (a)) @SchubertDaniel
   - [x] gen
 - [x] double check / read report MAX
 - [x] double check / read report DANIEL
-- [ ] mention in the experiments section that we only useed CDCGAN and not tediGAN (so its more clear, even if it could be clear from context in tedigan section)
-- [ ] make video of presentation
+- [x] mention in the experiments section that we only useed CDCGAN and not tediGAN (so its more clear, even if it could be clear from context in tedigan section)
+- [x] make video of presentation
 - [x] language english in report / latex (e.g. "Abbildung 8")
 - [x] print CDCGAN architectures and insert to report
 - [x] implement plot script for plotting stats for report
