@@ -58,7 +58,7 @@
 
 \title{Highly Descriptive Vetor-to-Face Generation to Synthezsize Authentic Faces (Photofits for Criminology Purposes) via a GAN}
 \author{Max Erler and Daniel Schubert\\
-Supervisor: Pingchuan Main\\
+Supervisor: Pingchuan Ma\\
 Chair of Machine Vision \& Learning Group: Prof. Dr. Björn Ommer}
 \begin{document}
 \maketitle
@@ -108,7 +108,7 @@ consisting of two separate models, i.e., a discriminator / encoder and a generat
 We finalized a more stable adaption of a classical GAN, namely a Deep Convolutional GAN (DCGAN) which explicitly  uses
 convolutional and con\-vo\-lu\-tio\-nal-transpose layers in the discriminator and generator respectively \cite{dcgan}.
 Since we do not just need to generate random images, but rather images that fit the vectorized description of
-a criminals face we conditioned our DCGAN to also use the attribute vector as input -- then it is called a Conditional
+a criminal's face we conditioned our DCGAN to also use the attribute vector as input -- then it is called a Conditional
 DCGAN (CDCGAN).
 
 Moreover, we decided to re-implement another CDCGAN architecture: tediGAN \cite{Xia_2021_CVPR}.
@@ -122,7 +122,7 @@ The first group is mainly focused on generating images from those sketches \cite
 The other group employs networks to generate faces from attributes which matches our goal \cite{Xia_2021_CVPR,Lu_2018_ECCV,9117185,9320290,9412022,8462648,Gecer_2018_ECCV,8606936,9146375,Bodla_2018_ECCV,NIPS2016_b1301141,gauthier2014conditional,Xiao_2018_ECCV}.
 We selected three papers which give relevant information for our project. First ``TediGAN: Text-Guided Diverse Face Image Generation and Manipulation'' by Xia 
 et al. published in 2021\cite{Xia_2021_CVPR}. The second paper is ``Attribute-Guided Sketch Generation'' by Tang et al. published in 2019\cite{Tang}, which is 
-the only paper bringing both aspects together. And the DCGAN paper from Goodfellow et al.\cite{dcgan}.
+the only paper bringing both aspects together. And third DCGAN paper from Goodfellow et al.\cite{dcgan}.
 
 \section{Main}
 \subsection{Dataset}
@@ -175,7 +175,7 @@ one of these datasets, it will also work on more accurate datasets that could be
 photofit creation in the future. And especially, it will work better on a better suited dataset.
 
 Even if MAAD-Face aims to be better than celebA and LFW, we decided to use celebA.
-MAAD-Face has too many images as if we could manage to train our GAN on it in the give time frame of the project and LFW has too few images.
+MAAD-Face has too many images as than we could manage to train our GAN on it in the given time frame of the project and LFW has too few images.
 
 \subsection{Framework}
 \subsubsection{Architecture / Structure}
@@ -214,7 +214,7 @@ As already mentioned in \ref{vec-to-face}, a CDCGAN is a GAN using convolutional
 -- compare \cite{dcgan}.
 We implemented a classical approach in the module model/cdcgan.py using a discriminator model and a generator model --
 compare \cite{gan}.
-The discriminators job is to distinguish between real and fake samples whereas the generators job is to produce samples
+The discriminator's job is to distinguish between real and fake samples whereas the generator's job is to produce samples
 that make the discriminator believe they are real.
 Since our goal is the vector-to-face synthesis we also conditioned both of the models so they are able to learn the
 context of an image and its attributes.
@@ -529,6 +529,7 @@ We did most of the implementation of our framework by pair programming. Certain 
     \caption{Report Collaboration}
 \end{table}
 
+\pagebreak
 \nocite{*}
 \bibliographystyle{plain}
 \bibliography{source}
