@@ -1,5 +1,5 @@
-# cv-dl22-text-to-photofit-GAN
-Highly descriptive text-to-face generation to sythesize authentic faces (photofits for criminology purposes) via a GAN. Main project of the  teaching event "Computer Vision and Deep Learning: Visual Synthesis" in the summer of 2022 at LMU Munich.
+# cv-dl22-vector-to-photofit-GAN
+Highly descriptive vector-to-face generation to sythesize authentic faces (photofits for criminology purposes) via a GAN. Main project of the  teaching event "Computer Vision and Deep Learning: Visual Synthesis" in the summer of 2022 at LMU Munich.
 
 # Framework
 This Framework currently provides two GAN-Models – cDCGAN and TediGAN – that are easy to train, evaluate and use to generate photofits. It is implemented in PyTorch and highly configurable to accomodate many test cases. Due to its architecture other models, datasets and metrics can easily be added. We are looking forward to your pull requests.
