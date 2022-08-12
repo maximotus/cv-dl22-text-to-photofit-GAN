@@ -21,7 +21,7 @@ requirements-pip.txt file.
 
 For the easy setup, run the following commands from within the project. 
 
-```
+```bash
 conda create --name <env-name> --file requirements-conda.txt
 conda activate <env-name>
 pip install requirements-pip.txt
