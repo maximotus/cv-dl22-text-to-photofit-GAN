@@ -73,7 +73,12 @@ model:
 ```
 
 ## Execution
-When first executing the main.py the dataset will be downloaded, often the daily quota of available downloads from the google server is reached and an error "zipfile.BadZipFile: File is not a zip file" occures. By trying every few minutes one should be able to completely download the dataset.
+When first executing the main.py the dataset will be downloaded, often the daily quota of available downloads from the
+Google Drive server is reached and an error "zipfile.BadZipFile: File is not a zip file" occurs as a result of an
+incomplete zipfile download. By trying every few minutes one should be able to completely download the dataset
+(e.g. write a short python script that tries to download the dataset once per minute).
+Alternatively, one could try to download the files manually from the corresponding
+[Google Drive Folder](https://drive.google.com/drive/folders/0B7EVK8r0v71pTUZsaXdaSnZBZzg?resourcekey=0-rJlzl934LzC-Xp28GeIBzQ).
 ```bash
 python main.py ../config/<CONFIG-NAME>.yaml
 ```
