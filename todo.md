@@ -9,9 +9,9 @@
 ## Prio 0
 
 - [ ] include example vector and its output to report and presentation (because it is our main part of the project)
-- [ ] check executability of the whole framework @SchubertDaniel
+- [ ] check executability of the whole framework
   - [x] train
-  - [ ] eval (see (a))
+  - [ ] eval (see (a)) @SchubertDaniel
   - [x] gen
 - [ ] double check / read report MAX
 - [ ] double check / read report DANIEL
