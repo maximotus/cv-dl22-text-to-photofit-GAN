@@ -28,6 +28,7 @@ def LPIPS(image_path1, image_path2):
     d = loss_fn.forward(image1, image2)
     return d.mean().detach().item()
 
+
 def brisque_score(image_path):    
     # pip install pybrisque
     '''
@@ -37,14 +38,6 @@ def brisque_score(image_path):
     brisq = brisque.BRISQUE()
     score = brisq.get_score(image)
     return score
-
-
-def precision_and_recall_score(images, _=None):
-    # https://arxiv.org/abs/1904.06991
-    # https://github.com/kynkaat/improved-precision-and-recall-metric
-    # (pip install git+https://github.com/kynkaat/improved-precision-and-recall-metric.git) <- doesnt work you have to clone it yourself
-    q = "python misc/improved-precision-and-recall-metric/run_metric.py --data_dir {} --realism_score".format(images)
-    return subprocess.check_output(q, shell=True)
 
 
 if __name__ == "__main__":

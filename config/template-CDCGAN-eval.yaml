@@ -9,12 +9,11 @@ metrics:
   - FID # frechet distance between two datasets
   - LPIPS # perceptual similarity between to images (generated and from dataset)
   - BRISQUE # Blind/Referenceless Image Spatial Quality Evaluator
-  - PARS # precision and recall score
 
 dataloader:
   dataset: celebA
-  size_fraction: 50000
-  batch_size: 20 # should be equal or bigger than num_imgs in eval mode (known issue)
+  size_fraction: 4
+  batch_size: 20 # should be equal or greater than num_imgs in eval mode
   image_size: 64
 
 model:

@@ -13,8 +13,8 @@ dataloader:
 
 model:
   name: CDCGAN
-  pretrained_path: ../experiments/train/template-CDCGAN-train/2022-08-08-17-07-12 # needed in gen mode
-  start_epoch: 3 # needed in gen mode
+  pretrained_path: ../experiments/train/template-CDCGAN-train/2022-08-12-09-56-05/ # needed in gen mode
+  start_epoch: 1 # needed in gen mode
   criterion: BCELoss
   optimizer: Adam
   learning_rate: 0.001
