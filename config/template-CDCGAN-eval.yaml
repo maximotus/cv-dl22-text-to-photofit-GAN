@@ -14,7 +14,7 @@ metrics:
 dataloader:
   dataset: celebA
   size_fraction: 50000
-  batch_size: 20 # should be equal to num_imgs in eval mode (known issue)
+  batch_size: 20 # should be equal or bigger than num_imgs in eval mode (known issue)
   image_size: 64
 
 model:
