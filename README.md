@@ -13,9 +13,28 @@ This Framework currently provides two GAN-Models – cDCGAN and TediGAN – that
 - LPIPS [paper](https://arxiv.org/abs/1801.03924)
 - BRISQUE [paper](https://ieeexplore.ieee.org/document/6272356)
 # How to use
-## Requirements
-- Python 3.9
-- see requirements-pip.txt or requirements-conda.txt
+## Requirements / Setup
+We recommend using a conda environment.
+However, certain requirements for the execution are only available for pip, so you will need to set up both, a conda
+environment using the requirements-conda.txt file and additionally install the pip requirements of the
+requirements-pip.txt file.
+
+For the easy setup, run the following commands from within the project. 
+
+```
+conda create --name <env-name> --file requirements-conda.txt
+conda activate <env-name>
+pip install requirements-pip.txt
+```
+
+**Warning:** Our framework uses a pip package called [pybrisque](https://pypi.org/project/pybrisque/) that contains a bug in
+the official release. The import `import svmutil` in brisque/brisque.py line 8 is wrong and should be replaced with
+`from libsvm import svmutil`. There is already an
+[open pull request on GitHub regarding this issue](https://github.com/bukalapak/pybrisque/pull/14).
+The easiest workaround until the bug is officially fixed is to normally install this package
+(if you use our requirements-pip.txt it will be installed within that process) and then to replace line 8 in
+brisque/brisque.py.
+
 ## Configuration
 '''yaml
 mode: train # (train / eval / gen)
