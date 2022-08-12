@@ -8,6 +8,7 @@
 
 ## Prio 0
 
+- [ ] setup of cuda_home in README.md or out-comment the parts in helper.py and tedi_gan.py that are not working for the final submission
 - [ ] include example vector and its output to report and presentation (because it is our main part of the project)
 - [ ] check executability of the whole framework
   - [x] train
