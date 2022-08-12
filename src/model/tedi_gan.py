@@ -5,7 +5,7 @@ import os
 import torch
 
 from misc.error import ConfigurationError
-from model.helper import Tedi_Generator, GradualStyleEncoder, BackboneEncoderUsingLastLayerIntoW, BackboneEncoderUsingLastLayerIntoWPlus
+# from model.helper import Tedi_Generator, GradualStyleEncoder, BackboneEncoderUsingLastLayerIntoW, BackboneEncoderUsingLastLayerIntoWPlus
 from torchvision.utils import save_image
 
 logger = logging.getLogger('root')
