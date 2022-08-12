@@ -384,7 +384,7 @@ Running metrics proposed in the metrics section:\ref{metrics}, on trained networ
 When looking through all images of every last epoch the best network is tied between (dropout=50\%, spectral=True, DS\_size=1/4) and (dropout=0\%, spectral=True, DS\_size=1/4). But even these images still have some artifacts in the image or on the face, the images are highly noisy around the face. 
 Sometimes the network tries to generate two faces into one, fig.\ref{fig:twoFacesInOne}. 
 Also our networks seemed unable to learn the difference between certain attributes. 
-E.g. they are not able to generate blonde people fig.\ref{fig:blonde} or they put sunglasses on people fig.\ref{fig:sunglasses}. The sunglasses phenomenon happend with a constant c-vector which didn't specify it and the glasses would appear and disappear epoch-wise.
+E.g. they are not able to generate blonde people fig.\ref{fig:blonde} or they put sunglasses on people fig.\ref{fig:sunglasses}. The sunglasses phenomenon happend with a constant c-vector which did specify it and the glasses would appear and disappear epoch-wise, fig.\ref{fig:blonde} and \ref{fig:sunglasses} have the same vector.
 A relative good result is fig.\ref{fig:relgood1} and fig.\ref{fig:relgood2}. But even those fake images are distinguishable compared to the used dataset.
 \begin{figure}
     \makebox[\textwidth][c]{\includegraphics[width=0.25\textwidth]{./results/predef_img_max_7_3specfull_85.png}}%
