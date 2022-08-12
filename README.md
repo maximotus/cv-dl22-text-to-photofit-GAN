@@ -79,6 +79,17 @@ incomplete zipfile download. By trying every few minutes one should be able to c
 (e.g. write a short python script that tries to download the dataset once per minute).
 Alternatively, one could try to download the files manually from the corresponding
 [Google Drive Folder](https://drive.google.com/drive/folders/0B7EVK8r0v71pTUZsaXdaSnZBZzg?resourcekey=0-rJlzl934LzC-Xp28GeIBzQ).
+
+You can find self-explanatory configuration templates in the config folder.
+The normal workflow is to specify a configuration file for either one of the modes train, eval or gen and then to
+execute the framework using the command below.
+
 ```bash
+# general syntax
 python main.py ../config/<CONFIG-NAME>.yaml
+
+# examples
+python main.py ../config/template-CDCGAN-train.yaml
+python main.py ../config/template-CDCGAN-eval.yaml
+python main.py ../config/template-CDCGAN-gen.yaml
 ```
