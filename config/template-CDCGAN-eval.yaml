@@ -14,13 +14,13 @@ metrics:
 dataloader:
   dataset: celebA
   size_fraction: 50000
-  batch_size: 1
+  batch_size: 20 # should be equal or bigger than num_imgs in eval mode (known issue)
   image_size: 64
 
 model:
   name: CDCGAN
-  pretrained_path: ../experiments/train/template-CDCGAN-train/2022-08-08-17-07-12 # needed in eval mode -> model to be evaluated
-  start_epoch: 3 # needed in eval mode -> model to be evaluated
+  pretrained_path: ../experiments/train/template-CDCGAN-train/2022-08-12-09-56-05/ # needed in eval mode -> model to be evaluated
+  start_epoch: 1 # needed in eval mode -> model to be evaluated
   criterion: BCELoss
   optimizer: Adam
   learning_rate: 0.001
