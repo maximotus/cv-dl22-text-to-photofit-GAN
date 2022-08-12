@@ -14,8 +14,8 @@
   - [x] train
   - [ ] eval (see (a)) @SchubertDaniel
   - [x] gen
-- [ ] double check / read report MAX
-- [ ] double check / read report DANIEL
+- [x] double check / read report MAX
+- [x] double check / read report DANIEL
 - [ ] mention in the experiments section that we only useed CDCGAN and not tediGAN (so its more clear, even if it could be clear from context in tedigan section)
 - [ ] make video of presentation
 - [x] language english in report / latex (e.g. "Abbildung 8")
