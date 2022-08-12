@@ -170,7 +170,7 @@ Brown\_Hair, and Gray\_Hair, but there is no attribute like Red\_Hair.
     \end{table}
 
 \subsubsection{Our Decision}
-Comparing the statistics of the datasets (see \ref{tab:dataset-stats}) we concluded to initially use a set that has a good trade-off
+Comparing the statistics of the datasets (see table \ref{tab:dataset-stats}) we concluded to initially use a set that has a good trade-off
 between the total number of face images and the total number of distinctive attributes. Even if they are not perfectly
 fitted for criminology purposes, our assumption is that if the concept of attribute-conditioned face generation works on
 one of these datasets, it will also work on more accurate datasets that could be developed especially for this task in the future.
@@ -386,13 +386,13 @@ Perceived realness is an intuitive score between 0 and 5: $0\widehat{=} $ just n
 
 When deciding which network was the best you can proceed based on statistics, on the proposed metrics or visually judging the generated images per epoch and foremost the last epoch.
 One could also proceed based on theoretically taught metrics, e.g. generator accuracy and discriminator accuracy should meet at 0.5 or at least converge against each other. In this case the network with spectral convolution and dropout 
-value being 0.3 is supposed to be the best one, see fig.\ref{fig:goodGraphAcc} and \ref{fig:goodGraphLoss}. But even on first glance every human would be able to differentiate between real and fake images.
-Running the metrics proposed in the metrics section:\ref{metrics} on trained networks resulted in some mismatching images even compared to the generated ones in the last epoch. When going on the metrics FID is probably the most meaningful. The best network according to this metric would be with dropout 20\% and without a spectral convolutional layer. Some generated images are just noise or you can just recognize parts of a face but the rest is still just random artifacts. So the results are only partly acceptable. The network with 0\% dropout without a spectral layer is correctly the worst variant with the highest FID score of 339.957 and images looking like weird color sprinkles, see figure \ref{fig:worstImage}.
+value being 0.3 is supposed to be the best one, see figure \ref{fig:goodGraphAcc} and \ref{fig:goodGraphLoss}. But even on first glance every human would be able to differentiate between real and fake images.
+Running the metrics proposed in the metrics section \ref{metrics} on trained networks resulted in some mismatching images even compared to the generated ones in the last epoch. When going on the metrics FID is probably the most meaningful. The best network according to this metric would be with dropout 20\% and without a spectral convolutional layer. Some generated images are just noise or you can just recognize parts of a face but the rest is still just random artifacts. So the results are only partly acceptable. The network with 0\% dropout without a spectral layer is correctly the worst variant with the highest FID score of 339.957 and images looking like weird color sprinkles, see figure \ref{fig:worstImage}.
 When looking through all images of every last epoch the best network is tied between (dropout=50\%, spectral=True, DS\_size=1/4) and (dropout=0\%, spectral=True, DS\_size=1/4). But even these samples have some artifacts in the image or on the face, and the images are highly noisy around the face.
-Sometimes the network tries to generate two faces into one, fig.\ref{fig:twoFacesInOne}. 
+Sometimes the network tries to generate two faces into one, figure \ref{fig:twoFacesInOne}. 
 Also our networks seemed unable to learn the difference between certain attributes. 
-E.g. they are not able to generate blonde people fig.\ref{fig:blonde}. A similar thing happend with the glasses attribute, with a constant c-vector which did specify it and the glasses would appear and disappear epoch-wise, fig.\ref{fig:blonde} and \ref{fig:sunglasses} have the same vector.
-A relative good result is fig.\ref{fig:relgood1} and fig.\ref{fig:relgood2}. But even those fake images are distinguishable compared to the used dataset.
+E.g. they are not able to generate blonde people figure \ref{fig:blonde}. A similar thing happend with the glasses attribute, with a constant c-vector which did specify it and the glasses would appear and disappear epoch-wise, figures \ref{fig:blonde} and \ref{fig:sunglasses} have the same vector.
+A relative good result is figure \ref{fig:relgood1} and figure \ref{fig:relgood2}. But even those fake images are distinguishable compared to the used dataset.
 \begin{figure}
     \makebox[\textwidth][c]{\includegraphics[width=0.25\textwidth]{./results/predef_img_max_7_3specfull_85.png}}%
     \caption{Mutliple eyes in one face.}
@@ -439,8 +439,8 @@ In this chapter conclude and reflect the results and things we noticed while imp
 \subsection{Datasets}
 First, we observed some defects in the training images that some faces were stretched or had some artifacts e.g see images \ref{fig:badDatasetImage}, \ref{fig:badDatasetImage2} and \ref{fig:badDatasetImage3}.
 Second, the attributes are redundant and incomplete. E.g., 4 attributes for hair color while Red\_Hair is completely missing.
-Third, it would be better if the looking direction / pose of a person would only be straight ahead or labeled -- compare fig.\ref{fig:wrongDirectionImage} and fig.\ref{fig:wrongDirectionImage2}.
-Fourth, due to the small time frame we were unable to run our experiments with the other datasets mentioned above, chapter: \ref{SuitableDatasets}.
+Third, it would be better if the looking direction / pose of a person would only be straight ahead or labeled -- compare figure \ref{fig:wrongDirectionImage} and figure \ref{fig:wrongDirectionImage2}.
+Fourth, due to the small time frame we were unable to run our experiments with the other datasets mentioned above, chapter \ref{SuitableDatasets}.
 Fifth, often it is the case that many faces match the same attribute-vector, so for criminology purposes one should consider to use a dataset with a much larger attribute-vectors.
 \begin{figure}
     \makebox[\textwidth][c]{\includegraphics[width=0.25\textwidth]{./results/000111.jpg}}
@@ -472,7 +472,7 @@ Fifth, often it is the case that many faces match the same attribute-vector, so 
 Mode Collapse is a common problem when working with GANs -- see \href{https://machinelearning.wtf/terms/mode-collapse/}{(this article)}.
 Normally a GAN is considered successful if its samples can fool a discriminator and the generator samples diverse images with a distribution like in the real world. 
 This means that given an attribute-vector $c$ the GAN should sample different images. Mode collapse happens if the GAN starts to produce the same image again and again for the same $c$
-because it successfully fools the discriminator with that image. An example can be seen in fig.\ref{fig:modecollapse}.
+because it successfully fools the discriminator with that image. An example can be seen in figure \ref{fig:modecollapse}.
 The sample was generated after 100 epochs with spectral convolutions and 0\% dropout. As you can see the images all look alike and there is no real difference between them. Also we have checked some attribute-vectors
 and as one might assume there are multiple individuals annotated with the same vector. This seems pretty plausible with a dataset of more than 200 thousand images and a relatively small attribute-vector size of 40. Therefore 
 we also expected our GAN to sample different images for the same $c$. However thinking of photofits it could be useful to run into mode collapse -- here a specific vector should always lead to the same result.
