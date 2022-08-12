@@ -13,7 +13,9 @@ def FID(image_folder_path1: str, image_folder_path2: str):
     '''
     queue = "python -m pytorch_fid {} {}".format(image_folder_path1, image_folder_path2)
     x=subprocess.check_output(queue, shell=True)
-    return float(x.decode("utf-8").split(" ")[-1])
+    x = x.decode("utf-8").split(" ")[-1] #binary to utf-8 and choose last string 
+    x = x[:-2] #cut off \r\n which we don't need
+    return float(x)
     
 
 def LPIPS(image_path1, image_path2):
