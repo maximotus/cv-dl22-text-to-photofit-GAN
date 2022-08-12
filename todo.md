@@ -9,9 +9,10 @@
 ## Prio 0
 
 - [ ] include example vector and its output to report and presentation (because it is our main part of the project)
-- [ ] check executability of the whole framework
-  - [ ] train
+- [ ] check executability of the whole framework @SchubertDaniel
+  - [x] train
   - [ ] eval (see (a))
+  - [x] gen
 - [ ] double check / read report MAX
 - [ ] double check / read report DANIEL
 - [ ] mention in the experiments section that we only useed CDCGAN and not tediGAN (so its more clear, even if it could be clear from context in tedigan section)

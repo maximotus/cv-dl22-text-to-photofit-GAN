@@ -84,9 +84,12 @@ if __name__ == '__main__':
                                   configuration.get(config.METRICS_KEY))
             evaluator.evaluate()
         if mode == config.VALID_MODES[2]:
-            # TODO
-            raise NotImplementedError
-            # creator = Creator()
-            # creator.create()
+            creator = Creator(configuration.get(config.DEVICE_KEY),
+                              experiment_path,
+                              configuration.get(config.NUM_IMGS_KEY),
+                              configuration.get(config.PREDEFINED_IMAGES_KEY),
+                              configuration.get(config.MODEL_KEY),
+                              configuration.get(config.DATALOADER_KEY))
+            creator.create()
     except (ConfigurationError, NotImplementedError) as e:
         logger.exception(e)
