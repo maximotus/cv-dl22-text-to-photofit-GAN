@@ -9,7 +9,9 @@
 ## Prio 0
 
 - [ ] include example vector and its output to report and presentation (because it is our main part of the project)
-- [ ] check executability of the whole framework 
+- [ ] check executability of the whole framework
+  - [ ] train
+  - [ ] eval (see (a))
 - [ ] double check / read report MAX
 - [ ] double check / read report DANIEL
 - [ ] mention in the experiments section that we only useed CDCGAN and not tediGAN (so its more clear, even if it could be clear from context in tedigan section)
@@ -40,3 +42,29 @@
 - [x] rename CURRENT_EPOCH to CURRENT_EPOCH_KEY
 - [x] epochs is not max_epochs, but rather the number of remaining epochs. so we can just do range(epochs) instead of range(current_epoch + 1, epochs)
 - [x] adapt CDCGAN.generate_image method to be able to generate multiple images
+
+(a)
+```
+Traceback (most recent call last):
+  File "C:\Users\Max\miniconda3\envs\deep_learning\lib\runpy.py", line 197, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "C:\Users\Max\miniconda3\envs\deep_learning\lib\runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "C:\Users\Max\miniconda3\envs\deep_learning\lib\site-packages\pytorch_fid\__main__.py", line 3, in <module>
+    pytorch_fid.fid_score.main()
+  File "C:\Users\Max\miniconda3\envs\deep_learning\lib\site-packages\pytorch_fid\fid_score.py", line 274, in main
+    num_avail_cpus = len(os.sched_getaffinity(0))
+AttributeError: module 'os' has no attribute 'sched_getaffinity'
+Traceback (most recent call last):
+  File "C:\Users\Max\Documents\bildung\uni\master_lmu\semester_1\computer_vision_and_deep_learning\cv-dl22-text-to-photofit-GAN\src\main.py", line 85, in <module>
+    evaluator.evaluate()
+  File "C:\Users\Max\Documents\bildung\uni\master_lmu\semester_1\computer_vision_and_deep_learning\cv-dl22-text-to-photofit-GAN\src\training.py", line 155, in evaluate
+    logger.info(scores)
+  File "C:\Users\Max\Documents\bildung\uni\master_lmu\semester_1\computer_vision_and_deep_learning\cv-dl22-text-to-photofit-GAN\src\metric.py", line 14, in FID
+    x=subprocess.check_output(queue, shell=True)
+  File "C:\Users\Max\miniconda3\envs\deep_learning\lib\subprocess.py", line 424, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+  File "C:\Users\Max\miniconda3\envs\deep_learning\lib\subprocess.py", line 528, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command 'python -m pytorch_fid ../experiments/eval/template-CDCGAN-train/2022-08-12-09-56-05//img-fake ../experiments/eval/template-CDCGAN-train/2022-08-12-09-56-05//img-real' returned non-zero exit status 1.
+```
