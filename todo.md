@@ -8,6 +8,7 @@
 
 ## Prio 0
 
+- [ ] include example vector and its output to report and presentation (because it is our main part of the project)
 - [ ] check executability of the whole framework 
 - [ ] double check / read report MAX
 - [ ] double check / read report DANIEL
