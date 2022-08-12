@@ -116,8 +116,15 @@ class Evaluator(Creator):
     def evaluate(self):
         paths = [self.experiment_path + '/img-fake', self.experiment_path + '/img-real']
 
-        real_attributes = next(iter(self.dataset.data_loader))[1][0][0:self.num_imgs]
-        real_images = next(iter(self.dataset.data_loader))[0][0:self.num_imgs]
+        batch = next(iter(self.dataset.data_loader))
+        batch_size = batch[0].size(0)
+        if batch_size < self.num_imgs:
+            raise ConfigurationError(
+                'Cannot use num_imgs=' + str(self.num_imgs) + ' out of a batch of batch_size=' + str(batch_size) +
+                '. Please adapt the configuration so batch_size >= num_imgs.')
+
+        real_attributes = batch[1][0][0:self.num_imgs]
+        real_images = batch[0][0:self.num_imgs]
         real_images = torch.tensor_split(real_images, self.num_imgs, dim=0)
         fake_images = self.model.generate_images(n=self.num_imgs, c=real_attributes).detach()
         fake_images = torch.tensor_split(fake_images, self.num_imgs, dim=0)
